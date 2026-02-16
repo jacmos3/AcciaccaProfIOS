@@ -126,7 +126,7 @@ struct ContentView: View {
         .alert("Istruzioni", isPresented: $showInstructions) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text("Punteggi:\n• +2 colpisci prof cattivo\n• -1 prof cattivo sfuggito\n• -2 colpisci prof buono\n• +1 prof buono lasciato andare\n• +5 colpisci bidella\n• -1 bidella lasciata andare\n• -1 colpisci un bambino (zampilli)\n• -1 colpo a vuoto\n• +10 circolare buona\n• -10 circolare cattiva\n\nLivelli (automatici):\n1) Solo prof cattivo (10 uscite)\n2) Prof cattivo + prof buono (10 uscite)\n3) Come il 2 + bidella con circolari (10 uscite)\nAl termine il gioco finisce e puoi ricominciare con Start.")
+            Text("Punteggi (moltiplicati dalla velocita'):\n• +2 colpisci prof cattivo\n• -1 prof cattivo sfuggito\n• -2 colpisci prof buono\n• +1 prof buono lasciato andare\n• +5 colpisci bidella\n• -1 bidella lasciata andare\n• -1 colpisci un bambino (zampilli)\n• -1 colpo a vuoto\n• +10 circolare buona\n• -10 circolare cattiva\n\nVelocita': la velocita' applica un moltiplicatore logaritmico ai punti, da 0.5x (velocita' 0) fino a 3x (velocita' 100).\n\nLivelli (automatici):\n1) Solo prof cattivo (10 uscite)\n2) Prof cattivo + prof buono (10 uscite)\n3) Come il 2 + bidella con circolari (10 uscite)\nAl termine il gioco finisce e puoi ricominciare con Start.")
         }
         .alert("NOTE", isPresented: $showNote) {
             Button("OK", role: .cancel) {}
@@ -274,7 +274,7 @@ struct ContentView: View {
             let xShift: CGFloat = {
                 switch name {
                 case "profcolpiti":
-                    return 20
+                    return 10
                 case "lblvoto":
                     return 62
                 default:
@@ -433,6 +433,7 @@ struct ContentView: View {
                 Text("Velocità: \(Int(speedBinding.wrappedValue))")
                     .font(itemFont)
                 Slider(value: speedBinding, in: 0...100, step: 1)
+                    .disabled(gameState.running)
             }
         }
         .foregroundColor(.black)
@@ -483,6 +484,7 @@ struct ContentView: View {
             HStack(spacing: 12) {
                 Text("Velocità: \(Int(speedBinding.wrappedValue))")
                 Slider(value: speedBinding, in: 0...100, step: 1)
+                    .disabled(gameState.running)
             }
 
             VStack(alignment: .leading, spacing: 8) {
@@ -533,6 +535,7 @@ struct ContentView: View {
                 Text("Velocità: \(Int(speedBinding.wrappedValue))")
                     .font(baseFont)
                 Slider(value: speedBinding, in: 0...100, step: 1)
+                    .disabled(gameState.running)
             }
             .frame(width: 200, height: 60)
             .position(x: frame.minX + 80 + rightShift, y: frame.minY + 140)

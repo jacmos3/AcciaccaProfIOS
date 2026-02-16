@@ -60,7 +60,16 @@ final class GameState: ObservableObject {
     }
 
     func addPoints(_ delta: Int) {
-        punti += delta
+        let multiplier = scoreMultiplier(for: velocita)
+        let adjusted = Int((Double(delta) * multiplier).rounded())
+        punti += adjusted
         calcolaVoto()
+    }
+
+    private func scoreMultiplier(for speed: Int) -> Double {
+        let clamped = max(0, min(100, speed))
+        let t = Double(clamped) / 100.0
+        // Log curve from 0.5 to 3.0
+        return 0.5 + 2.5 * (log10(1 + 9 * t))
     }
 }
