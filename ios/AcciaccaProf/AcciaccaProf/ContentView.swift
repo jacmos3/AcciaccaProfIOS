@@ -10,6 +10,9 @@ struct ContentView: View {
     @State private var showHelp1 = false
     @State private var showHelp2 = false
     @State private var showHelp3 = false
+    @State private var showGameOver = false
+    @State private var showInstructions = false
+    @State private var isPreloading = true
 
     private let baseSize = CGSize(width: 618, height: 543)
     private let layout = LayoutStore(jsonName: "unit1_layout_all")
@@ -19,6 +22,8 @@ struct ContentView: View {
         GeometryReader { proxy in
             let isPortrait = proxy.size.height > proxy.size.width
             let scale = min(proxy.size.width / baseSize.width, proxy.size.height / baseSize.height)
+            let gameFrame = layout.frame(for: "Image1") ?? CGRect(x: 0, y: 0, width: baseSize.width, height: baseSize.height)
+            let landscapePanelPadding: CGFloat = 10
 
             if isPortrait {
                 let panelHeight: CGFloat = 180
@@ -34,6 +39,7 @@ struct ContentView: View {
                         SpriteView(scene: scene, options: [.allowsTransparency])
                             .frame(width: baseSize.width, height: baseSize.height)
                         overlayUI(showControls: false)
+                        preloadOverlay
                     }
                     .frame(width: baseSize.width, height: baseSize.height, alignment: .topLeading)
                     .scaleEffect(portraitScale, anchor: .center)
@@ -51,15 +57,23 @@ struct ContentView: View {
                     Color(white: 0.85)
                         .ignoresSafeArea()
 
+                    let finalScale = (proxy.size.height) / gameFrame.height
+                    let panelWidth = max(310, (proxy.size.width + 50) / finalScale - gameFrame.width - landscapePanelPadding)
+                    let compositeWidth = gameFrame.maxX + landscapePanelPadding + panelWidth + landscapePanelPadding
+                    let offsetX = 10 - gameFrame.minX * finalScale
+                    let offsetY = 10 - gameFrame.minY * finalScale
+
                     ZStack(alignment: .topLeading) {
                         SpriteView(scene: scene, options: [.allowsTransparency])
                             .frame(width: baseSize.width, height: baseSize.height)
 
-                        overlayUI(showControls: true)
+                        overlayUI(showControls: true, panelWidth: panelWidth)
+                        preloadOverlay
                     }
-                    .frame(width: baseSize.width, height: baseSize.height, alignment: .topLeading)
-                    .scaleEffect(scale, anchor: .center)
-                    .frame(width: proxy.size.width, height: proxy.size.height, alignment: .center)
+                    .frame(width: compositeWidth, height: baseSize.height, alignment: .topLeading)
+                    .scaleEffect(finalScale, anchor: .topLeading)
+                    .offset(x: offsetX, y: offsetY)
+                    .frame(width: proxy.size.width, height: proxy.size.height, alignment: .topLeading)
                 }
                 .ignoresSafeArea()
             }
@@ -67,6 +81,11 @@ struct ContentView: View {
         .onAppear { configureScene() }
         .onChange(of: gameState.sottofondo) { enabled in
             SoundPlayer.shared.setBackground(enabled: enabled, name: "sottofondo.m4a")
+        }
+        .onChange(of: gameState.gameOver) { ended in
+            if ended {
+                showGameOver = true
+            }
         }
         .sheet(isPresented: $showCircolare) {
             CircolareView { scelta in
@@ -98,6 +117,16 @@ struct ContentView: View {
         } message: {
             Text("Come il livello 2, ma prof buoni/cattivi casuali e la bidella che porta circolari.")
         }
+        .alert("Partita finita", isPresented: $showGameOver) {
+            Button("OK", role: .cancel) { gameState.gameOver = false }
+        } message: {
+            Text("Punteggio finale: \(gameState.punti). Voto in decimi: \(gameState.voto)/10. Puoi ricominciare da capo premendo Start.")
+        }
+        .alert("Istruzioni", isPresented: $showInstructions) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Punteggi:\n• +2 colpisci prof cattivo\n• -1 prof cattivo sfuggito\n• -2 colpisci prof buono\n• +1 prof buono lasciato andare\n• +5 colpisci bidella\n• -1 bidella lasciata andare\n• -1 colpisci un bambino (zampilli)\n• -1 colpo a vuoto\n• +10 circolare buona\n• -10 circolare cattiva\n\nLivelli (automatici):\n1) Solo prof cattivo (10 uscite)\n2) Prof cattivo + prof buono (10 uscite)\n3) Come il 2 + bidella con circolari (10 uscite)\nAl termine il gioco finisce e puoi ricominciare con Start.")
+        }
     }
 
     private func configureScene() {
@@ -106,85 +135,43 @@ struct ContentView: View {
             gameState.paused = true
             showCircolare = true
         }
+        scene.onPreloadComplete = {
+            isPreloading = false
+        }
+        SoundPlayer.shared.preload(names: ["profmorto.wav","bidella.wav","bambinomorto.wav","fuori.wav","siii.wav","nooo.wav","sottofondo.m4a"]) {
+            scene.preloadIfNeeded()
+        }
+        scene.preloadIfNeeded()
+    }
+
+    private var preloadOverlay: some View {
+        Group {
+            if isPreloading {
+                ZStack {
+                    Color.black.opacity(0.35)
+                    VStack(spacing: 8) {
+                        ProgressView()
+                        Text("Caricamento...")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                    }
+                    .padding(16)
+                    .background(Color.black.opacity(0.6))
+                    .cornerRadius(10)
+                }
+            }
+        }
     }
 
     @ViewBuilder
-    private func overlayUI(showControls: Bool) -> some View {
+    private func overlayUI(showControls: Bool, panelWidth: CGFloat = 0) -> some View {
         let baseFont = Font.system(size: showControls ? 18 : 11)
-        let labelFont = Font.system(size: showControls ? 18 : 11, weight: .semibold)
         let boardFont = Font.system(size: showControls ? 14 : 11, weight: .semibold)
-        let rightShift: CGFloat = showControls ? 60 : 0
-        let rightPanelGap: CGFloat = showControls ? 18 : 0
-        let levelShift: CGFloat = showControls ? 60 : 0
-        let toggleShift: CGFloat = showControls ? 40 : 0
-        let speedShift: CGFloat = showControls ? 20 : 0
-        let actionDownShift: CGFloat = showControls ? 22 : 0
-        let sideTitleFont = Font.system(size: showControls ? 22 : 11, weight: .semibold)
-        let sideItemFont = Font.system(size: showControls ? 20 : 11)
+        let gameFrame = layout.frame(for: "Image1") ?? CGRect(x: 0, y: 0, width: baseSize.width, height: baseSize.height)
 
         ZStack(alignment: .topLeading) {
             if showControls {
-                if let frame = layout.frame(for: "Button1") {
-                    let w = max(frame.width, 170)
-                    let h = max(frame.height, 36)
-                    Button("Personalizzazioni") { showSettings = true }
-                        .font(sideTitleFont)
-                        .frame(width: w + 90, height: h + 16, alignment: .center)
-                        .background(Color.white.opacity(0.95))
-                        .cornerRadius(8)
-                        .position(x: frame.minX + (w + 90) / 2 + rightShift, y: frame.minY + h / 2 - 14)
-                }
-
-                if let frame = layout.frame(for: "Button17") {
-                    let w = max(frame.width, 140)
-                    let h = max(frame.height, 40)
-                    Button(action: {
-                        if gameState.running {
-                            gameState.running = false
-                            gameState.paused = false
-                            gameState.calcolaVoto()
-                        } else {
-                            gameState.resetScores()
-                            gameState.running = true
-                            scene.resetForStart()
-                        }
-                    }) {
-                        Label(gameState.running ? "Stop" : "Start", systemImage: gameState.running ? "stop.fill" : "play.fill")
-                            .labelStyle(.titleAndIcon)
-                    }
-                    .font(sideItemFont)
-                    .frame(width: w + 40, height: h + 12)
-                    .background(Color.white.opacity(0.9))
-                    .cornerRadius(6)
-                    .position(x: frame.minX + w / 2, y: frame.minY + h / 2 + rightPanelGap * 2 + actionDownShift)
-                }
-
-                if let frame = layout.frame(for: "Button18") {
-                    let w = max(frame.width, 140)
-                    let h = max(frame.height, 40)
-                    Button(action: {
-                        if gameState.running {
-                            gameState.paused.toggle()
-                        }
-                    }) {
-                        Label(gameState.paused ? "Riprendi" : "Pausa", systemImage: gameState.paused ? "playpause.fill" : "pause.fill")
-                            .labelStyle(.titleAndIcon)
-                    }
-                    .font(sideItemFont)
-                    .opacity(gameState.running ? 1 : 0)
-                    .frame(width: w + 40, height: h + 12)
-                    .background(Color.white.opacity(0.9))
-                    .cornerRadius(6)
-                    .position(x: frame.minX + w / 2, y: frame.minY + h / 2 + rightPanelGap * 3 + actionDownShift)
-                }
-
-                radio("ckdlivello1", title: "Livello 1", selected: gameState.level == 1, font: Font.system(size: 22), extraX: levelShift) { gameState.level = 1 }
-                radio("ckdlivello2", title: "Livello 2", selected: gameState.level == 2, font: Font.system(size: 22), extraX: levelShift) { gameState.level = 2 }
-                radio("ckdlivello3", title: "Livello 3", selected: gameState.level == 3, font: Font.system(size: 22), extraX: levelShift) { gameState.level = 3 }
-
-                groupButton("Button6", title: "ℹ︎", font: Font.system(size: 20), extraX: levelShift) { showHelp1 = true }
-                groupButton("Button7", title: "ℹ︎", font: Font.system(size: 20), extraX: levelShift) { showHelp2 = true }
-                groupButton("Button8", title: "ℹ︎", font: Font.system(size: 20), extraX: levelShift) { showHelp3 = true }
+                landscapeControlsPanel(gameFrame: gameFrame, panelWidth: panelWidth)
             }
 
                 // "Velocita" moved into control panels
@@ -193,33 +180,11 @@ struct ContentView: View {
             label("Label5", font: boardFont)
             label("Label9", font: boardFont)
 
-            valueLabel("profcolpiti", font: baseFont, value: "\(gameState.colpiti)")
-            valueLabel("profsfuggiti", font: baseFont, value: "\(gameState.sfuggiti)")
-            valueLabel("colpisbagliati", font: baseFont, value: "\(gameState.sbagliati)")
+            valueLabel("profcolpiti", font: Font.system(size: showControls ? 27 : 16, weight: .bold), value: "\(gameState.punti)")
             valueLabel("lblvoto", font: .system(size: 12, weight: .bold), value: "\(gameState.voto)")
 
             if showControls {
-                if let frame = layout.frame(for: "ckdsuoni") {
-                    let w = max(frame.width, 170)
-                    let h = max(frame.height, 28)
-                    Toggle("Suoni", isOn: $gameState.suoni)
-                        .font(sideItemFont)
-                        .frame(width: w + 40, height: h + 6, alignment: .leading)
-                        .position(x: frame.minX + (w + 40) / 2 + rightShift, y: frame.minY + h / 2 + 34)
-                        .scaleEffect(showControls ? 1.15 : 1.0)
-                }
-
-                if let frame = layout.frame(for: "ckdsottofondo") {
-                    let w = max(frame.width, 170)
-                    let h = max(frame.height, 28)
-                    Toggle("Sottofondo", isOn: $gameState.sottofondo)
-                        .font(sideItemFont)
-                        .frame(width: w + 40, height: h + 6, alignment: .leading)
-                        .position(x: frame.minX + (w + 40) / 2 + rightShift, y: frame.minY + h / 2 - 34)
-                        .scaleEffect(showControls ? 1.15 : 1.0)
-                }
-
-                landscapeSpeedControl(baseFont: sideItemFont, rightShift: speedShift)
+                EmptyView()
             }
         }
         .frame(width: baseSize.width, height: baseSize.height, alignment: .topLeading)
@@ -229,13 +194,32 @@ struct ContentView: View {
     private func label(_ name: String, font: Font) -> some View {
         if let frame = layout.frame(for: name) {
             let width = frame.width + labelExtraWidth(name)
-            Text(layout.caption(for: name) ?? "")
-                .font(font)
-                .frame(width: width, height: frame.height, alignment: .leading)
-                .lineLimit(1)
-                .minimumScaleFactor(0.6)
-                .allowsTightening(true)
-                .position(x: frame.minX + width / 2, y: frame.minY + frame.height / 2)
+            let text: String = {
+                switch name {
+                case "Label3":
+                    return "Punti:"
+                case "Label9":
+                    return "IL TUO VOTO IN PAGELLA E':"
+                case "Label4", "Label5":
+                    return ""
+                default:
+                    return layout.caption(for: name) ?? ""
+                }
+            }()
+            if text.isEmpty {
+                EmptyView()
+            } else {
+                let xShift: CGFloat = name == "Label3" ? 60 : 0
+                Text(text)
+                    .font(font)
+                    .frame(width: width, height: frame.height, alignment: .leading)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+                    .allowsTightening(true)
+                    .position(x: frame.minX + width / 2 + xShift, y: frame.minY + frame.height / 2)
+            }
+        } else {
+            EmptyView()
         }
     }
 
@@ -277,10 +261,35 @@ struct ContentView: View {
     @ViewBuilder
     private func valueLabel(_ name: String, font: Font, value: String) -> some View {
         if let frame = layout.frame(for: name) {
+            let width = frame.width + valueLabelExtraWidth(name)
+            let xShift: CGFloat = {
+                switch name {
+                case "profcolpiti":
+                    return 20
+                case "lblvoto":
+                    return 62
+                default:
+                    return 0
+                }
+            }()
             Text(value)
                 .font(font)
-                .frame(width: frame.width, height: frame.height, alignment: .leading)
-                .position(x: frame.minX + frame.width / 2, y: frame.minY + frame.height / 2)
+                .frame(width: width, height: frame.height, alignment: .leading)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+                .allowsTightening(true)
+                .position(x: frame.minX + width / 2 + xShift, y: frame.minY + frame.height / 2)
+        }
+    }
+
+    private func valueLabelExtraWidth(_ name: String) -> CGFloat {
+        switch name {
+        case "profcolpiti", "profsfuggiti", "colpisbagliati":
+            return 34
+        case "lblvoto":
+            return 40
+        default:
+            return 0
         }
     }
 
@@ -301,6 +310,130 @@ struct ContentView: View {
         .buttonStyle(.plain)
     }
 
+    @ViewBuilder
+    private func landscapeControlsPanel(gameFrame: CGRect, panelWidth: CGFloat) -> some View {
+        let panelPadding: CGFloat = 10
+        let panelHeight = max(200, baseSize.height - panelPadding * 2)
+        let panelX = gameFrame.maxX + panelPadding
+        let titleFont = Font.system(size: 20, weight: .semibold)
+        let itemFont = Font.system(size: 18, weight: .regular)
+        let buttonFont = Font.system(size: 18, weight: .semibold)
+
+        VStack(alignment: .leading, spacing: 16) {
+            Button(action: { showSettings = true }) {
+                Label("Personalizzazioni", systemImage: "slider.horizontal.3")
+                    .labelStyle(.titleAndIcon)
+            }
+            .font(titleFont)
+            .frame(maxWidth: .infinity, minHeight: 48)
+            .background(Color.white.opacity(0.95))
+            .cornerRadius(8)
+
+            VStack(alignment: .leading, spacing: 10) {
+                Button("Istruzioni") { showInstructions = true }
+                    .font(itemFont)
+                    .frame(maxWidth: .infinity, minHeight: 36)
+                    .background(Color.white.opacity(0.9))
+                    .cornerRadius(8)
+                Text("Livello")
+                    .font(titleFont)
+                Spacer(minLength: 4)
+                HStack(spacing: 8) {
+                    radioButton(title: "Livello 1", selected: gameState.level == 1) {}
+                        .font(itemFont)
+                        .disabled(true)
+                        .opacity(gameState.level == 1 ? 1 : 0.45)
+                    Spacer()
+                    Button(action: { showHelp1 = true }) {
+                        Image(systemName: "info.circle")
+                    }
+                    .font(itemFont)
+                    .buttonStyle(.plain)
+                    .opacity(gameState.level == 1 ? 1 : 0.45)
+                }
+                HStack(spacing: 8) {
+                    radioButton(title: "Livello 2", selected: gameState.level == 2) {}
+                        .font(itemFont)
+                        .disabled(true)
+                        .opacity(gameState.level == 2 ? 1 : 0.45)
+                    Spacer()
+                    Button(action: { showHelp2 = true }) {
+                        Image(systemName: "info.circle")
+                    }
+                    .font(itemFont)
+                    .buttonStyle(.plain)
+                    .opacity(gameState.level == 2 ? 1 : 0.45)
+                }
+                HStack(spacing: 8) {
+                    radioButton(title: "Livello 3", selected: gameState.level == 3) {}
+                        .font(itemFont)
+                        .disabled(true)
+                        .opacity(gameState.level == 3 ? 1 : 0.45)
+                    Spacer()
+                    Button(action: { showHelp3 = true }) {
+                        Image(systemName: "info.circle")
+                    }
+                    .font(itemFont)
+                    .buttonStyle(.plain)
+                    .opacity(gameState.level == 3 ? 1 : 0.45)
+                }
+            }
+
+            HStack(spacing: 12) {
+                Button(action: {
+                    if gameState.running {
+                        gameState.running = false
+                        gameState.paused = false
+                    } else {
+                        gameState.resetScores()
+                        gameState.running = true
+                        scene.resetForStart()
+                    }
+                }) {
+                    Label(gameState.running ? "Stop" : "Start", systemImage: gameState.running ? "stop.fill" : "play.fill")
+                        .labelStyle(.titleAndIcon)
+                }
+                .font(buttonFont)
+                .frame(maxWidth: .infinity, minHeight: 44)
+                .background(Color.white.opacity(0.9))
+                .cornerRadius(8)
+
+                Button(action: {
+                    if gameState.running {
+                        gameState.paused.toggle()
+                    }
+                }) {
+                    Label(gameState.paused ? "Riprendi" : "Pausa", systemImage: gameState.paused ? "playpause.fill" : "pause.fill")
+                        .labelStyle(.titleAndIcon)
+                }
+                .font(buttonFont)
+                .frame(maxWidth: .infinity, minHeight: 44)
+                .background(Color.white.opacity(0.9))
+                .cornerRadius(8)
+                .opacity(gameState.running ? 1 : 0.4)
+            }
+
+            VStack(alignment: .leading, spacing: 10) {
+                Toggle("Sottofondo", isOn: $gameState.sottofondo)
+                Toggle("Suoni", isOn: $gameState.suoni)
+            }
+            .font(itemFont)
+            .toggleStyle(.switch)
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Velocità: \(Int(speedBinding.wrappedValue))")
+                    .font(itemFont)
+                Slider(value: speedBinding, in: 0...100, step: 1)
+            }
+        }
+        .foregroundColor(.black)
+        .padding(14)
+        .frame(width: panelWidth, height: panelHeight, alignment: .topLeading)
+        .background(RoundedRectangle(cornerRadius: 10).fill(Color(white: 0.92).opacity(0.9)))
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.black.opacity(0.15), lineWidth: 1))
+        .position(x: panelX + panelWidth / 2, y: panelPadding + panelHeight / 2)
+    }
+
     private func controlPanelPortrait() -> some View {
         VStack(spacing: 10) {
             Button("Personalizzazioni") { showSettings = true }
@@ -310,7 +443,6 @@ struct ContentView: View {
                     if gameState.running {
                         gameState.running = false
                         gameState.paused = false
-                        gameState.calcolaVoto()
                     } else {
                         gameState.resetScores()
                         gameState.running = true
@@ -340,14 +472,46 @@ struct ContentView: View {
             }
 
             HStack(spacing: 12) {
-                Text("Velocita")
+                Text("Velocità: \(Int(speedBinding.wrappedValue))")
                 Slider(value: speedBinding, in: 0...100, step: 1)
             }
 
             VStack(alignment: .leading, spacing: 8) {
-                radioButton(title: "Livello 1", selected: gameState.level == 1) { gameState.level = 1 }
-                radioButton(title: "Livello 2", selected: gameState.level == 2) { gameState.level = 2 }
-                radioButton(title: "Livello 3", selected: gameState.level == 3) { gameState.level = 3 }
+                Button("Istruzioni") { showInstructions = true }
+                    .frame(maxWidth: .infinity, minHeight: 40)
+                HStack(spacing: 8) {
+                    radioButton(title: "Livello 1", selected: gameState.level == 1) {}
+                        .disabled(true)
+                        .opacity(gameState.level == 1 ? 1 : 0.45)
+                    Spacer()
+                    Button(action: { showHelp1 = true }) {
+                        Image(systemName: "info.circle")
+                    }
+                    .buttonStyle(.plain)
+                    .opacity(gameState.level == 1 ? 1 : 0.45)
+                }
+                HStack(spacing: 8) {
+                    radioButton(title: "Livello 2", selected: gameState.level == 2) {}
+                        .disabled(true)
+                        .opacity(gameState.level == 2 ? 1 : 0.45)
+                    Spacer()
+                    Button(action: { showHelp2 = true }) {
+                        Image(systemName: "info.circle")
+                    }
+                    .buttonStyle(.plain)
+                    .opacity(gameState.level == 2 ? 1 : 0.45)
+                }
+                HStack(spacing: 8) {
+                    radioButton(title: "Livello 3", selected: gameState.level == 3) {}
+                        .disabled(true)
+                        .opacity(gameState.level == 3 ? 1 : 0.45)
+                    Spacer()
+                    Button(action: { showHelp3 = true }) {
+                        Image(systemName: "info.circle")
+                    }
+                    .buttonStyle(.plain)
+                    .opacity(gameState.level == 3 ? 1 : 0.45)
+                }
             }
         }
         .padding(.horizontal, 16)
@@ -357,7 +521,7 @@ struct ContentView: View {
     private func landscapeSpeedControl(baseFont: Font, rightShift: CGFloat) -> some View {
         if let frame = layout.frame(for: "ckdsuoni") {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Velocita")
+                Text("Velocità: \(Int(speedBinding.wrappedValue))")
                     .font(baseFont)
                 Slider(value: speedBinding, in: 0...100, step: 1)
             }
@@ -372,9 +536,9 @@ struct ContentView: View {
         let buono = numero == scelta
         esitoBuono = buono
         if buono {
-            gameState.colpiti += 100
+            gameState.addPoints(10)
         } else {
-            gameState.colpiti -= 100
+            gameState.addPoints(-10)
         }
         showEsito = true
     }

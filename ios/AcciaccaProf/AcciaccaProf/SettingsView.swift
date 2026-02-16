@@ -1,10 +1,12 @@
 import SwiftUI
+import Photos
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var store = ImageStore.shared
 
     @State private var showingPicker = false
+    @State private var showPhotoPermissionAlert = false
     @State private var selectedSlot: CharacterSlot?
     @State private var selectedImage: CroppableImage?
 
@@ -27,8 +29,15 @@ struct SettingsView: View {
                         Spacer()
                         Button("Scegli") {
                             selectedSlot = slot
-                            showingPicker = true
+                            requestPhotoAccess()
                         }
+                    }
+                }
+                Section {
+                    Button(role: .destructive) {
+                        store.resetAll()
+                    } label: {
+                        Text("Ripristina default")
                     }
                 }
             }
@@ -40,10 +49,14 @@ struct SettingsView: View {
             }
         }
         .sheet(isPresented: $showingPicker) {
-            PhotoPicker { image in
-                selectedImage = CroppableImage(image: image)
+            PhotoPicker(onImage: { image in
                 showingPicker = false
-            }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    selectedImage = CroppableImage(image: image)
+                }
+            }, onCancel: {
+                showingPicker = false
+            })
         }
         .sheet(item: $selectedImage) { item in
             if let slot = selectedSlot {
@@ -54,6 +67,11 @@ struct SettingsView: View {
                     selectedImage = nil
                 }
             }
+        }
+        .alert("Accesso alle foto", isPresented: $showPhotoPermissionAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Consenti l'accesso alle foto per scegliere un'immagine. Puoi abilitarlo in Impostazioni > Privacy > Foto.")
         }
     }
 
@@ -67,5 +85,25 @@ struct SettingsView: View {
             return Image(uiImage: img)
         }
         return Image(systemName: "person.crop.square")
+    }
+
+    private func requestPhotoAccess() {
+        let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+        switch status {
+        case .authorized, .limited:
+            showingPicker = true
+        case .notDetermined:
+            PHPhotoLibrary.requestAuthorization(for: .readWrite) { newStatus in
+                DispatchQueue.main.async {
+                    if newStatus == .authorized || newStatus == .limited {
+                        showingPicker = true
+                    } else {
+                        showPhotoPermissionAlert = true
+                    }
+                }
+            }
+        default:
+            showPhotoPermissionAlert = true
+        }
     }
 }

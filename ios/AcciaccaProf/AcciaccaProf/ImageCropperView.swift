@@ -3,8 +3,16 @@ import UIKit
 
 struct ImageCropperView: View {
     let image: UIImage
+    let normalizedImage: UIImage
     let onSave: (UIImage) -> Void
     let onCancel: () -> Void
+
+    init(image: UIImage, onSave: @escaping (UIImage) -> Void, onCancel: @escaping () -> Void) {
+        self.image = image
+        self.normalizedImage = image.normalizedImage()
+        self.onSave = onSave
+        self.onCancel = onCancel
+    }
 
     @State private var scale: CGFloat = 1.0
     @State private var offset: CGSize = .zero
@@ -41,7 +49,7 @@ struct ImageCropperView: View {
     }
 
     private var cropContent: some View {
-        let img = Image(uiImage: image)
+        let img = Image(uiImage: normalizedImage)
         return img
             .resizable()
             .scaledToFill()
@@ -52,9 +60,31 @@ struct ImageCropperView: View {
     }
 
     private var cropOverlay: some View {
-        Rectangle()
-            .stroke(Color.white.opacity(0.8), lineWidth: 2)
-            .frame(width: cropSize, height: cropSize)
+        ZStack {
+            Rectangle()
+                .stroke(Color.white.opacity(0.8), lineWidth: 2)
+                .frame(width: cropSize, height: cropSize)
+
+            // Placeholder for the face box (Delphi prof size).
+            let placeholderWidth: CGFloat = 100
+            let placeholderHeight: CGFloat = 120
+            RoundedRectangle(cornerRadius: 6)
+                .stroke(Color.white.opacity(0.6), style: StrokeStyle(lineWidth: 1, dash: [6, 6]))
+                .frame(width: placeholderWidth, height: placeholderHeight)
+
+            VStack(spacing: 4) {
+                Text("100 x 120")
+                    .font(.caption2)
+                    .foregroundColor(.white.opacity(0.8))
+                Text("Zoom finche riempi la sagoma")
+                    .font(.caption2)
+                    .foregroundColor(.white.opacity(0.7))
+            }
+            .padding(6)
+            .background(Color.black.opacity(0.35))
+            .cornerRadius(6)
+            .offset(y: placeholderHeight / 2 + 18)
+        }
     }
 
     private func dragGesture() -> some Gesture {
@@ -82,9 +112,9 @@ struct ImageCropperView: View {
     }
 
     private func clampedOffset(_ offset: CGSize, scale: CGFloat) -> CGSize {
-        let baseScale = max(cropSize / image.size.width, cropSize / image.size.height)
+        let baseScale = max(cropSize / normalizedImage.size.width, cropSize / normalizedImage.size.height)
         let displayScale = baseScale * scale
-        let imageSize = CGSize(width: image.size.width * displayScale, height: image.size.height * displayScale)
+        let imageSize = CGSize(width: normalizedImage.size.width * displayScale, height: normalizedImage.size.height * displayScale)
         let maxX = max(0, (imageSize.width - cropSize) / 2)
         let maxY = max(0, (imageSize.height - cropSize) / 2)
         let clampedX = min(max(offset.width, -maxX), maxX)
@@ -93,9 +123,9 @@ struct ImageCropperView: View {
     }
 
     private func cropImage() -> UIImage {
-        let baseScale = max(cropSize / image.size.width, cropSize / image.size.height)
+        let baseScale = max(cropSize / normalizedImage.size.width, cropSize / normalizedImage.size.height)
         let displayScale = baseScale * scale
-        let imageSize = CGSize(width: image.size.width * displayScale, height: image.size.height * displayScale)
+        let imageSize = CGSize(width: normalizedImage.size.width * displayScale, height: normalizedImage.size.height * displayScale)
         let origin = CGPoint(x: (cropSize - imageSize.width) / 2 + offset.width,
                              y: (cropSize - imageSize.height) / 2 + offset.height)
 
@@ -106,10 +136,9 @@ struct ImageCropperView: View {
             height: cropSize / displayScale
         )
 
-        cropRect = cropRect.intersection(CGRect(origin: .zero, size: image.size))
+        cropRect = cropRect.intersection(CGRect(origin: .zero, size: normalizedImage.size))
 
-        let source = image.normalizedImage()
-        guard let cgImage = source.cgImage,
+        guard let cgImage = normalizedImage.cgImage,
               let cropped = cgImage.cropping(to: cropRect) else {
             return image
         }

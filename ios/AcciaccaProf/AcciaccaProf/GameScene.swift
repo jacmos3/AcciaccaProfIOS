@@ -22,6 +22,7 @@ final class GameScene: SKScene {
     private var bambino2 = SKSpriteNode()
     private var bambino3 = SKSpriteNode()
     private var playFieldRect = CGRect.zero
+    private var deskLinkRect = CGRect.zero
 
     private var alzateCatt = 0
     private var alzateBuon = 0
@@ -54,7 +55,10 @@ final class GameScene: SKScene {
 
     private let campoLeft: CGFloat = 13
     private let campoTop: CGFloat = 10
-    private let spawnYOffset: CGFloat = 80
+    private let spawnYOffset: CGFloat = 85
+    private let profZOffset: CGFloat = -1.0
+    private var didPreload = false
+    var onPreloadComplete: (() -> Void)?
 
     override func didMove(to view: SKView) {
         size = baseSize
@@ -62,6 +66,29 @@ final class GameScene: SKScene {
         backgroundColor = .clear
         buildScene()
         startLoop()
+        preloadIfNeeded()
+    }
+
+    func preloadIfNeeded() {
+        if didPreload {
+            onPreloadComplete?()
+            return
+        }
+        didPreload = true
+        let textures = [
+            "Image1","Image3","Image4","Image5","Image10","Image11","Image13","Image16","Image19","Image22","Image25","Image28",
+            "Image30","Image31","Image32","Image33","Image34","Image35",
+            "schizzi","zampilli",
+            "cattivi_1","cattivi_2","cattivi_3",
+            "buoni_1","buoni_2","buoni_3",
+            "bidella_1"
+        ].compactMap { textureFor(baseName: $0) }
+
+        SKTexture.preload(textures) { [weak self] in
+            DispatchQueue.main.async {
+                self?.onPreloadComplete?()
+            }
+        }
     }
 
     func resetForStart() {
@@ -84,7 +111,7 @@ final class GameScene: SKScene {
             "Image1","Image3","Image4","Image5","Image6","Image7","Image8","Image9","Image10",
             "Image11","Image12","Image13","Image14","Image15","Image16","Image17","Image18","Image19",
             "Image20","Image21","Image22","Image23","Image24","Image25","Image26","Image27","Image28",
-            "Image29","Image31","Image33","Image35","Image2"
+            "Image29","Image31","Image33","Image35"
         ]
 
         for name in staticNames {
@@ -102,6 +129,26 @@ final class GameScene: SKScene {
             let origin = convertPosition(frame: frame)
             playFieldRect = CGRect(origin: origin, size: frame.size)
         }
+
+        addDeskLink()
+    }
+
+    private func addDeskLink() {
+        guard let frame = layout.frame(for: "Image1") else { return }
+        let label = SKLabelNode(text: "www.semproxlab.it")
+        label.fontName = "Helvetica"
+        label.fontSize = 12
+        label.fontColor = .black
+        label.horizontalAlignmentMode = .center
+        label.verticalAlignmentMode = .center
+
+        let x = frame.minX + frame.width * 0.60 + 20
+        let y = frame.minY + frame.height * 0.235 - 7
+        label.position = CGPoint(x: x, y: baseSize.height - y)
+        label.zPosition = zOrder.zIndex(for: "Image3") - 0.5
+        addChild(label)
+        let frameRect = label.frame
+        deskLinkRect = frameRect.insetBy(dx: -8, dy: -6)
     }
 
     private func setupDynamicSprites() {
@@ -115,7 +162,7 @@ final class GameScene: SKScene {
             cattLeft = frame.minX
             cattTop = frame.minY
             applyFrame(node: profCatt, left: frame.minX, top: frame.minY, width: cattWidth, height: cattHeight)
-            profCatt.zPosition = zOrder.zIndex(for: "profcatt")
+            profCatt.zPosition = zOrder.zIndex(for: "profcatt") + profZOffset
             addChild(profCatt)
             resettacattivo()
         }
@@ -130,7 +177,7 @@ final class GameScene: SKScene {
             buonLeft = frame.minX
             buonTop = frame.minY
             applyFrame(node: profBuon, left: frame.minX, top: frame.minY, width: buonWidth, height: buonHeight)
-            profBuon.zPosition = zOrder.zIndex(for: "profbuon")
+            profBuon.zPosition = zOrder.zIndex(for: "profbuon") + profZOffset
             addChild(profBuon)
             resettabuono()
         }
@@ -145,7 +192,7 @@ final class GameScene: SKScene {
             bidellaLeft = frame.minX
             bidellaTop = frame.minY
             applyFrame(node: bidella, left: frame.minX, top: frame.minY, width: bidellaWidth, height: bidellaHeight)
-            bidella.zPosition = zOrder.zIndex(for: "bidella")
+            bidella.zPosition = zOrder.zIndex(for: "bidella") + profZOffset
             addChild(bidella)
             resettabidella()
         }
@@ -160,7 +207,7 @@ final class GameScene: SKScene {
             addChild(schizzi)
         }
 
-        if let frame = layout.frame(for: "zampilli1"), let texture = textureFor(baseName: "zampilli1") {
+        if let frame = layout.frame(for: "zampilli1"), let texture = textureFor(baseName: "zampilli") {
             zampilli1 = SKSpriteNode(texture: texture)
             zampilli1.anchorPoint = CGPoint(x: 0, y: 0)
             zampilli1.size = frame.size
@@ -169,7 +216,7 @@ final class GameScene: SKScene {
             zampilli1.isHidden = true
             addChild(zampilli1)
         }
-        if let frame = layout.frame(for: "zampilli2"), let texture = textureFor(baseName: "zampilli2") {
+        if let frame = layout.frame(for: "zampilli2"), let texture = textureFor(baseName: "zampilli") {
             zampilli2 = SKSpriteNode(texture: texture)
             zampilli2.anchorPoint = CGPoint(x: 0, y: 0)
             zampilli2.size = frame.size
@@ -178,7 +225,7 @@ final class GameScene: SKScene {
             zampilli2.isHidden = true
             addChild(zampilli2)
         }
-        if let frame = layout.frame(for: "zampilli3"), let texture = textureFor(baseName: "zampilli3") {
+        if let frame = layout.frame(for: "zampilli3"), let texture = textureFor(baseName: "zampilli") {
             zampilli3 = SKSpriteNode(texture: texture)
             zampilli3.anchorPoint = CGPoint(x: 0, y: 0)
             zampilli3.size = frame.size
@@ -221,19 +268,38 @@ final class GameScene: SKScene {
     }
 
     private func textureFor(baseName: String) -> SKTexture? {
-        if let slot = slotForBaseName(baseName), let custom = ImageStore.shared.image(for: slot) {
-            return SKTexture(image: custom)
+        let sharedDesks: Set<String> = ["Image3","Image6","Image9","Image12","Image15","Image18","Image21","Image24","Image27"]
+        let sharedEdges: Set<String> = ["Image4","Image7","Image10","Image13","Image16","Image19","Image22","Image25","Image28"]
+        let sharedMids: Set<String> = ["Image5","Image8","Image11","Image14","Image17","Image20","Image23","Image26","Image29"]
+        let resolvedName: String
+        if sharedDesks.contains(baseName) {
+            resolvedName = "Image3"
+        } else if sharedEdges.contains(baseName) {
+            resolvedName = "Image4"
+        } else if sharedMids.contains(baseName) {
+            resolvedName = "Image5"
+        } else {
+            resolvedName = baseName
         }
-        if let url = Bundle.main.url(forResource: baseName, withExtension: "png", subdirectory: "images")
-            ?? Bundle.main.url(forResource: baseName, withExtension: "png") {
-            if let img = UIImage(contentsOfFile: url.path) {
-                return SKTexture(image: img)
-            }
+
+        if let slot = slotForBaseName(resolvedName), let custom = ImageStore.shared.image(for: slot) {
+            let tex = SKTexture(image: custom)
+            tex.filteringMode = .nearest
+            return tex
         }
-        if let url = Bundle.main.url(forResource: baseName, withExtension: "jpg", subdirectory: "images")
-            ?? Bundle.main.url(forResource: baseName, withExtension: "jpg") {
-            if let img = UIImage(contentsOfFile: url.path) {
-                return SKTexture(image: img)
+        let compactName = resolvedName.replacingOccurrences(of: "_", with: "")
+        let candidates = [resolvedName, compactName]
+        let extensions = ["png", "jpg", "JPG", "jpeg", "JPEG"]
+        for name in candidates {
+            for ext in extensions {
+                if let url = Bundle.main.url(forResource: name, withExtension: ext, subdirectory: "images")
+                    ?? Bundle.main.url(forResource: name, withExtension: ext) {
+                    if let img = UIImage(contentsOfFile: url.path) {
+                        let tex = SKTexture(image: img)
+                        tex.filteringMode = .nearest
+                        return tex
+                    }
+                }
             }
         }
         return nil
@@ -260,7 +326,9 @@ final class GameScene: SKScene {
         let w = min(frame.width, size.width) / size.width
         let h = min(frame.height, size.height) / size.height
         let rect = CGRect(x: 0, y: 1.0 - h, width: w, height: h)
-        return SKTexture(rect: rect, in: texture)
+        let cropped = SKTexture(rect: rect, in: texture)
+        cropped.filteringMode = .nearest
+        return cropped
     }
 
     private func convertPosition(frame: CGRect) -> CGPoint {
@@ -309,6 +377,7 @@ final class GameScene: SKScene {
             profCatt.texture = textureFor(baseName: "cattivi_1")
         }
         alzateCatt = 0
+        gameState?.registerCattivoSpawn()
         let pos = posizioni.randomElement() ?? (56, 26)
         cattLeft = pos.0 + campoLeft - 10
         cattTop = pos.1 + 110 + campoTop + spawnYOffset
@@ -333,7 +402,7 @@ final class GameScene: SKScene {
         bidella.texture = textureFor(baseName: "bidella_1")
         alzateBidella = 0
         let pos = posizioni.randomElement() ?? (56, 26)
-        bidellaLeft = pos.0 + campoLeft
+        bidellaLeft = pos.0 + campoLeft - 5
         bidellaTop = pos.1 + 110 + campoTop + spawnYOffset
         resettabidella()
     }
@@ -365,6 +434,7 @@ final class GameScene: SKScene {
             alzateBidella += 1
         } else {
             attivaBidella = false
+            state.addPoints(-1)
             bidellaa()
         }
     }
@@ -380,6 +450,7 @@ final class GameScene: SKScene {
             applyFrame(node: profBuon, left: buonLeft, top: buonTop, width: buonWidth, height: buonHeight)
             alzateBuon += 1
         } else {
+            state.addPoints(1)
             profBuono()
         }
     }
@@ -397,12 +468,19 @@ final class GameScene: SKScene {
         } else {
             profCattivo()
             state.sfuggiti += 1
+            state.addPoints(-1)
         }
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let state = gameState, state.running, !state.paused, let touch = touches.first else { return }
         let location = touch.location(in: self)
+        if deskLinkRect.contains(location) {
+            if let url = URL(string: "https://www.semproxlab.it") {
+                UIApplication.shared.open(url)
+            }
+            return
+        }
         if !playFieldRect.contains(location) {
             return
         }
@@ -434,6 +512,7 @@ final class GameScene: SKScene {
         bidellaa()
         attivaBidella = false
         state.colpiti += 1
+        state.addPoints(2)
         if state.suoni { SoundPlayer.shared.play(name: "profmorto.wav") }
     }
 
@@ -441,7 +520,9 @@ final class GameScene: SKScene {
         guard let state = gameState else { return }
         showSchizzi(at: location)
         state.sbagliati += 1
+        state.addPoints(-2)
         profCattivo()
+        profBuono()
         bidellaa()
         attivaBidella = false
         if state.suoni { SoundPlayer.shared.play(name: "profmorto.wav") }
@@ -449,6 +530,7 @@ final class GameScene: SKScene {
 
     private func colpitaBidella() {
         guard let state = gameState else { return }
+        state.addPoints(5)
         if state.suoni { SoundPlayer.shared.play(name: "bidella.wav") }
         onShowCircolare?()
         attivaBidella = false
@@ -459,12 +541,13 @@ final class GameScene: SKScene {
         guard let state = gameState else { return }
         zampillo.isHidden = false
         zampillo.run(.sequence([.wait(forDuration: 0.1), .hide()]))
+        state.addPoints(-1)
         if state.suoni { SoundPlayer.shared.play(name: "bambinomorto.wav") }
     }
 
     private func colpoFuori() {
         guard let state = gameState else { return }
-        state.sbagliati += 1
+        state.addPoints(-1)
         if state.suoni { SoundPlayer.shared.play(name: "fuori.wav") }
     }
 

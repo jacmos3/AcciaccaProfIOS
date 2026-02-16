@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7B9E6C9E8E1A4C6E9DA4C3C2 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9F3D0E9C2C3E4C1C9F5A7F76 /* LaunchScreen.storyboard */; };
+		2A3E7EAA5B4D4E3A9A9B0E2C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C3D4A7B2E6C4B2DB9B1F6F1 /* AppDelegate.swift */; };
 		2F50D720BFCB4FB8BD9FEE19 /* ZOrderStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A2386270104D7E9A93BFE4 /* ZOrderStore.swift */; };
 		0511F1EB88C14253B642A706 /* ImageCropperView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE20D6A07314B33A27F1F22 /* ImageCropperView.swift */; };
 		1BD98247CD1440F385E85479 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EA45024997B4DD7B5B8B11E /* SettingsView.swift */; };
@@ -28,6 +30,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		9F3D0E9C2C3E4C1C9F5A7F76 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		4C3D4A7B2E6C4B2DB9B1F6F1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B3A2386270104D7E9A93BFE4 /* ZOrderStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZOrderStore.swift; sourceTree = "<group>"; };
 		04E9BE7BB62148D2A5E72EBA /* ImageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageStore.swift; sourceTree = "<group>"; };
 		06950644D5AE466EB2EBB00F /* SoundPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundPlayer.swift; sourceTree = "<group>"; };
@@ -64,6 +68,7 @@
 		7AA7CCA64E684BF2B9E46D36 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				9F3D0E9C2C3E4C1C9F5A7F76 /* LaunchScreen.storyboard */,
 				7D25D430F3A8423186F73A59 /* images */,
 				7F3F59052A5B47AE96F06DDD /* sounds */,
 				4F8478B78F344C28AC2B92CC /* layout */,
@@ -75,7 +80,8 @@
 		8C47B79E36A9494AA277E998 /* AcciaccaProf */ = {
 			isa = PBXGroup;
 			children = (
-			B3A2386270104D7E9A93BFE4 /* ZOrderStore.swift */,
+				4C3D4A7B2E6C4B2DB9B1F6F1 /* AppDelegate.swift */,
+				B3A2386270104D7E9A93BFE4 /* ZOrderStore.swift */,
 				EEC08B7B5FD347CD95A3CB64 /* UIImage+Normalize.swift */,
 				04E9BE7BB62148D2A5E72EBA /* ImageStore.swift */,
 				E8711B46FA994216A630599B /* PhotoPicker.swift */,
@@ -160,6 +166,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7B9E6C9E8E1A4C6E9DA4C3C2 /* LaunchScreen.storyboard in Resources */,
 				A224A1BFE7AA4249B1F7452B /* images in Resources */,
 				998B948925B440A58EE6209A /* sounds in Resources */,
 				8E42A2BBED864678A8F24228 /* layout in Resources */,
@@ -174,7 +181,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			2F50D720BFCB4FB8BD9FEE19 /* ZOrderStore.swift in Sources */,
+				2A3E7EAA5B4D4E3A9A9B0E2C /* AppDelegate.swift in Sources */,
+				2F50D720BFCB4FB8BD9FEE19 /* ZOrderStore.swift in Sources */,
 				3359ABFA695048C6896A76F4 /* UIImage+Normalize.swift in Sources */,
 				E5EDBC9297B04DF096B32252 /* ImageStore.swift in Sources */,
 				62E8D68AA49B461C9793B1EF /* PhotoPicker.swift in Sources */,

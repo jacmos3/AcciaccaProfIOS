@@ -6,6 +6,22 @@ final class SoundPlayer {
     private var players: [String: AVAudioPlayer] = [:]
     private var backgroundPlayer: AVAudioPlayer?
 
+    func preload(names: [String], completion: @escaping () -> Void) {
+        DispatchQueue.global(qos: .userInitiated).async {
+            for name in names {
+                if self.players[name] != nil { continue }
+                guard let url = Bundle.main.url(forResource: name, withExtension: nil, subdirectory: "sounds")
+                    ?? Bundle.main.url(forResource: name, withExtension: nil) else { continue }
+                if let player = try? AVAudioPlayer(contentsOf: url) {
+                    self.players[name] = player
+                }
+            }
+            DispatchQueue.main.async {
+                completion()
+            }
+        }
+    }
+
     func play(name: String) {
         if let player = players[name] {
             player.currentTime = 0

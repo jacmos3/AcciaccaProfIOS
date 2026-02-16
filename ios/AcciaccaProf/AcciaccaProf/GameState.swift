@@ -5,11 +5,14 @@ final class GameState: ObservableObject {
     @Published var running = false
     @Published var paused = false
     @Published var level: Int = 1
+    @Published var stageCount = 0
 
-    @Published var colpiti = 0
-    @Published var sfuggiti = 0
-    @Published var sbagliati = 0
+    @Published var colpiti = 0 { didSet { calcolaVoto() } }
+    @Published var sfuggiti = 0 { didSet { calcolaVoto() } }
+    @Published var sbagliati = 0 { didSet { calcolaVoto() } }
     @Published var voto = 0
+    @Published var punti = 0
+    @Published var gameOver = false
 
     @Published var suoni = true
     @Published var sottofondo = false
@@ -20,6 +23,10 @@ final class GameState: ObservableObject {
         sfuggiti = 0
         sbagliati = 0
         voto = 0
+        punti = 0
+        level = 1
+        stageCount = 0
+        gameOver = false
     }
 
     func calcolaVoto() {
@@ -27,5 +34,33 @@ final class GameState: ObservableObject {
         let votoRaw = (colpiti - sfuggiti) - (2 * sbagliati)
         let valore = (votoRaw * 10) / totali
         voto = valore <= 0 ? 1 : valore
+    }
+
+    func registerCattivoSpawn() {
+        guard running else { return }
+        stageCount += 1
+        switch level {
+        case 1:
+            if stageCount >= 10 {
+                level = 2
+                stageCount = 0
+            }
+        case 2:
+            if stageCount >= 10 {
+                level = 3
+                stageCount = 0
+            }
+        default:
+            if stageCount >= 10 {
+                running = false
+                paused = false
+                gameOver = true
+            }
+        }
+    }
+
+    func addPoints(_ delta: Int) {
+        punti += delta
+        calcolaVoto()
     }
 }

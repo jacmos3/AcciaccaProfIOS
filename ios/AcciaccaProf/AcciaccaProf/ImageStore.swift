@@ -61,4 +61,12 @@ final class ImageStore: ObservableObject {
         try? fm.removeItem(at: url)
         version = UUID()
     }
+
+    func resetAll() {
+        for slot in CharacterSlot.allCases {
+            let url = docsURL.appendingPathComponent(slot.fileName)
+            try? fm.removeItem(at: url)
+        }
+        version = UUID()
+    }
 }
