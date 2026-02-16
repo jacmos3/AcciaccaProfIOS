@@ -4,6 +4,7 @@ import UIKit
 final class GameScene: SKScene {
     weak var gameState: GameState?
     var onShowCircolare: (() -> Void)?
+    var onShowNote: (() -> Void)?
 
     private let layout = LayoutStore(jsonName: "unit1_layout_all")
     private let zOrder = ZOrderStore(jsonName: "unit1_zorder")
@@ -23,6 +24,7 @@ final class GameScene: SKScene {
     private var bambino3 = SKSpriteNode()
     private var playFieldRect = CGRect.zero
     private var deskLinkRect = CGRect.zero
+    private var noteRect = CGRect.zero
 
     private var alzateCatt = 0
     private var alzateBuon = 0
@@ -131,6 +133,7 @@ final class GameScene: SKScene {
         }
 
         addDeskLink()
+        addNoteHotspot()
     }
 
     private func addDeskLink() {
@@ -149,6 +152,12 @@ final class GameScene: SKScene {
         addChild(label)
         let frameRect = label.frame
         deskLinkRect = frameRect.insetBy(dx: -8, dy: -6)
+    }
+
+    private func addNoteHotspot() {
+        if let frame = layout.frame(for: "Image2") {
+            noteRect = CGRect(origin: convertPosition(frame: frame), size: frame.size)
+        }
     }
 
     private func setupDynamicSprites() {
@@ -473,8 +482,13 @@ final class GameScene: SKScene {
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard let state = gameState, state.running, !state.paused, let touch = touches.first else { return }
+        guard let touch = touches.first else { return }
         let location = touch.location(in: self)
+        if noteRect.contains(location) {
+            onShowNote?()
+            return
+        }
+        guard let state = gameState, state.running, !state.paused else { return }
         if deskLinkRect.contains(location) {
             if let url = URL(string: "https://www.semproxlab.it") {
                 UIApplication.shared.open(url)

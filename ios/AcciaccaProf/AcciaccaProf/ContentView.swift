@@ -12,6 +12,7 @@ struct ContentView: View {
     @State private var showHelp3 = false
     @State private var showGameOver = false
     @State private var showInstructions = false
+    @State private var showNote = false
     @State private var isPreloading = true
 
     private let baseSize = CGSize(width: 618, height: 543)
@@ -127,6 +128,11 @@ struct ContentView: View {
         } message: {
             Text("Punteggi:\n• +2 colpisci prof cattivo\n• -1 prof cattivo sfuggito\n• -2 colpisci prof buono\n• +1 prof buono lasciato andare\n• +5 colpisci bidella\n• -1 bidella lasciata andare\n• -1 colpisci un bambino (zampilli)\n• -1 colpo a vuoto\n• +10 circolare buona\n• -10 circolare cattiva\n\nLivelli (automatici):\n1) Solo prof cattivo (10 uscite)\n2) Prof cattivo + prof buono (10 uscite)\n3) Come il 2 + bidella con circolari (10 uscite)\nAl termine il gioco finisce e puoi ricominciare con Start.")
         }
+        .alert("NOTE", isPresented: $showNote) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("Questo gioco e' stato sviluppato in Delphi nel 2008 tra i banchi di scuola del quinto liceo da Jacopo Moscioni, come svago. Era diventato un po' popolare tra i frequentatori del forum del liceo del tempo, e fu pubblicato su pierotofy, un portale di giovani programmatori. 18 anni dopo, nel 2026, rinasce sottoforma di app per iOS, nella versione Reloaded, con le stesse grafiche e stessi suoni del tempo. E' stata un pochino migliorata solo la dinamica dei livelli e dei punteggi, ma il gameplay e' rimasto identico e semplice come al tempo.")
+        }
     }
 
     private func configureScene() {
@@ -134,6 +140,9 @@ struct ContentView: View {
         scene.onShowCircolare = {
             gameState.paused = true
             showCircolare = true
+        }
+        scene.onShowNote = {
+            showNote = true
         }
         scene.onPreloadComplete = {
             isPreloading = false
