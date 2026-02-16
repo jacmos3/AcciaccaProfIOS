@@ -1,0 +1,103 @@
+{
+  "frmshowcirc": {
+    "class": "Tfrmshowcirc",
+    "Left": 312,
+    "Top": 117,
+    "Caption": "'Circolare della bidella'"
+  },
+  "Image1": {
+    "class": "TImage",
+    "Left": 8,
+    "Top": 0,
+    "Width": 419,
+    "Height": 576
+  },
+  "Label1": {
+    "class": "TLabel",
+    "Left": 80,
+    "Top": 72,
+    "Width": 305,
+    "Height": 33,
+    "Caption": "'Scuola Statale dell'#39' OZIO'"
+  },
+  "Label2": {
+    "class": "TLabel",
+    "Left": 128,
+    "Top": 96,
+    "Width": 161,
+    "Height": 33,
+    "Caption": "'via (del)lo studio n'#176' 4'"
+  },
+  "Label3": {
+    "class": "TLabel",
+    "Left": 96,
+    "Top": 152,
+    "Width": 129,
+    "Height": 33,
+    "Caption": "'Circolare n'#176' 666'"
+  },
+  "Label4": {
+    "class": "TLabel",
+    "Left": 136,
+    "Top": 120,
+    "Width": 225,
+    "Height": 33,
+    "Caption": "'Oziolandia, 32 Dicembre 1666'"
+  },
+  "Label5": {
+    "class": "TLabel",
+    "Left": 160,
+    "Top": 176,
+    "Width": 201,
+    "Height": 33,
+    "Caption": "'A TUTTI GLI STUDENTI'"
+  },
+  "Label6": {
+    "class": "TLabel",
+    "Left": 88,
+    "Top": 224,
+    "Width": 265,
+    "Height": 33,
+    "Caption": "'Oggetto: Festivit'#224' aggiuntive.'"
+  },
+  "Label7": {
+    "class": "TLabel",
+    "Left": 56,
+    "Top": 256,
+    "Width": 313,
+    "Height": 193,
+    "Caption": ""
+  },
+  "Label9": {
+    "class": "TLabel",
+    "Left": 80,
+    "Top": 456,
+    "Width": 201,
+    "Height": 33,
+    "Caption": "'Il dirigente scolastico:'"
+  },
+  "Label8": {
+    "class": "TLabel",
+    "Left": 112,
+    "Top": 480,
+    "Width": 169,
+    "Height": 33,
+    "Caption": "'Armando le Vacche'"
+  },
+  "Label7bis": {
+    "class": "TLabel",
+    "Left": 72,
+    "Top": 232,
+    "Width": 313,
+    "Height": 217,
+    "Caption": ""
+  },
+  "Label6bis": {
+    "class": "TLabel",
+    "Left": 74,
+    "Top": 194,
+    "Width": 287,
+    "Height": 33,
+    "Caption": "'Oggetto: Corsi di recupero pomeridiani'"
+  }
+}

@@ -1,0 +1,283 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2F50D720BFCB4FB8BD9FEE19 /* ZOrderStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A2386270104D7E9A93BFE4 /* ZOrderStore.swift */; };
+		0511F1EB88C14253B642A706 /* ImageCropperView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE20D6A07314B33A27F1F22 /* ImageCropperView.swift */; };
+		1BD98247CD1440F385E85479 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EA45024997B4DD7B5B8B11E /* SettingsView.swift */; };
+		210DD2DFF75E4A62A2DBEDBF /* ShowCircolareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41F0BDB02E2C4F53A3182FFE /* ShowCircolareView.swift */; };
+		33012598787F4BC6BB2AB8B4 /* AcciaccaProfApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E56DC98A4B2431D925860E2 /* AcciaccaProfApp.swift */; };
+		3359ABFA695048C6896A76F4 /* UIImage+Normalize.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEC08B7B5FD347CD95A3CB64 /* UIImage+Normalize.swift */; };
+		42F63E8CF57C457F8FB4777D /* SoundPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06950644D5AE466EB2EBB00F /* SoundPlayer.swift */; };
+		53E4F4BFAA624558AC60F03E /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 118A104C58DD4D97BA439DB7 /* GameScene.swift */; };
+		62E8D68AA49B461C9793B1EF /* PhotoPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8711B46FA994216A630599B /* PhotoPicker.swift */; };
+		68E2DD3B2E234AE29CC70464 /* Layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C40AC77DE744842871AE7C3 /* Layout.swift */; };
+		7CB1357E2BA04F10A600EA75 /* CircolareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69A963697CD4A47810DE3D3 /* CircolareView.swift */; };
+		8E42A2BBED864678A8F24228 /* layout in Resources */ = {isa = PBXBuildFile; fileRef = 4F8478B78F344C28AC2B92CC /* layout */; };
+		908BB2F7A12C4947A77A485C /* GameState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CE2E67C88C7418EAD09E3F1 /* GameState.swift */; };
+		998B948925B440A58EE6209A /* sounds in Resources */ = {isa = PBXBuildFile; fileRef = 7F3F59052A5B47AE96F06DDD /* sounds */; };
+		A224A1BFE7AA4249B1F7452B /* images in Resources */ = {isa = PBXBuildFile; fileRef = 7D25D430F3A8423186F73A59 /* images */; };
+		B6C9E5488362428C9898DD94 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C52DAAD0B544034A92A2EF2 /* ContentView.swift */; };
+		D29189C853F84122A22DEC04 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 48F795602A904EF3B958A7BE /* Assets.xcassets */; };
+		E5EDBC9297B04DF096B32252 /* ImageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E9BE7BB62148D2A5E72EBA /* ImageStore.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		B3A2386270104D7E9A93BFE4 /* ZOrderStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZOrderStore.swift; sourceTree = "<group>"; };
+		04E9BE7BB62148D2A5E72EBA /* ImageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageStore.swift; sourceTree = "<group>"; };
+		06950644D5AE466EB2EBB00F /* SoundPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundPlayer.swift; sourceTree = "<group>"; };
+		118A104C58DD4D97BA439DB7 /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
+		1429BBBFCB5E437BA0211D28 /* Acciacca Prof.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = "Acciacca Prof.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3AE20D6A07314B33A27F1F22 /* ImageCropperView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCropperView.swift; sourceTree = "<group>"; };
+		41F0BDB02E2C4F53A3182FFE /* ShowCircolareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowCircolareView.swift; sourceTree = "<group>"; };
+		48F795602A904EF3B958A7BE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Assets.xcassets; sourceTree = "<group>"; };
+		4C52DAAD0B544034A92A2EF2 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		4F8478B78F344C28AC2B92CC /* layout */ = {isa = PBXFileReference; lastKnownFileType = folder; path = layout; sourceTree = "<group>"; };
+		5E56DC98A4B2431D925860E2 /* AcciaccaProfApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcciaccaProfApp.swift; sourceTree = "<group>"; };
+		7CE2E67C88C7418EAD09E3F1 /* GameState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameState.swift; sourceTree = "<group>"; };
+		7D25D430F3A8423186F73A59 /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; path = images; sourceTree = "<group>"; };
+		7EA45024997B4DD7B5B8B11E /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		7F3F59052A5B47AE96F06DDD /* sounds */ = {isa = PBXFileReference; lastKnownFileType = folder; path = sounds; sourceTree = "<group>"; };
+		9C40AC77DE744842871AE7C3 /* Layout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Layout.swift; sourceTree = "<group>"; };
+		B69A963697CD4A47810DE3D3 /* CircolareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircolareView.swift; sourceTree = "<group>"; };
+		DCFEAE79B8154D86852CA073 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E8711B46FA994216A630599B /* PhotoPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoPicker.swift; sourceTree = "<group>"; };
+		EEC08B7B5FD347CD95A3CB64 /* UIImage+Normalize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+Normalize.swift"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		3B2E9DFC2C7F4546A4AF6C4C = {
+			isa = PBXGroup;
+			children = (
+				8C47B79E36A9494AA277E998 /* AcciaccaProf */,
+				7AA7CCA64E684BF2B9E46D36 /* Resources */,
+				BE3B97A548204B0FBBD07E97,
+				EADB0A962F436BC5008B2D3D /* Recovered References */,
+			);
+			sourceTree = "<group>";
+		};
+		7AA7CCA64E684BF2B9E46D36 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				7D25D430F3A8423186F73A59 /* images */,
+				7F3F59052A5B47AE96F06DDD /* sounds */,
+				4F8478B78F344C28AC2B92CC /* layout */,
+				48F795602A904EF3B958A7BE /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		8C47B79E36A9494AA277E998 /* AcciaccaProf */ = {
+			isa = PBXGroup;
+			children = (
+			B3A2386270104D7E9A93BFE4 /* ZOrderStore.swift */,
+				EEC08B7B5FD347CD95A3CB64 /* UIImage+Normalize.swift */,
+				04E9BE7BB62148D2A5E72EBA /* ImageStore.swift */,
+				E8711B46FA994216A630599B /* PhotoPicker.swift */,
+				3AE20D6A07314B33A27F1F22 /* ImageCropperView.swift */,
+				7EA45024997B4DD7B5B8B11E /* SettingsView.swift */,
+				5E56DC98A4B2431D925860E2 /* AcciaccaProfApp.swift */,
+				B69A963697CD4A47810DE3D3 /* CircolareView.swift */,
+				4C52DAAD0B544034A92A2EF2 /* ContentView.swift */,
+				118A104C58DD4D97BA439DB7 /* GameScene.swift */,
+				7CE2E67C88C7418EAD09E3F1 /* GameState.swift */,
+				9C40AC77DE744842871AE7C3 /* Layout.swift */,
+				41F0BDB02E2C4F53A3182FFE /* ShowCircolareView.swift */,
+				06950644D5AE466EB2EBB00F /* SoundPlayer.swift */,
+				DCFEAE79B8154D86852CA073 /* Info.plist */,
+			);
+			path = AcciaccaProf;
+			sourceTree = "<group>";
+		};
+		BE3B97A548204B0FBBD07E97 = {
+			isa = PBXGroup;
+			children = (
+				1429BBBFCB5E437BA0211D28 /* Acciacca Prof.app */,
+			);
+			sourceTree = "<group>";
+		};
+		EADB0A962F436BC5008B2D3D /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		7C680E83C2224751B78C334D /* Acciacca Prof */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C9D650DF30F74889B96B40B9 /* Build configuration list for PBXNativeTarget "Acciacca Prof" */;
+			buildPhases = (
+				AEC5B268E1EA4217ABB349B1 /* Sources */,
+				680E7E8D4924434FB6174BBA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Acciacca Prof";
+			productName = "Acciacca Prof";
+			productReference = 1429BBBFCB5E437BA0211D28 /* Acciacca Prof.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0372AA8572A34511A260196D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastUpgradeCheck = 1500;
+			};
+			buildConfigurationList = EEC311ABC4CA48339521B2DD /* Build configuration list for PBXProject "Acciacca Prof" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = it;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				it,
+				en,
+			);
+			mainGroup = 3B2E9DFC2C7F4546A4AF6C4C;
+			productRefGroup = BE3B97A548204B0FBBD07E97;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				7C680E83C2224751B78C334D /* Acciacca Prof */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		680E7E8D4924434FB6174BBA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A224A1BFE7AA4249B1F7452B /* images in Resources */,
+				998B948925B440A58EE6209A /* sounds in Resources */,
+				8E42A2BBED864678A8F24228 /* layout in Resources */,
+				D29189C853F84122A22DEC04 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AEC5B268E1EA4217ABB349B1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			2F50D720BFCB4FB8BD9FEE19 /* ZOrderStore.swift in Sources */,
+				3359ABFA695048C6896A76F4 /* UIImage+Normalize.swift in Sources */,
+				E5EDBC9297B04DF096B32252 /* ImageStore.swift in Sources */,
+				62E8D68AA49B461C9793B1EF /* PhotoPicker.swift in Sources */,
+				0511F1EB88C14253B642A706 /* ImageCropperView.swift in Sources */,
+				1BD98247CD1440F385E85479 /* SettingsView.swift in Sources */,
+				33012598787F4BC6BB2AB8B4 /* AcciaccaProfApp.swift in Sources */,
+				7CB1357E2BA04F10A600EA75 /* CircolareView.swift in Sources */,
+				B6C9E5488362428C9898DD94 /* ContentView.swift in Sources */,
+				53E4F4BFAA624558AC60F03E /* GameScene.swift in Sources */,
+				908BB2F7A12C4947A77A485C /* GameState.swift in Sources */,
+				68E2DD3B2E234AE29CC70464 /* Layout.swift in Sources */,
+				210DD2DFF75E4A62A2DBEDBF /* ShowCircolareView.swift in Sources */,
+				42F63E8CF57C457F8FB4777D /* SoundPlayer.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		0067755434B7447281AE0731 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				DEVELOPMENT_TEAM = "";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		0510F296924D44A682B55353 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				DEVELOPMENT_TEAM = "";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		3658B1D6018142799B852E39 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 26NHYTD9RQ;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = AcciaccaProf/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = it.semproxlab.acciaccaprof;
+				PRODUCT_NAME = "Acciacca Prof";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		BE9E230D3F19494F8D2EAEA7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 26NHYTD9RQ;
+				INFOPLIST_FILE = AcciaccaProf/Info.plist;
+				PRODUCT_BUNDLE_IDENTIFIER = it.semproxlab.acciaccaprof;
+				PRODUCT_NAME = "Acciacca Prof";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		C9D650DF30F74889B96B40B9 /* Build configuration list for PBXNativeTarget "Acciacca Prof" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3658B1D6018142799B852E39 /* Debug */,
+				BE9E230D3F19494F8D2EAEA7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EEC311ABC4CA48339521B2DD /* Build configuration list for PBXProject "Acciacca Prof" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0510F296924D44A682B55353 /* Debug */,
+				0067755434B7447281AE0731 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0372AA8572A34511A260196D /* Project object */;
+}

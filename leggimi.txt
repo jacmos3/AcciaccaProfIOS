@@ -1,0 +1,6 @@
+Dentro la cartella dati non modificare nessun contenuto manualmente.
+Se si desidera cambiare le foto, avviare il programma cliccare sul puslante "personalizzazioni"
+
+le dimensioni delle foto da inserire devono essere di 100X120 pixel
+
+Questo programma richiede l'audio :P
