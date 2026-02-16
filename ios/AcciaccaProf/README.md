@@ -1,5 +1,9 @@
 Acciacca Prof (iOS)
 
+Questo progetto e' il porting iOS di un vecchio software sviluppato nel 2008 in Delphi.
+Pagina di download originale (storica):
+`https://moscio88.altervista.org/acciaccaprof/`
+
 Avvio rapido in Xcode:
 1) Crea un nuovo progetto iOS > App (SwiftUI) con bundle id `it.semproxlab.acciaccaprof` e iOS 15.
 2) Sostituisci il contenuto della cartella del target con i file in `ios/AcciaccaProf/AcciaccaProf/`.
