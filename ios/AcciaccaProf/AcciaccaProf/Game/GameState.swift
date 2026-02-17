@@ -11,8 +11,9 @@ final class GameState: ObservableObject {
     @Published var sfuggiti = 0 { didSet { calcolaVoto() } }
     @Published var sbagliati = 0 { didSet { calcolaVoto() } }
     @Published var voto = 0
-    @Published var punti = 0
+    @Published var punti: Double = 0.0
     @Published var gameOver = false
+    @Published var inPentathlon = false
 
     @Published var suoni = true
     @Published var sottofondo = false
@@ -23,10 +24,11 @@ final class GameState: ObservableObject {
         sfuggiti = 0
         sbagliati = 0
         voto = 0
-        punti = 0
+        punti = 0.0
         level = 1
         stageCount = 0
         gameOver = false
+        inPentathlon = false
     }
 
     func calcolaVoto() {
@@ -52,17 +54,18 @@ final class GameState: ObservableObject {
             }
         default:
             if stageCount >= 10 {
-                running = false
-                paused = false
-                gameOver = true
+                level = 4
+                stageCount = 0
+                inPentathlon = true
             }
         }
     }
 
     func addPoints(_ delta: Int) {
         let multiplier = scoreMultiplier(for: velocita)
-        let adjusted = Int((Double(delta) * multiplier).rounded())
+        let adjusted = Double(delta) * multiplier
         punti += adjusted
+        punti = (punti * 100).rounded() / 100
         calcolaVoto()
     }
 

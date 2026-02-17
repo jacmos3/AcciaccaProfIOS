@@ -23,8 +23,14 @@
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="reloaded" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="reloaded-label">
                                 <rect key="frame" x="0.0" y="0.0" width="200" height="28" />
-                                <fontDescription key="fontDescription" type="system" weight="regular" pointSize="20" />
+                                <fontDescription key="fontDescription" type="system" weight="regular" pointSize="26.4" />
                                 <color key="textColor" red="0.15" green="0.15" blue="0.15" alpha="1" colorSpace="custom" customColorSpace="sRGB" />
+                                <nil key="highlightedColor" />
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="2008→2026" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="years-label">
+                                <rect key="frame" x="0.0" y="0.0" width="140" height="22" />
+                                <fontDescription key="fontDescription" type="system" weight="regular" pointSize="14.4" />
+                                <color key="textColor" red="0.2" green="0.2" blue="0.2" alpha="1" colorSpace="custom" customColorSpace="sRGB" />
                                 <nil key="highlightedColor" />
                             </label>
                         </subviews>
@@ -34,8 +40,10 @@
                             <constraint firstItem="LZc-3J-7gS" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="S47-7E-9wV" />
                             <constraint firstItem="reloaded-label" firstAttribute="top" secondItem="LZc-3J-7gS" secondAttribute="bottom" constant="6" id="reloaded-top" />
                             <constraint firstItem="reloaded-label" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="reloaded-cx" />
+                            <constraint firstItem="years-label" firstAttribute="top" secondItem="reloaded-label" secondAttribute="bottom" constant="4" id="years-top" />
+                            <constraint firstItem="years-label" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="years-cx" />
                         </constraints>
-                        <color key="backgroundColor" red="0.85" green="0.85" blue="0.85" alpha="1" colorSpace="custom" customColorSpace="sRGB" />
+                        <color key="backgroundColor" red="0.8274509804" green="0.8274509804" blue="0.8274509804" alpha="1" colorSpace="custom" customColorSpace="sRGB" />
                     </view>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder" />

@@ -13,7 +13,15 @@ struct ContentView: View {
     @State private var showGameOver = false
     @State private var showInstructions = false
     @State private var showNote = false
+    @State private var showPentathlonRule = false
+    @State private var pentathlonRuleText = ""
+    @State private var showPentathlonComplete = false
+    @State private var pentathlonCompleteText = ""
+    @State private var pentathlonCompleteNext: Int?
+    @State private var showPentathlonRetry = false
     @State private var isPreloading = true
+    @State private var elapsedSeconds: Int = 0
+    private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     private let baseSize = CGSize(width: 618, height: 543)
     private let layout = LayoutStore(jsonName: "unit1_layout_all")
@@ -80,8 +88,18 @@ struct ContentView: View {
             }
         }
         .onAppear { configureScene() }
+        .onReceive(timer) { _ in
+            if gameState.running && !gameState.paused {
+                elapsedSeconds += 1
+            }
+        }
         .onChange(of: gameState.sottofondo) { enabled in
             SoundPlayer.shared.setBackground(enabled: enabled, name: "sottofondo.m4a")
+        }
+        .onChange(of: gameState.inPentathlon) { started in
+            if started {
+                scene.queuePentathlonMode(rawValue: 1)
+            }
         }
         .onChange(of: gameState.gameOver) { ended in
             if ended {
@@ -121,17 +139,44 @@ struct ContentView: View {
         .alert("Partita finita", isPresented: $showGameOver) {
             Button("OK", role: .cancel) { gameState.gameOver = false }
         } message: {
-            Text("Punteggio finale: \(gameState.punti). Voto in decimi: \(gameState.voto)/10. Puoi ricominciare da capo premendo Start.")
+            Text("Punteggio finale: \(formatPoints(gameState.punti)). Voto in decimi: \(gameState.voto)/10. Puoi ricominciare da capo premendo Start.")
         }
         .alert("Istruzioni", isPresented: $showInstructions) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text("Punteggi (moltiplicati dalla velocita'):\n• +2 colpisci prof cattivo\n• -1 prof cattivo sfuggito\n• -2 colpisci prof buono\n• +1 prof buono lasciato andare\n• +5 colpisci bidella\n• -1 bidella lasciata andare\n• -1 colpisci un bambino (zampilli)\n• -1 colpo a vuoto\n• +10 circolare buona\n• -10 circolare cattiva\n\nVelocita': la velocita' applica un moltiplicatore logaritmico ai punti, da 0.5x (velocita' 0) fino a 3x (velocita' 100).\n\nLivelli (automatici):\n1) Solo prof cattivo (10 uscite)\n2) Prof cattivo + prof buono (10 uscite)\n3) Come il 2 + bidella con circolari (10 uscite)\nAl termine il gioco finisce e puoi ricominciare con Start.")
+            Text("Punteggi (moltiplicati dalla velocita'):\n• +2 colpisci prof cattivo\n• -1 prof cattivo sfuggito\n• -2 colpisci prof buono\n• +1 prof buono lasciato andare\n• +5 colpisci bidella\n• -1 bidella lasciata andare\n• -1 colpisci un bambino (zampilli)\n• -1 colpo a vuoto\n• +10 circolare buona\n• -10 circolare cattiva\n\nVelocita': la velocita' applica un moltiplicatore logaritmico ai punti, da 0.5x (velocita' 0) fino a 3x (velocita' 100).\n\nLivelli (automatici):\n1) Solo prof cattivo (10 uscite)\n2) Prof cattivo + prof buono (10 uscite)\n3) Come il 2 + bidella con circolari (10 uscite)\n4) Pentathlon: 5 prove speciali (Memory, Riflessi, Scambio di posto, Intruso A/B, Sequenza)\nAl termine il gioco finisce e puoi ricominciare con Start.")
         }
         .alert("NOTE", isPresented: $showNote) {
             Button("OK", role: .cancel) {}
         } message: {
             Text("Questo gioco e' stato sviluppato in Delphi nel 2008 tra i banchi di scuola del quinto liceo da Jacopo Moscioni, come svago. Era diventato un po' popolare tra i frequentatori del forum del liceo del tempo, e fu pubblicato su pierotofy, un portale di giovani programmatori. 18 anni dopo, nel 2026, rinasce sottoforma di app per iOS, nella versione Reloaded, con le stesse grafiche e stessi suoni del tempo. E' stata un pochino migliorata solo la dinamica dei livelli e dei punteggi, ma il gameplay e' rimasto identico e semplice come al tempo.")
+        }
+        .alert("Pentathlon", isPresented: $showPentathlonRule) {
+            Button("OK") {
+                scene.startPendingPentathlonMode()
+                gameState.paused = false
+            }
+        } message: {
+            Text(pentathlonRuleText)
+        }
+        .alert("Pentathlon", isPresented: $showPentathlonComplete) {
+            Button("OK") {
+                if let next = pentathlonCompleteNext {
+                    scene.queuePentathlonMode(rawValue: next)
+                } else {
+                    gameState.paused = false
+                }
+            }
+        } message: {
+            Text(pentathlonCompleteText)
+        }
+        .alert("Sequenza sbagliata", isPresented: $showPentathlonRetry) {
+            Button("OK") {
+                scene.restartPentathlonSequenceAfterRetry()
+                gameState.paused = false
+            }
+        } message: {
+            Text("Hai sbagliato la sequenza. Il minigioco riparte da capo.")
         }
     }
 
@@ -147,10 +192,39 @@ struct ContentView: View {
         scene.onPreloadComplete = {
             isPreloading = false
         }
+        scene.onShowPentathlonRule = { mode in
+            pentathlonRuleText = pentathlonRuleMessage(for: mode)
+            showPentathlonRule = true
+        }
+        scene.onShowPentathlonComplete = { current, next in
+            pentathlonCompleteNext = next
+            pentathlonCompleteText = "Minigioco completato! Ora inizia il prossimo."
+            showPentathlonComplete = true
+        }
+        scene.onShowPentathlonRetry = {
+            showPentathlonRetry = true
+        }
         SoundPlayer.shared.preload(names: ["profmorto.wav","bidella.wav","bambinomorto.wav","fuori.wav","siii.wav","nooo.wav","sottofondo.m4a"]) {
             scene.preloadIfNeeded()
         }
         scene.preloadIfNeeded()
+    }
+
+    private func pentathlonRuleMessage(for mode: Int) -> String {
+        switch mode {
+        case 1:
+            return "Memory: per 0.5s vedi 4 prof (2 buoni, 2 cattivi). Poi si coprono. Abbina le coppie. +2 corretto, -1 errore."
+        case 2:
+            return "Doppio colpo sincronizzato: compaiono 2 prof cattivi e 1 buono. Devi colpire i 2 cattivi insieme con due dita. +3 corretto, -2 errore."
+        case 3:
+            return "Scambio di posto: appaiono 6 prof. Poi 2 si scambiano di posto. Tocca uno dei due che si sono mossi. +2 corretto, -2 errore."
+        case 4:
+            return "Intruso A/B: compaiono 4 griglie A-B-A-B. Solo un banco cambia tra A e B. Tocca quello che cambia. +3 corretto, -2 errore."
+        case 5:
+            return "Sequenza: i prof appaiono in ordine. Ripeti toccando i banchi nella stessa sequenza. Errore = -2 e si riparte."
+        default:
+            return ""
+        }
     }
 
     private var preloadOverlay: some View {
@@ -189,8 +263,8 @@ struct ContentView: View {
             label("Label5", font: boardFont)
             label("Label9", font: boardFont)
 
-            valueLabel("profcolpiti", font: Font.system(size: showControls ? 27 : 16, weight: .bold), value: "\(gameState.punti)")
-            valueLabel("lblvoto", font: .system(size: 12, weight: .bold), value: "\(gameState.voto)")
+            valueLabel("profcolpiti", font: Font.system(size: showControls ? 27 : 16, weight: .bold), value: formatPoints(gameState.punti))
+            valueLabel("lblvoto", font: .system(size: 13.2, weight: .bold), value: "\(gameState.voto)")
 
             if showControls {
                 EmptyView()
@@ -218,7 +292,7 @@ struct ContentView: View {
             if text.isEmpty {
                 EmptyView()
             } else {
-                let xShift: CGFloat = name == "Label3" ? 60 : 0
+                let xShift: CGFloat = name == "Label3" ? 210 : 0
                 Text(text)
                     .font(font)
                     .frame(width: width, height: frame.height, alignment: .leading)
@@ -274,9 +348,9 @@ struct ContentView: View {
             let xShift: CGFloat = {
                 switch name {
                 case "profcolpiti":
-                    return 10
+                    return 180
                 case "lblvoto":
-                    return 62
+                    return 61
                 default:
                     return 0
                 }
@@ -294,7 +368,7 @@ struct ContentView: View {
     private func valueLabelExtraWidth(_ name: String) -> CGFloat {
         switch name {
         case "profcolpiti", "profsfuggiti", "colpisbagliati":
-            return 34
+            return 80
         case "lblvoto":
             return 40
         default:
@@ -393,8 +467,11 @@ struct ContentView: View {
                     if gameState.running {
                         gameState.running = false
                         gameState.paused = false
+                        elapsedSeconds = 0
                     } else {
                         gameState.resetScores()
+                        elapsedSeconds = 0
+                        gameState.paused = false
                         gameState.running = true
                         scene.resetForStart()
                     }
@@ -406,6 +483,10 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity, minHeight: 44)
                 .background(Color.white.opacity(0.9))
                 .cornerRadius(8)
+
+                Text(formatElapsed(elapsedSeconds))
+                    .font(.system(size: 14, weight: .semibold, design: .monospaced))
+                    .frame(minWidth: 70)
 
                 Button(action: {
                     if gameState.running {
@@ -421,6 +502,28 @@ struct ContentView: View {
                 .cornerRadius(8)
                 .opacity(gameState.running ? 1 : 0.4)
             }
+
+            Button(gameState.inPentathlon ? "Vai al prossimo" : "Vai al Pentathlon") {
+                if !gameState.inPentathlon {
+                    if !gameState.running {
+                        gameState.resetScores()
+                        elapsedSeconds = 0
+                        gameState.paused = false
+                        gameState.running = true
+                        scene.resetForStart()
+                    }
+                    gameState.level = 4
+                    gameState.stageCount = 0
+                    gameState.inPentathlon = true
+                    gameState.paused = false
+                } else {
+                    scene.debugSkipPentathlonMode()
+                }
+            }
+            .font(buttonFont)
+            .frame(maxWidth: .infinity, minHeight: 36)
+            .background(Color.white.opacity(0.85))
+            .cornerRadius(8)
 
             VStack(alignment: .leading, spacing: 10) {
                 Toggle("Sottofondo", isOn: $gameState.sottofondo)
@@ -453,8 +556,11 @@ struct ContentView: View {
                     if gameState.running {
                         gameState.running = false
                         gameState.paused = false
+                        elapsedSeconds = 0
                     } else {
                         gameState.resetScores()
+                        elapsedSeconds = 0
+                        gameState.paused = false
                         gameState.running = true
                         scene.resetForStart()
                     }
@@ -463,6 +569,10 @@ struct ContentView: View {
                         .labelStyle(.titleAndIcon)
                 }
                 .frame(maxWidth: .infinity, minHeight: 44)
+
+                Text(formatElapsed(elapsedSeconds))
+                    .font(.system(size: 14, weight: .semibold, design: .monospaced))
+                    .frame(minWidth: 70)
 
                 Button(action: {
                     if gameState.running {
@@ -475,6 +585,25 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity, minHeight: 44)
                 .opacity(gameState.running ? 1 : 0)
             }
+
+            Button(gameState.inPentathlon ? "Vai al prossimo" : "Vai al Pentathlon") {
+                if !gameState.inPentathlon {
+                    if !gameState.running {
+                        gameState.resetScores()
+                        elapsedSeconds = 0
+                        gameState.paused = false
+                        gameState.running = true
+                        scene.resetForStart()
+                    }
+                    gameState.level = 4
+                    gameState.stageCount = 0
+                    gameState.inPentathlon = true
+                    gameState.paused = false
+                } else {
+                    scene.debugSkipPentathlonMode()
+                }
+            }
+            .frame(maxWidth: .infinity, minHeight: 36)
 
             HStack(spacing: 12) {
                 Toggle("Suoni", isOn: $gameState.suoni)
@@ -560,6 +689,17 @@ struct ContentView: View {
             get: { Double(gameState.velocita) },
             set: { gameState.velocita = Int($0) }
         )
+    }
+
+    private func formatElapsed(_ seconds: Int) -> String {
+        let h = seconds / 3600
+        let m = (seconds % 3600) / 60
+        let s = seconds % 60
+        return String(format: "%02d:%02d:%02d", h, m, s)
+    }
+
+    private func formatPoints(_ value: Double) -> String {
+        String(format: "%.2f", value)
     }
 }
 #Preview("Static Landscape") {
