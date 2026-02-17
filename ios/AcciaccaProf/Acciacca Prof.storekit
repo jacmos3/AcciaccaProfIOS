@@ -1,0 +1,20 @@
+{
+  "identifier" : "A74E5E3F-6F4A-4B0A-8D6C-14E49B71A6C9",
+  "type" : "storekit",
+  "version" : 1,
+  "products" : [
+    {
+      "id" : "it.semproxlab.acciaccaprof.personalizzazioni",
+      "type" : "nonconsumable",
+      "name" : "Sblocca Personalizzazioni",
+      "description" : "Sblocca prof buoni/cattivi, bidella e Perla.",
+      "price" : 2.99,
+      "displayPrice" : "$2.99",
+      "familyShareable" : false
+    }
+  ],
+  "settings" : {
+    "storefront" : "USA",
+    "locale" : "en_US"
+  }
+}

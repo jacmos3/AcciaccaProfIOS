@@ -13,12 +13,18 @@ struct ContentView: View {
     @State private var showGameOver = false
     @State private var showInstructions = false
     @State private var showNote = false
+    @State private var showExistential = false
+    @State private var existentialAnswer = ""
     @State private var showPentathlonRule = false
     @State private var pentathlonRuleText = ""
     @State private var showPentathlonComplete = false
     @State private var pentathlonCompleteText = ""
     @State private var pentathlonCompleteNext: Int?
     @State private var showPentathlonRetry = false
+    @State private var showLevelAlert = false
+    @State private var levelAlertText = ""
+    @State private var showPrivateAlert = false
+    @State private var privateAlertText = ""
     @State private var isPreloading = true
     @State private var elapsedSeconds: Int = 0
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -144,12 +150,36 @@ struct ContentView: View {
         .alert("Istruzioni", isPresented: $showInstructions) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text("Punteggi (moltiplicati dalla velocita'):\n• +2 colpisci prof cattivo\n• -1 prof cattivo sfuggito\n• -2 colpisci prof buono\n• +1 prof buono lasciato andare\n• +5 colpisci bidella\n• -1 bidella lasciata andare\n• -1 colpisci un bambino (zampilli)\n• -1 colpo a vuoto\n• +10 circolare buona\n• -10 circolare cattiva\n\nVelocita': la velocita' applica un moltiplicatore logaritmico ai punti, da 0.5x (velocita' 0) fino a 3x (velocita' 100).\n\nLivelli (automatici):\n1) Solo prof cattivo (10 uscite)\n2) Prof cattivo + prof buono (10 uscite)\n3) Come il 2 + bidella con circolari (10 uscite)\n4) Pentathlon: 5 prove speciali (Memory, Riflessi, Scambio di posto, Intruso A/B, Sequenza)\nAl termine il gioco finisce e puoi ricominciare con Start.")
+            Text("Punteggi (moltiplicati dalla velocita'):\n• +2 colpisci prof cattivo\n• -1 prof cattivo sfuggito\n• -2 colpisci prof buono\n• +1 prof buono lasciato andare\n• +5 colpisci bidella\n• -1 bidella lasciata andare\n• -1 colpisci un bambino (zampilli)\n• -1 colpo a vuoto\n• +10 circolare buona\n• -10 circolare cattiva\n\nVelocita': la velocita' applica un moltiplicatore logaritmico ai punti, da 0.5x (velocita' 0) fino a 3x (velocita' 100).\nTabella moltiplicatori:\n• 0% = 0.50x\n• 25% = 1.78x\n• 50% = 2.35x\n• 75% = 2.72x\n• 100% = 3.00x\n\nLivelli (automatici):\n1) Solo prof cattivo (10 uscite)\n2) Prof cattivo + prof buono (10 uscite)\n3) Come il 2 + bidella con circolari (10 uscite)\n4) Pentathlon: 5 prove speciali (Memory, Riflessi, Scambio di posto, Intruso A/B, Sequenza)\nAl termine il gioco finisce e puoi ricominciare con Start.")
         }
         .alert("NOTE", isPresented: $showNote) {
             Button("OK", role: .cancel) {}
+            Button("okok") {
+                showNote = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    showExistential = true
+                }
+            }
         } message: {
             Text("Questo gioco e' stato sviluppato in Delphi nel 2008 tra i banchi di scuola del quinto liceo da Jacopo Moscioni, come svago. Era diventato un po' popolare tra i frequentatori del forum del liceo del tempo, e fu pubblicato su pierotofy, un portale di giovani programmatori. 18 anni dopo, nel 2026, rinasce sottoforma di app per iOS, nella versione Reloaded, con le stesse grafiche e stessi suoni del tempo. E' stata un pochino migliorata solo la dinamica dei livelli e dei punteggi, ma il gameplay e' rimasto identico e semplice come al tempo.")
+        }
+        .alert("Domanda", isPresented: $showExistential) {
+            TextField("Risposta", text: $existentialAnswer)
+            Button("OK") {
+                let cleaned = existentialAnswer.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+                if cleaned == "VA" {
+                    scene.setPrivateFacesEnabled(true)
+                } else {
+                    privateAlertText = "Sono contento."
+                    showPrivateAlert = true
+                }
+                existentialAnswer = ""
+            }
+            Button("Annulla", role: .cancel) {
+                existentialAnswer = ""
+            }
+        } message: {
+            Text("Se l'universo è un pensiero che sogna se stesso, chi sta sognando te?")
         }
         .alert("Pentathlon", isPresented: $showPentathlonRule) {
             Button("OK") {
@@ -178,6 +208,25 @@ struct ContentView: View {
         } message: {
             Text("Hai sbagliato. Il minigioco riparte da capo.")
         }
+        .alert("Livello", isPresented: $showLevelAlert) {
+            Button("OK", role: .cancel) {
+                gameState.paused = false
+            }
+        } message: {
+            Text(levelAlertText)
+        }
+        .alert("", isPresented: $showPrivateAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(privateAlertText)
+        }
+        .onReceive(gameState.$levelUpTrigger) { value in
+            guard value == 2 || value == 3 else { return }
+            gameState.paused = true
+            levelAlertText = "Sei passato al livello \(value)!"
+            showLevelAlert = true
+            gameState.levelUpTrigger = 0
+        }
     }
 
     private func configureScene() {
@@ -204,6 +253,10 @@ struct ContentView: View {
         scene.onShowPentathlonRetry = {
             showPentathlonRetry = true
         }
+        scene.onShowPrivateFacesUnlocked = { enabled in
+            privateAlertText = enabled ? "Prov VA attivati." : "Prof privati disattivati."
+            showPrivateAlert = true
+        }
         SoundPlayer.shared.preload(names: ["profmorto.wav","bidella.wav","bambinomorto.wav","fuori.wav","siii.wav","nooo.wav","sottofondo.m4a"]) {
             scene.preloadIfNeeded()
         }
@@ -217,9 +270,9 @@ struct ContentView: View {
         case 2:
             return "Riflessi: compaiono 3 prof cattivi e 3 buoni a comparsa. Colpisci solo i cattivi: quando li prendi spariscono per sempre. Se colpisci un buono, il minigioco riparte."
         case 3:
-            return "Scambio di posto: appaiono 6 prof. Poi 2 si scambiano di posto. Tocca uno dei due che si sono mossi. +2 corretto, -2 errore."
+            return "Scambio di posto: appaiono 3 buoni, 3 cattivi, bidella e Perla sui banchi laterali. Poi si coprono. Al centro appare uno alla volta: tocca il banco dove era seduto. Se sbagli, si riparte."
         case 4:
-            return "Intruso A/B: compaiono 4 griglie A-B-A-B. Solo un banco cambia tra A e B. Tocca quello che cambia. +3 corretto, -2 errore."
+            return "Logica: trovi 8 personaggi sui banchi. C'e' una sola regola violata. Tocca chi e' fuori posto (es: due cattivi vicini, bidella non in alto, Perla al centro)."
         case 5:
             return "Sequenza: i prof appaiono in ordine. Ripeti toccando i banchi nella stessa sequenza. Errore = -2 e si riparte."
         default:
@@ -263,7 +316,7 @@ struct ContentView: View {
             label("Label5", font: boardFont)
             label("Label9", font: boardFont)
 
-            valueLabel("profcolpiti", font: Font.system(size: showControls ? 27 : 16, weight: .bold), value: formatPoints(gameState.punti))
+            valueLabel("profcolpiti", font: Font.system(size: showControls ? 24.3 : 14.4, weight: .bold), value: formatPoints(gameState.punti))
             valueLabel("lblvoto", font: .system(size: 13.2, weight: .bold), value: "\(gameState.voto)")
 
             if showControls {
@@ -487,20 +540,6 @@ struct ContentView: View {
                 Text(formatElapsed(elapsedSeconds))
                     .font(.system(size: 14, weight: .semibold, design: .monospaced))
                     .frame(minWidth: 70)
-
-                Button(action: {
-                    if gameState.running {
-                        gameState.paused.toggle()
-                    }
-                }) {
-                    Label(gameState.paused ? "Riprendi" : "Pausa", systemImage: gameState.paused ? "playpause.fill" : "pause.fill")
-                        .labelStyle(.titleAndIcon)
-                }
-                .font(buttonFont)
-                .frame(maxWidth: .infinity, minHeight: 44)
-                .background(Color.white.opacity(0.9))
-                .cornerRadius(8)
-                .opacity(gameState.running ? 1 : 0.4)
             }
 
             Button(gameState.inPentathlon ? "Vai al prossimo" : "Vai al Pentathlon") {
@@ -573,17 +612,6 @@ struct ContentView: View {
                 Text(formatElapsed(elapsedSeconds))
                     .font(.system(size: 14, weight: .semibold, design: .monospaced))
                     .frame(minWidth: 70)
-
-                Button(action: {
-                    if gameState.running {
-                        gameState.paused.toggle()
-                    }
-                }) {
-                    Label(gameState.paused ? "Riprendi" : "Pausa", systemImage: gameState.paused ? "playpause.fill" : "pause.fill")
-                        .labelStyle(.titleAndIcon)
-                }
-                .frame(maxWidth: .infinity, minHeight: 44)
-                .opacity(gameState.running ? 1 : 0)
             }
 
             Button(gameState.inPentathlon ? "Vai al prossimo" : "Vai al Pentathlon") {

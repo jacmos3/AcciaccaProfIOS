@@ -16,10 +16,12 @@
 		33012598787F4BC6BB2AB8B4 /* AcciaccaProfApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E56DC98A4B2431D925860E2 /* AcciaccaProfApp.swift */; };
 		3359ABFA695048C6896A76F4 /* UIImage+Normalize.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEC08B7B5FD347CD95A3CB64 /* UIImage+Normalize.swift */; };
 		42F63E8CF57C457F8FB4777D /* SoundPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06950644D5AE466EB2EBB00F /* SoundPlayer.swift */; };
+		7C6C8D9C8C0C4B52B4F9F8C1 /* PurchaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B1F6E9F2A6C4B6E9C77E55F /* PurchaseManager.swift */; };
 		53E4F4BFAA624558AC60F03E /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 118A104C58DD4D97BA439DB7 /* GameScene.swift */; };
 		62E8D68AA49B461C9793B1EF /* PhotoPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8711B46FA994216A630599B /* PhotoPicker.swift */; };
 		68E2DD3B2E234AE29CC70464 /* Layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C40AC77DE744842871AE7C3 /* Layout.swift */; };
 		7CB1357E2BA04F10A600EA75 /* CircolareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69A963697CD4A47810DE3D3 /* CircolareView.swift */; };
+		8C7B0D2D6D3B4E3B8F35D2E6 /* Acciacca Prof.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 9A7F4D2C5E1B4AF3B40B4B5F /* Acciacca Prof.storekit */; };
 		8E42A2BBED864678A8F24228 /* layout in Resources */ = {isa = PBXBuildFile; fileRef = 4F8478B78F344C28AC2B92CC /* layout */; };
 		908BB2F7A12C4947A77A485C /* GameState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CE2E67C88C7418EAD09E3F1 /* GameState.swift */; };
 		998B948925B440A58EE6209A /* sounds in Resources */ = {isa = PBXBuildFile; fileRef = 7F3F59052A5B47AE96F06DDD /* sounds */; };
@@ -34,12 +36,13 @@
 		4C3D4A7B2E6C4B2DB9B1F6F1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/AppDelegate.swift; sourceTree = "<group>"; };
 		B3A2386270104D7E9A93BFE4 /* ZOrderStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game/ZOrderStore.swift; sourceTree = "<group>"; };
 		04E9BE7BB62148D2A5E72EBA /* ImageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/ImageStore.swift; sourceTree = "<group>"; };
+		3B1F6E9F2A6C4B6E9C77E55F /* PurchaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/PurchaseManager.swift; sourceTree = "<group>"; };
 		06950644D5AE466EB2EBB00F /* SoundPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/SoundPlayer.swift; sourceTree = "<group>"; };
 		118A104C58DD4D97BA439DB7 /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game/GameScene.swift; sourceTree = "<group>"; };
 		1429BBBFCB5E437BA0211D28 /* Acciacca Prof.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = "Acciacca Prof.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3AE20D6A07314B33A27F1F22 /* ImageCropperView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/ImageCropperView.swift; sourceTree = "<group>"; };
 		41F0BDB02E2C4F53A3182FFE /* ShowCircolareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/ShowCircolareView.swift; sourceTree = "<group>"; };
-		48F795602A904EF3B958A7BE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Assets.xcassets; sourceTree = "<group>"; };
+		48F795602A904EF3B958A7BE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4C52DAAD0B544034A92A2EF2 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/ContentView.swift; sourceTree = "<group>"; };
 		4F8478B78F344C28AC2B92CC /* layout */ = {isa = PBXFileReference; lastKnownFileType = folder; path = layout; sourceTree = "<group>"; };
 		5E56DC98A4B2431D925860E2 /* AcciaccaProfApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/AcciaccaProfApp.swift; sourceTree = "<group>"; };
@@ -48,6 +51,7 @@
 		7EA45024997B4DD7B5B8B11E /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/SettingsView.swift; sourceTree = "<group>"; };
 		7F3F59052A5B47AE96F06DDD /* sounds */ = {isa = PBXFileReference; lastKnownFileType = folder; path = sounds; sourceTree = "<group>"; };
 		9C40AC77DE744842871AE7C3 /* Layout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game/Layout.swift; sourceTree = "<group>"; };
+		9A7F4D2C5E1B4AF3B40B4B5F /* Acciacca Prof.storekit */ = {isa = PBXFileReference; lastKnownFileType = file.storekit; path = "Acciacca Prof.storekit"; sourceTree = "<group>"; };
 		B69A963697CD4A47810DE3D3 /* CircolareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/CircolareView.swift; sourceTree = "<group>"; };
 		DCFEAE79B8154D86852CA073 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = App/Info.plist; sourceTree = "<group>"; };
 		E8711B46FA994216A630599B /* PhotoPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/PhotoPicker.swift; sourceTree = "<group>"; };
@@ -60,6 +64,7 @@
 			children = (
 				8C47B79E36A9494AA277E998 /* AcciaccaProf */,
 				7AA7CCA64E684BF2B9E46D36 /* Resources */,
+				9A7F4D2C5E1B4AF3B40B4B5F /* Acciacca Prof.storekit */,
 				BE3B97A548204B0FBBD07E97,
 				EADB0A962F436BC5008B2D3D /* Recovered References */,
 			);
@@ -146,6 +151,7 @@
 			children = (
 				06950644D5AE466EB2EBB00F /* SoundPlayer.swift */, 
 				04E9BE7BB62148D2A5E72EBA /* ImageStore.swift */, 
+				3B1F6E9F2A6C4B6E9C77E55F /* PurchaseManager.swift */, 
 			);
 			name = Services;
 			sourceTree = "<group>";
@@ -215,6 +221,7 @@
 				A224A1BFE7AA4249B1F7452B /* images in Resources */,
 				998B948925B440A58EE6209A /* sounds in Resources */,
 				8E42A2BBED864678A8F24228 /* layout in Resources */,
+				8C7B0D2D6D3B4E3B8F35D2E6 /* Acciacca Prof.storekit in Resources */,
 				D29189C853F84122A22DEC04 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -241,6 +248,7 @@
 				68E2DD3B2E234AE29CC70464 /* Layout.swift in Sources */,
 				210DD2DFF75E4A62A2DBEDBF /* ShowCircolareView.swift in Sources */,
 				42F63E8CF57C457F8FB4777D /* SoundPlayer.swift in Sources */,
+				7C6C8D9C8C0C4B52B4F9F8C1 /* PurchaseManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

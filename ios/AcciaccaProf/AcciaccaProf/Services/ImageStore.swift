@@ -5,6 +5,7 @@ enum CharacterSlot: String, CaseIterable, Identifiable {
     case cattivo1, cattivo2, cattivo3
     case buono1, buono2, buono3
     case bidella
+    case perla
 
     var id: String { rawValue }
 
@@ -17,6 +18,7 @@ enum CharacterSlot: String, CaseIterable, Identifiable {
         case .buono2: return "Prof buono 2"
         case .buono3: return "Prof buono 3"
         case .bidella: return "Bidella"
+        case .perla: return "Perla"
         }
     }
 
@@ -29,6 +31,20 @@ enum CharacterSlot: String, CaseIterable, Identifiable {
         case .buono2: return "buoni_2.jpg"
         case .buono3: return "buoni_3.jpg"
         case .bidella: return "bidella_1.jpg"
+        case .perla: return "perla_1.jpg"
+        }
+    }
+
+    var baseName: String {
+        switch self {
+        case .cattivo1: return "cattivi_1"
+        case .cattivo2: return "cattivi_2"
+        case .cattivo3: return "cattivi_3"
+        case .buono1: return "buoni_1"
+        case .buono2: return "buoni_2"
+        case .buono3: return "buoni_3"
+        case .bidella: return "bidella_1"
+        case .perla: return "perla_1"
         }
     }
 }

@@ -4,11 +4,13 @@ import Photos
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @StateObject private var store = ImageStore.shared
+    @StateObject private var purchase = PurchaseManager.shared
 
     @State private var showingPicker = false
     @State private var showPhotoPermissionAlert = false
     @State private var selectedSlot: CharacterSlot?
     @State private var selectedImage: CroppableImage?
+    @State private var showPurchaseError = false
 
     private struct CroppableImage: Identifiable {
         let id = UUID()
@@ -18,6 +20,47 @@ struct SettingsView: View {
     var body: some View {
         NavigationView {
             List {
+                Section {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Sblocca le personalizzazioni")
+                            .font(.headline)
+                        Text("Sblocchi: prof buoni, prof cattivi, bidella e Perla.")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                        if purchase.unlocked {
+                            Text("Sblocco attivo")
+                                .font(.subheadline)
+                                .foregroundColor(.green)
+                        } else {
+                            HStack {
+                                if purchase.isLoading {
+                                    ProgressView()
+                                }
+                                Button("Sblocca") {
+                                    Task { await purchase.purchase() }
+                                }
+                                .disabled(purchase.isLoading)
+                                Button("Ripristina acquisti") {
+                                    Task { await purchase.restore() }
+                                }
+                                .disabled(purchase.isLoading)
+                                Button("Ricarica") {
+                                    Task {
+                                        await purchase.refreshProducts()
+                                        await purchase.refreshEntitlements()
+                                    }
+                                }
+                                .disabled(purchase.isLoading)
+                            }
+                            if purchase.product == nil {
+                                Text("Prodotto non disponibile. Controlla StoreKit Configuration.")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
                 ForEach(CharacterSlot.allCases) { slot in
                     HStack(spacing: 12) {
                         preview(for: slot)
@@ -31,6 +74,8 @@ struct SettingsView: View {
                             selectedSlot = slot
                             requestPhotoAccess()
                         }
+                        .disabled(!purchase.unlocked)
+                        .opacity(purchase.unlocked ? 1 : 0.5)
                     }
                 }
                 Section {
@@ -73,6 +118,20 @@ struct SettingsView: View {
         } message: {
             Text("Consenti l'accesso alle foto per scegliere un'immagine. Puoi abilitarlo in Impostazioni > Privacy > Foto.")
         }
+        .alert("Errore acquisto", isPresented: $showPurchaseError) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(purchase.errorMessage ?? "Errore sconosciuto.")
+        }
+        .onReceive(purchase.$errorMessage) { newValue in
+            if newValue != nil {
+                showPurchaseError = true
+            }
+        }
+        .task {
+            await purchase.refreshProducts()
+            await purchase.refreshEntitlements()
+        }
     }
 
     private func preview(for slot: CharacterSlot) -> Image {
@@ -80,9 +139,13 @@ struct SettingsView: View {
         if let img = store.image(for: slot) {
             return Image(uiImage: img)
         }
-        if let url = Bundle.main.url(forResource: slot.fileName.replacingOccurrences(of: ".jpg", with: ""), withExtension: "jpg", subdirectory: "images"),
-           let img = UIImage(contentsOfFile: url.path) {
-            return Image(uiImage: img)
+        let baseName = slot.baseName
+        let exts = ["png","jpg","JPG","jpeg","JPEG"]
+        for ext in exts {
+            if let url = Bundle.main.url(forResource: baseName, withExtension: ext, subdirectory: "images"),
+               let img = UIImage(contentsOfFile: url.path) {
+                return Image(uiImage: img)
+            }
         }
         return Image(systemName: "person.crop.square")
     }

@@ -6,6 +6,7 @@ final class GameState: ObservableObject {
     @Published var paused = false
     @Published var level: Int = 1
     @Published var stageCount = 0
+    @Published var levelUpTrigger = 0
 
     @Published var colpiti = 0 { didSet { calcolaVoto() } }
     @Published var sfuggiti = 0 { didSet { calcolaVoto() } }
@@ -27,6 +28,7 @@ final class GameState: ObservableObject {
         punti = 0.0
         level = 1
         stageCount = 0
+        levelUpTrigger = 0
         gameOver = false
         inPentathlon = false
     }
@@ -46,11 +48,13 @@ final class GameState: ObservableObject {
             if stageCount >= 10 {
                 level = 2
                 stageCount = 0
+                levelUpTrigger = 2
             }
         case 2:
             if stageCount >= 10 {
                 level = 3
                 stageCount = 0
+                levelUpTrigger = 3
             }
         default:
             if stageCount >= 10 {
