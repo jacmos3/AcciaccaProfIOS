@@ -1,5 +1,5 @@
 import SwiftUI
-import UIKit
+import PhotosUI
 
 struct PhotoPicker: UIViewControllerRepresentable {
     let onImage: (UIImage) -> Void
@@ -9,17 +9,18 @@ struct PhotoPicker: UIViewControllerRepresentable {
         Coordinator(onImage: onImage, onCancel: onCancel)
     }
 
-    func makeUIViewController(context: Context) -> UIImagePickerController {
-        let picker = UIImagePickerController()
-        picker.sourceType = .photoLibrary
-        picker.allowsEditing = false
+    func makeUIViewController(context: Context) -> PHPickerViewController {
+        var config = PHPickerConfiguration(photoLibrary: .shared())
+        config.selectionLimit = 1
+        config.filter = .images
+        let picker = PHPickerViewController(configuration: config)
         picker.delegate = context.coordinator
         return picker
     }
 
-    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+    func updateUIViewController(_ uiViewController: PHPickerViewController, context: Context) {}
 
-    final class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    final class Coordinator: NSObject, PHPickerViewControllerDelegate {
         private let onImage: (UIImage) -> Void
         private let onCancel: () -> Void
 
@@ -28,15 +29,21 @@ struct PhotoPicker: UIViewControllerRepresentable {
             self.onCancel = onCancel
         }
 
-        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-            picker.dismiss(animated: true)
-            onCancel()
-        }
-
-        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-            picker.dismiss(animated: true)
-            if let image = info[.originalImage] as? UIImage {
-                onImage(image.normalizedImage())
+        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+            guard let itemProvider = results.first?.itemProvider else {
+                onCancel()
+                return
+            }
+            if itemProvider.canLoadObject(ofClass: UIImage.self) {
+                itemProvider.loadObject(ofClass: UIImage.self) { object, _ in
+                    DispatchQueue.main.async {
+                        if let image = object as? UIImage {
+                            self.onImage(image.normalizedImage())
+                        } else {
+                            self.onCancel()
+                        }
+                    }
+                }
             } else {
                 onCancel()
             }

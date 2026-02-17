@@ -7,91 +7,143 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		7B9E6C9E8E1A4C6E9DA4C3C2 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9F3D0E9C2C3E4C1C9F5A7F76 /* LaunchScreen.storyboard */; };
-		2A3E7EAA5B4D4E3A9A9B0E2C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C3D4A7B2E6C4B2DB9B1F6F1 /* AppDelegate.swift */; };
-		2F50D720BFCB4FB8BD9FEE19 /* ZOrderStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A2386270104D7E9A93BFE4 /* ZOrderStore.swift */; };
-		0511F1EB88C14253B642A706 /* ImageCropperView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE20D6A07314B33A27F1F22 /* ImageCropperView.swift */; };
-		1BD98247CD1440F385E85479 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EA45024997B4DD7B5B8B11E /* SettingsView.swift */; };
-		210DD2DFF75E4A62A2DBEDBF /* ShowCircolareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41F0BDB02E2C4F53A3182FFE /* ShowCircolareView.swift */; };
-		33012598787F4BC6BB2AB8B4 /* AcciaccaProfApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E56DC98A4B2431D925860E2 /* AcciaccaProfApp.swift */; };
-		3359ABFA695048C6896A76F4 /* UIImage+Normalize.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEC08B7B5FD347CD95A3CB64 /* UIImage+Normalize.swift */; };
-		42F63E8CF57C457F8FB4777D /* SoundPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06950644D5AE466EB2EBB00F /* SoundPlayer.swift */; };
-		7C6C8D9C8C0C4B52B4F9F8C1 /* PurchaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B1F6E9F2A6C4B6E9C77E55F /* PurchaseManager.swift */; };
-		53E4F4BFAA624558AC60F03E /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 118A104C58DD4D97BA439DB7 /* GameScene.swift */; };
-		62E8D68AA49B461C9793B1EF /* PhotoPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8711B46FA994216A630599B /* PhotoPicker.swift */; };
-		68E2DD3B2E234AE29CC70464 /* Layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C40AC77DE744842871AE7C3 /* Layout.swift */; };
-		7CB1357E2BA04F10A600EA75 /* CircolareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69A963697CD4A47810DE3D3 /* CircolareView.swift */; };
-		8C7B0D2D6D3B4E3B8F35D2E6 /* Acciacca Prof.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 9A7F4D2C5E1B4AF3B40B4B5F /* Acciacca Prof.storekit */; };
+		0511F1EB88C14253B642A706 /* Views/ImageCropperView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE20D6A07314B33A27F1F22 /* Views/ImageCropperView.swift */; };
+		1BD98247CD1440F385E85479 /* Views/SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EA45024997B4DD7B5B8B11E /* Views/SettingsView.swift */; };
+		210DD2DFF75E4A62A2DBEDBF /* Views/ShowCircolareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41F0BDB02E2C4F53A3182FFE /* Views/ShowCircolareView.swift */; };
+		2A3E7EAA5B4D4E3A9A9B0E2C /* App/AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C3D4A7B2E6C4B2DB9B1F6F1 /* App/AppDelegate.swift */; };
+		2F50D720BFCB4FB8BD9FEE19 /* Game/ZOrderStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A2386270104D7E9A93BFE4 /* Game/ZOrderStore.swift */; };
+		33012598787F4BC6BB2AB8B4 /* App/AcciaccaProfApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E56DC98A4B2431D925860E2 /* App/AcciaccaProfApp.swift */; };
+		3359ABFA695048C6896A76F4 /* Extensions/UIImage+Normalize.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEC08B7B5FD347CD95A3CB64 /* Extensions/UIImage+Normalize.swift */; };
+		42F63E8CF57C457F8FB4777D /* Services/SoundPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06950644D5AE466EB2EBB00F /* Services/SoundPlayer.swift */; };
+		53E4F4BFAA624558AC60F03E /* Game/GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 118A104C58DD4D97BA439DB7 /* Game/GameScene.swift */; };
+		62E8D68AA49B461C9793B1EF /* Views/PhotoPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8711B46FA994216A630599B /* Views/PhotoPicker.swift */; };
+		68E2DD3B2E234AE29CC70464 /* Game/Layout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C40AC77DE744842871AE7C3 /* Game/Layout.swift */; };
+		7B9E6C9E8E1A4C6E9DA4C3C2 /* Base.lproj/LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9F3D0E9C2C3E4C1C9F5A7F76 /* Base.lproj/LaunchScreen.storyboard */; };
+		7C6C8D9C8C0C4B52B4F9F8C1 /* Services/PurchaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B1F6E9F2A6C4B6E9C77E55F /* Services/PurchaseManager.swift */; };
+		7CB1357E2BA04F10A600EA75 /* Views/CircolareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69A963697CD4A47810DE3D3 /* Views/CircolareView.swift */; };
 		8E42A2BBED864678A8F24228 /* layout in Resources */ = {isa = PBXBuildFile; fileRef = 4F8478B78F344C28AC2B92CC /* layout */; };
-		908BB2F7A12C4947A77A485C /* GameState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CE2E67C88C7418EAD09E3F1 /* GameState.swift */; };
+		908BB2F7A12C4947A77A485C /* Game/GameState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CE2E67C88C7418EAD09E3F1 /* Game/GameState.swift */; };
 		998B948925B440A58EE6209A /* sounds in Resources */ = {isa = PBXBuildFile; fileRef = 7F3F59052A5B47AE96F06DDD /* sounds */; };
 		A224A1BFE7AA4249B1F7452B /* images in Resources */ = {isa = PBXBuildFile; fileRef = 7D25D430F3A8423186F73A59 /* images */; };
-		B6C9E5488362428C9898DD94 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C52DAAD0B544034A92A2EF2 /* ContentView.swift */; };
+		B6C9E5488362428C9898DD94 /* Views/ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C52DAAD0B544034A92A2EF2 /* Views/ContentView.swift */; };
 		D29189C853F84122A22DEC04 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 48F795602A904EF3B958A7BE /* Assets.xcassets */; };
-		E5EDBC9297B04DF096B32252 /* ImageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E9BE7BB62148D2A5E72EBA /* ImageStore.swift */; };
+		E5EDBC9297B04DF096B32252 /* Services/ImageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E9BE7BB62148D2A5E72EBA /* Services/ImageStore.swift */; };
+		EA2DFA132F45085D000716D6 /* Acciacca Prof.storekit in Resources */ = {isa = PBXBuildFile; fileRef = EA2DFA122F45085D000716D6 /* Acciacca Prof.storekit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		9F3D0E9C2C3E4C1C9F5A7F76 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		4C3D4A7B2E6C4B2DB9B1F6F1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/AppDelegate.swift; sourceTree = "<group>"; };
-		B3A2386270104D7E9A93BFE4 /* ZOrderStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game/ZOrderStore.swift; sourceTree = "<group>"; };
-		04E9BE7BB62148D2A5E72EBA /* ImageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/ImageStore.swift; sourceTree = "<group>"; };
-		3B1F6E9F2A6C4B6E9C77E55F /* PurchaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/PurchaseManager.swift; sourceTree = "<group>"; };
-		06950644D5AE466EB2EBB00F /* SoundPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/SoundPlayer.swift; sourceTree = "<group>"; };
-		118A104C58DD4D97BA439DB7 /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game/GameScene.swift; sourceTree = "<group>"; };
+		04E9BE7BB62148D2A5E72EBA /* Services/ImageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/ImageStore.swift; sourceTree = "<group>"; };
+		06950644D5AE466EB2EBB00F /* Services/SoundPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/SoundPlayer.swift; sourceTree = "<group>"; };
+		118A104C58DD4D97BA439DB7 /* Game/GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game/GameScene.swift; sourceTree = "<group>"; };
 		1429BBBFCB5E437BA0211D28 /* Acciacca Prof.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = "Acciacca Prof.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		3AE20D6A07314B33A27F1F22 /* ImageCropperView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/ImageCropperView.swift; sourceTree = "<group>"; };
-		41F0BDB02E2C4F53A3182FFE /* ShowCircolareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/ShowCircolareView.swift; sourceTree = "<group>"; };
+		3AE20D6A07314B33A27F1F22 /* Views/ImageCropperView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/ImageCropperView.swift; sourceTree = "<group>"; };
+		3B1F6E9F2A6C4B6E9C77E55F /* Services/PurchaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/PurchaseManager.swift; sourceTree = "<group>"; };
+		41F0BDB02E2C4F53A3182FFE /* Views/ShowCircolareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/ShowCircolareView.swift; sourceTree = "<group>"; };
 		48F795602A904EF3B958A7BE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		4C52DAAD0B544034A92A2EF2 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/ContentView.swift; sourceTree = "<group>"; };
+		4C3D4A7B2E6C4B2DB9B1F6F1 /* App/AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/AppDelegate.swift; sourceTree = "<group>"; };
+		4C52DAAD0B544034A92A2EF2 /* Views/ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/ContentView.swift; sourceTree = "<group>"; };
 		4F8478B78F344C28AC2B92CC /* layout */ = {isa = PBXFileReference; lastKnownFileType = folder; path = layout; sourceTree = "<group>"; };
-		5E56DC98A4B2431D925860E2 /* AcciaccaProfApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/AcciaccaProfApp.swift; sourceTree = "<group>"; };
-		7CE2E67C88C7418EAD09E3F1 /* GameState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game/GameState.swift; sourceTree = "<group>"; };
+		5E56DC98A4B2431D925860E2 /* App/AcciaccaProfApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App/AcciaccaProfApp.swift; sourceTree = "<group>"; };
+		7CE2E67C88C7418EAD09E3F1 /* Game/GameState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game/GameState.swift; sourceTree = "<group>"; };
 		7D25D430F3A8423186F73A59 /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; path = images; sourceTree = "<group>"; };
-		7EA45024997B4DD7B5B8B11E /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/SettingsView.swift; sourceTree = "<group>"; };
+		7EA45024997B4DD7B5B8B11E /* Views/SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/SettingsView.swift; sourceTree = "<group>"; };
 		7F3F59052A5B47AE96F06DDD /* sounds */ = {isa = PBXFileReference; lastKnownFileType = folder; path = sounds; sourceTree = "<group>"; };
-		9C40AC77DE744842871AE7C3 /* Layout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game/Layout.swift; sourceTree = "<group>"; };
-		9A7F4D2C5E1B4AF3B40B4B5F /* Acciacca Prof.storekit */ = {isa = PBXFileReference; lastKnownFileType = file.storekit; path = "Acciacca Prof.storekit"; sourceTree = "<group>"; };
-		B69A963697CD4A47810DE3D3 /* CircolareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/CircolareView.swift; sourceTree = "<group>"; };
-		DCFEAE79B8154D86852CA073 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = App/Info.plist; sourceTree = "<group>"; };
-		E8711B46FA994216A630599B /* PhotoPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/PhotoPicker.swift; sourceTree = "<group>"; };
-		EEC08B7B5FD347CD95A3CB64 /* UIImage+Normalize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extensions/UIImage+Normalize.swift"; sourceTree = "<group>"; };
+		9C40AC77DE744842871AE7C3 /* Game/Layout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game/Layout.swift; sourceTree = "<group>"; };
+		9F3D0E9C2C3E4C1C9F5A7F76 /* Base.lproj/LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		B3A2386270104D7E9A93BFE4 /* Game/ZOrderStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game/ZOrderStore.swift; sourceTree = "<group>"; };
+		B69A963697CD4A47810DE3D3 /* Views/CircolareView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/CircolareView.swift; sourceTree = "<group>"; };
+		DCFEAE79B8154D86852CA073 /* App/Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = App/Info.plist; sourceTree = "<group>"; };
+		E8711B46FA994216A630599B /* Views/PhotoPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/PhotoPicker.swift; sourceTree = "<group>"; };
+		EA2DFA122F45085D000716D6 /* Acciacca Prof.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Acciacca Prof.storekit"; sourceTree = "<group>"; };
+		EEC08B7B5FD347CD95A3CB64 /* Extensions/UIImage+Normalize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extensions/UIImage+Normalize.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		3729BE26A9654DA3ACDC272C /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				EEC08B7B5FD347CD95A3CB64 /* Extensions/UIImage+Normalize.swift */,
+			);
+			name = Extensions;
+			sourceTree = "<group>";
+		};
 		3B2E9DFC2C7F4546A4AF6C4C = {
 			isa = PBXGroup;
 			children = (
 				8C47B79E36A9494AA277E998 /* AcciaccaProf */,
 				7AA7CCA64E684BF2B9E46D36 /* Resources */,
-				9A7F4D2C5E1B4AF3B40B4B5F /* Acciacca Prof.storekit */,
 				BE3B97A548204B0FBBD07E97,
 				EADB0A962F436BC5008B2D3D /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
+		45E47AD36BCF4E1B8A44B5D4 /* Game */ = {
+			isa = PBXGroup;
+			children = (
+				118A104C58DD4D97BA439DB7 /* Game/GameScene.swift */,
+				7CE2E67C88C7418EAD09E3F1 /* Game/GameState.swift */,
+				B3A2386270104D7E9A93BFE4 /* Game/ZOrderStore.swift */,
+				9C40AC77DE744842871AE7C3 /* Game/Layout.swift */,
+			);
+			name = Game;
+			sourceTree = "<group>";
+		};
 		7AA7CCA64E684BF2B9E46D36 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				9F3D0E9C2C3E4C1C9F5A7F76 /* LaunchScreen.storyboard */,
+				9F3D0E9C2C3E4C1C9F5A7F76 /* Base.lproj/LaunchScreen.storyboard */,
 				7D25D430F3A8423186F73A59 /* images */,
 				7F3F59052A5B47AE96F06DDD /* sounds */,
 				4F8478B78F344C28AC2B92CC /* layout */,
 				48F795602A904EF3B958A7BE /* Assets.xcassets */,
+				EA2DFA122F45085D000716D6 /* Acciacca Prof.storekit */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		8748FE857B3646A58E20D180 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				4C52DAAD0B544034A92A2EF2 /* Views/ContentView.swift */,
+				7EA45024997B4DD7B5B8B11E /* Views/SettingsView.swift */,
+				B69A963697CD4A47810DE3D3 /* Views/CircolareView.swift */,
+				41F0BDB02E2C4F53A3182FFE /* Views/ShowCircolareView.swift */,
+				3AE20D6A07314B33A27F1F22 /* Views/ImageCropperView.swift */,
+				E8711B46FA994216A630599B /* Views/PhotoPicker.swift */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
 		8C47B79E36A9494AA277E998 /* AcciaccaProf */ = {
 			isa = PBXGroup;
-			children = (				B6A50D33F9914CD88EBCD14D /* App */,
+			children = (
+				B6A50D33F9914CD88EBCD14D /* App */,
 				45E47AD36BCF4E1B8A44B5D4 /* Game */,
 				8748FE857B3646A58E20D180 /* Views */,
 				A49183541BE34B308CE259D4 /* Services */,
 				3729BE26A9654DA3ACDC272C /* Extensions */,
-
 			);
 			path = AcciaccaProf;
+			sourceTree = "<group>";
+		};
+		A49183541BE34B308CE259D4 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				06950644D5AE466EB2EBB00F /* Services/SoundPlayer.swift */,
+				04E9BE7BB62148D2A5E72EBA /* Services/ImageStore.swift */,
+				3B1F6E9F2A6C4B6E9C77E55F /* Services/PurchaseManager.swift */,
+			);
+			name = Services;
+			sourceTree = "<group>";
+		};
+		B6A50D33F9914CD88EBCD14D /* App */ = {
+			isa = PBXGroup;
+			children = (
+				5E56DC98A4B2431D925860E2 /* App/AcciaccaProfApp.swift */,
+				4C3D4A7B2E6C4B2DB9B1F6F1 /* App/AppDelegate.swift */,
+				DCFEAE79B8154D86852CA073 /* App/Info.plist */,
+			);
+			name = App;
 			sourceTree = "<group>";
 		};
 		BE3B97A548204B0FBBD07E97 = {
@@ -106,63 +158,6 @@
 			children = (
 			);
 			name = "Recovered References";
-			sourceTree = "<group>";
-		};
-
-		B6A50D33F9914CD88EBCD14D /* App */ = {
-			isa = PBXGroup;
-			children = (
-				5E56DC98A4B2431D925860E2 /* AcciaccaProfApp.swift */, 
-				4C3D4A7B2E6C4B2DB9B1F6F1 /* AppDelegate.swift */, 
-				DCFEAE79B8154D86852CA073 /* Info.plist */, 
-			);
-			name = App;
-			sourceTree = "<group>";
-		};
-
-		45E47AD36BCF4E1B8A44B5D4 /* Game */ = {
-			isa = PBXGroup;
-			children = (
-				118A104C58DD4D97BA439DB7 /* GameScene.swift */, 
-				7CE2E67C88C7418EAD09E3F1 /* GameState.swift */, 
-				B3A2386270104D7E9A93BFE4 /* ZOrderStore.swift */, 
-				9C40AC77DE744842871AE7C3 /* Layout.swift */, 
-			);
-			name = Game;
-			sourceTree = "<group>";
-		};
-
-		8748FE857B3646A58E20D180 /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				4C52DAAD0B544034A92A2EF2 /* ContentView.swift */, 
-				7EA45024997B4DD7B5B8B11E /* SettingsView.swift */, 
-				B69A963697CD4A47810DE3D3 /* CircolareView.swift */, 
-				41F0BDB02E2C4F53A3182FFE /* ShowCircolareView.swift */, 
-				3AE20D6A07314B33A27F1F22 /* ImageCropperView.swift */, 
-				E8711B46FA994216A630599B /* PhotoPicker.swift */, 
-			);
-			name = Views;
-			sourceTree = "<group>";
-		};
-
-		A49183541BE34B308CE259D4 /* Services */ = {
-			isa = PBXGroup;
-			children = (
-				06950644D5AE466EB2EBB00F /* SoundPlayer.swift */, 
-				04E9BE7BB62148D2A5E72EBA /* ImageStore.swift */, 
-				3B1F6E9F2A6C4B6E9C77E55F /* PurchaseManager.swift */, 
-			);
-			name = Services;
-			sourceTree = "<group>";
-		};
-
-		3729BE26A9654DA3ACDC272C /* Extensions */ = {
-			isa = PBXGroup;
-			children = (
-				EEC08B7B5FD347CD95A3CB64 /* UIImage+Normalize.swift */, 
-			);
-			name = Extensions;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -217,11 +212,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7B9E6C9E8E1A4C6E9DA4C3C2 /* LaunchScreen.storyboard in Resources */,
+				7B9E6C9E8E1A4C6E9DA4C3C2 /* Base.lproj/LaunchScreen.storyboard in Resources */,
 				A224A1BFE7AA4249B1F7452B /* images in Resources */,
 				998B948925B440A58EE6209A /* sounds in Resources */,
+				EA2DFA132F45085D000716D6 /* Acciacca Prof.storekit in Resources */,
 				8E42A2BBED864678A8F24228 /* layout in Resources */,
-				8C7B0D2D6D3B4E3B8F35D2E6 /* Acciacca Prof.storekit in Resources */,
 				D29189C853F84122A22DEC04 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -233,22 +228,22 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2A3E7EAA5B4D4E3A9A9B0E2C /* AppDelegate.swift in Sources */,
-				2F50D720BFCB4FB8BD9FEE19 /* ZOrderStore.swift in Sources */,
-				3359ABFA695048C6896A76F4 /* UIImage+Normalize.swift in Sources */,
-				E5EDBC9297B04DF096B32252 /* ImageStore.swift in Sources */,
-				62E8D68AA49B461C9793B1EF /* PhotoPicker.swift in Sources */,
-				0511F1EB88C14253B642A706 /* ImageCropperView.swift in Sources */,
-				1BD98247CD1440F385E85479 /* SettingsView.swift in Sources */,
-				33012598787F4BC6BB2AB8B4 /* AcciaccaProfApp.swift in Sources */,
-				7CB1357E2BA04F10A600EA75 /* CircolareView.swift in Sources */,
-				B6C9E5488362428C9898DD94 /* ContentView.swift in Sources */,
-				53E4F4BFAA624558AC60F03E /* GameScene.swift in Sources */,
-				908BB2F7A12C4947A77A485C /* GameState.swift in Sources */,
-				68E2DD3B2E234AE29CC70464 /* Layout.swift in Sources */,
-				210DD2DFF75E4A62A2DBEDBF /* ShowCircolareView.swift in Sources */,
-				42F63E8CF57C457F8FB4777D /* SoundPlayer.swift in Sources */,
-				7C6C8D9C8C0C4B52B4F9F8C1 /* PurchaseManager.swift in Sources */,
+				2A3E7EAA5B4D4E3A9A9B0E2C /* App/AppDelegate.swift in Sources */,
+				2F50D720BFCB4FB8BD9FEE19 /* Game/ZOrderStore.swift in Sources */,
+				3359ABFA695048C6896A76F4 /* Extensions/UIImage+Normalize.swift in Sources */,
+				E5EDBC9297B04DF096B32252 /* Services/ImageStore.swift in Sources */,
+				62E8D68AA49B461C9793B1EF /* Views/PhotoPicker.swift in Sources */,
+				0511F1EB88C14253B642A706 /* Views/ImageCropperView.swift in Sources */,
+				1BD98247CD1440F385E85479 /* Views/SettingsView.swift in Sources */,
+				33012598787F4BC6BB2AB8B4 /* App/AcciaccaProfApp.swift in Sources */,
+				7CB1357E2BA04F10A600EA75 /* Views/CircolareView.swift in Sources */,
+				B6C9E5488362428C9898DD94 /* Views/ContentView.swift in Sources */,
+				53E4F4BFAA624558AC60F03E /* Game/GameScene.swift in Sources */,
+				908BB2F7A12C4947A77A485C /* Game/GameState.swift in Sources */,
+				68E2DD3B2E234AE29CC70464 /* Game/Layout.swift in Sources */,
+				210DD2DFF75E4A62A2DBEDBF /* Views/ShowCircolareView.swift in Sources */,
+				42F63E8CF57C457F8FB4777D /* Services/SoundPlayer.swift in Sources */,
+				7C6C8D9C8C0C4B52B4F9F8C1 /* Services/PurchaseManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -9,13 +9,7 @@ struct SettingsView: View {
     @State private var showingPicker = false
     @State private var showPhotoPermissionAlert = false
     @State private var selectedSlot: CharacterSlot?
-    @State private var selectedImage: CroppableImage?
     @State private var showPurchaseError = false
-
-    private struct CroppableImage: Identifiable {
-        let id = UUID()
-        let image: UIImage
-    }
 
     var body: some View {
         NavigationView {
@@ -64,7 +58,10 @@ struct SettingsView: View {
                 ForEach(CharacterSlot.allCases) { slot in
                     HStack(spacing: 12) {
                         preview(for: slot)
+                            .resizable()
+                            .scaledToFill()
                             .frame(width: 50, height: 50)
+                            .clipped()
                             .cornerRadius(6)
                             .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.gray.opacity(0.3)))
 
@@ -96,22 +93,14 @@ struct SettingsView: View {
         .sheet(isPresented: $showingPicker) {
             PhotoPicker(onImage: { image in
                 showingPicker = false
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    selectedImage = CroppableImage(image: image)
+                if let slot = selectedSlot {
+                    store.save(image: image, for: slot)
                 }
+                selectedSlot = nil
             }, onCancel: {
                 showingPicker = false
+                selectedSlot = nil
             })
-        }
-        .sheet(item: $selectedImage) { item in
-            if let slot = selectedSlot {
-                ImageCropperView(image: item.image) {
-                    store.save(image: $0, for: slot)
-                    selectedImage = nil
-                } onCancel: {
-                    selectedImage = nil
-                }
-            }
         }
         .alert("Accesso alle foto", isPresented: $showPhotoPermissionAlert) {
             Button("OK", role: .cancel) {}
