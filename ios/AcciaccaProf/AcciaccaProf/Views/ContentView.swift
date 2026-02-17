@@ -170,13 +170,13 @@ struct ContentView: View {
         } message: {
             Text(pentathlonCompleteText)
         }
-        .alert("Sequenza sbagliata", isPresented: $showPentathlonRetry) {
+        .alert("Pentathlon", isPresented: $showPentathlonRetry) {
             Button("OK") {
-                scene.restartPentathlonSequenceAfterRetry()
+                scene.restartPentathlonAfterRetry()
                 gameState.paused = false
             }
         } message: {
-            Text("Hai sbagliato la sequenza. Il minigioco riparte da capo.")
+            Text("Hai sbagliato. Il minigioco riparte da capo.")
         }
     }
 
@@ -215,7 +215,7 @@ struct ContentView: View {
         case 1:
             return "Memory: per 0.5s vedi 4 prof (2 buoni, 2 cattivi). Poi si coprono. Abbina le coppie. +2 corretto, -1 errore."
         case 2:
-            return "Doppio colpo sincronizzato: compaiono 2 prof cattivi e 1 buono. Devi colpire i 2 cattivi insieme con due dita. +3 corretto, -2 errore."
+            return "Riflessi: compaiono 3 prof cattivi e 3 buoni a comparsa. Colpisci solo i cattivi: quando li prendi spariscono per sempre. Se colpisci un buono, il minigioco riparte."
         case 3:
             return "Scambio di posto: appaiono 6 prof. Poi 2 si scambiano di posto. Tocca uno dei due che si sono mossi. +2 corretto, -2 errore."
         case 4:

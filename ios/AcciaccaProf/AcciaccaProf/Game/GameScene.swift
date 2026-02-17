@@ -66,11 +66,12 @@ final class GameScene: SKScene {
     private var pentathlonCalcNumbers: (Int, Int) = (0, 0)
     private var pentathlonCalcNodes: [SKLabelNode] = []
     private var pentathlonSuccessCount = 0
-    private var pentathlonSyncTargets: Set<Int> = []
-    private var pentathlonSyncBadIndex: Int?
+    private var pentathlonSyncNodes: [SKSpriteNode] = []
+    private var pentathlonSyncCattivi: Set<Int> = []
+    private var pentathlonSyncBuoni: Set<Int> = []
     private var pentathlonSyncActive = false
-    private var pentathlonSyncPendingIndex: Int?
-    private var pentathlonSyncPendingTime: CFTimeInterval = 0
+    private var pentathlonSyncTickCount = 0
+    private var pentathlonSyncPendingReposition = false
     private var pentathlonSwapPositions: [Int] = []
     private var pentathlonSwapTargetIndices: Set<Int> = []
     private var pentathlonSwapTextures: [Int: String] = [:]
@@ -517,6 +518,29 @@ final class GameScene: SKScene {
             queuePentathlonRule(for: .memory)
             return
         }
+
+        if pentathlonMode == .sequence, pentathlonSyncActive {
+            guard let state = gameState else { return }
+            if pentathlonSyncPendingReposition {
+                pentathlonSyncPendingReposition = false
+                repositionSyncNodes()
+                return
+            }
+            let speed = max(1, state.velocita / 5)
+            let maxSteps = max(1, Int(ceil(120.0 / Double(speed))))
+            for node in pentathlonSyncNodes where !node.isHidden {
+                let fullHeight = isSyncBuono(node) ? buonFullHeight : cattFullHeight
+                node.size = CGSize(width: node.size.width, height: min(fullHeight, node.size.height + CGFloat(speed)))
+            }
+            pentathlonSyncTickCount += 1
+            if pentathlonSyncTickCount >= maxSteps {
+                pentathlonSyncTickCount = 0
+                for node in pentathlonSyncNodes {
+                    node.isHidden = true
+                }
+                pentathlonSyncPendingReposition = true
+            }
+        }
     }
 
     private func startPentathlonMode() {
@@ -533,7 +557,7 @@ final class GameScene: SKScene {
             pentathlonLabel.text = "Pentathlon 2/5: Riflessi"
             pentathlonLabel.isHidden = false
             pentathlonSuccessCount = 0
-            startSyncRound()
+            startSyncMinigame()
         case .intruder:
             pentathlonLabel.text = "Pentathlon 3/5: Scambio di posto"
             pentathlonLabel.isHidden = false
@@ -590,11 +614,13 @@ final class GameScene: SKScene {
         pentathlonIntruderBaseTextures.removeAll()
         pentathlonIntruderAltTextures.removeAll()
         pentathlonIntruderActive = false
-        pentathlonSyncTargets.removeAll()
-        pentathlonSyncBadIndex = nil
+        for node in pentathlonSyncNodes { node.removeFromParent() }
+        pentathlonSyncNodes.removeAll()
+        pentathlonSyncCattivi.removeAll()
+        pentathlonSyncBuoni.removeAll()
         pentathlonSyncActive = false
-        pentathlonSyncPendingIndex = nil
-        pentathlonSyncPendingTime = 0
+        pentathlonSyncTickCount = 0
+        pentathlonSyncPendingReposition = false
         pentathlonSwapPositions.removeAll()
         pentathlonSwapTargetIndices.removeAll()
         pentathlonSwapTextures.removeAll()
@@ -628,6 +654,21 @@ final class GameScene: SKScene {
     func restartPentathlonSequenceAfterRetry() {
         resetSequenceCovers()
         showSequenceStep(index: 0)
+    }
+
+    func restartPentathlonSyncAfterRetry() {
+        startSyncMinigame()
+    }
+
+    func restartPentathlonAfterRetry() {
+        switch pentathlonMode {
+        case .sequence:
+            restartPentathlonSyncAfterRetry()
+        case .reflex:
+            restartPentathlonSequenceAfterRetry()
+        default:
+            return
+        }
     }
 
     func debugSkipPentathlonMode() {
@@ -761,8 +802,8 @@ final class GameScene: SKScene {
 
     private func positionForDesk(index: Int) -> CGPoint {
         let pos = posizioni[index]
-        let left = pos.0 + campoLeft - 10
-        let top = pos.1 + 110 + campoTop + spawnYOffset
+        let left = pos.0 + campoLeft - 30
+        let top = pos.1 + 110 + campoTop + spawnYOffset - 120
         return CGPoint(x: left, y: baseSize.height - top - 120)
     }
 
@@ -910,39 +951,97 @@ final class GameScene: SKScene {
         runSwapRoundSequence(indexA: indexA, indexB: indexB)
     }
 
-    private func startSyncRound() {
-        clearPentathlonNodes()
-        setupSequenceCovers()
-        resetSequenceCovers()
+    private func startSyncMinigame() {
+        startSyncRound()
+    }
 
-        let indices = Array(0..<posizioni.count).shuffled().prefix(3)
-        var positions = Array(indices)
-        if positions.count < 3 {
-            positions = [0, 1, 2]
-        }
+    private func startSyncRound() {
+        for node in pentathlonSyncNodes { node.removeFromParent() }
+        pentathlonSyncNodes.removeAll()
+        pentathlonSyncCattivi.removeAll()
+        pentathlonSyncBuoni.removeAll()
+        pentathlonSyncTickCount = 0
+        pentathlonSyncPendingReposition = false
+
+        let indices = Array(0..<posizioni.count).shuffled().prefix(6)
+        let positions = indices.count == 6 ? Array(indices) : [0, 1, 2, 3, 4, 5]
         let cattivi = ["cattivi_1","cattivi_2","cattivi_3"].shuffled()
         let buoni = ["buoni_1","buoni_2","buoni_3"].shuffled()
 
-        let cattA = positions[0]
-        let cattB = positions[1]
-        let buono = positions[2]
-        pentathlonSyncTargets = [cattA, cattB]
-        pentathlonSyncBadIndex = buono
-        pentathlonSyncActive = true
-        pentathlonSyncPendingIndex = nil
-        pentathlonSyncPendingTime = 0
+        let cattPositions = Array(positions.prefix(3))
+        let buonPositions = Array(positions.suffix(3))
 
-        if let cover = pentathlonSequenceCovers[cattA] {
-            cover.texture = textureFor(baseName: cattivi[0])
-            cover.color = .clear
+        for (i, idx) in cattPositions.enumerated() {
+            pentathlonSyncCattivi.insert(idx)
+            let node = makeSyncNode(textureName: cattivi[i], isBuono: false, index: idx)
+            pentathlonSyncNodes.append(node)
         }
-        if let cover = pentathlonSequenceCovers[cattB] {
-            cover.texture = textureFor(baseName: cattivi[1])
-            cover.color = .clear
+        for (i, idx) in buonPositions.enumerated() {
+            pentathlonSyncBuoni.insert(idx)
+            let node = makeSyncNode(textureName: buoni[i], isBuono: true, index: idx)
+            pentathlonSyncNodes.append(node)
         }
-        if let cover = pentathlonSequenceCovers[buono] {
-            cover.texture = textureFor(baseName: buoni[0])
-            cover.color = .clear
+
+        pentathlonSyncActive = true
+    }
+
+    private func makeSyncNode(textureName: String, isBuono: Bool, index: Int) -> SKSpriteNode {
+        let node = SKSpriteNode(texture: textureFor(baseName: textureName))
+        node.name = isBuono ? "syncBuon_\(index)" : "syncCatt_\(index)"
+        node.anchorPoint = CGPoint(x: 0, y: 0)
+        let width = isBuono ? buonWidth : cattWidth
+        let fullHeight = isBuono ? buonFullHeight : cattFullHeight
+        let pos = posizioni[index]
+        let left = pos.0 + campoLeft - 30
+        let top = pos.1 + 110 + campoTop + spawnYOffset - 120
+        let bottom = baseSize.height - top - fullHeight
+        node.position = CGPoint(x: left, y: bottom)
+        node.size = CGSize(width: width, height: 1)
+        node.zPosition = zOrder.zIndex(for: isBuono ? "profbuon" : "profcatt") + profZOffset
+        addChild(node)
+        riseSyncNode(node, fullHeight: fullHeight)
+        return node
+    }
+
+    private func riseSyncNode(_ node: SKSpriteNode, fullHeight: CGFloat) {
+        let startHeight: CGFloat = 1
+        node.run(SKAction.customAction(withDuration: 0.25) { sprite, elapsed in
+            guard let sprite = sprite as? SKSpriteNode else { return }
+            let t = CGFloat(elapsed / 0.25)
+            let h = startHeight + (fullHeight - startHeight) * t
+            sprite.size = CGSize(width: sprite.size.width, height: h)
+        })
+    }
+
+    private func isSyncBuono(_ node: SKSpriteNode) -> Bool {
+        return node.name?.hasPrefix("syncBuon_") ?? false
+    }
+
+    private func repositionSyncNodes() {
+        let count = pentathlonSyncNodes.count
+        guard count > 0 else { return }
+        let indices = Array(0..<posizioni.count).shuffled().prefix(count)
+        let positions = Array(indices)
+        pentathlonSyncCattivi.removeAll()
+        pentathlonSyncBuoni.removeAll()
+        for (idx, node) in pentathlonSyncNodes.enumerated() {
+            let posIndex = positions[idx]
+            let isBuono = isSyncBuono(node)
+            node.name = isBuono ? "syncBuon_\(posIndex)" : "syncCatt_\(posIndex)"
+            if isBuono {
+                pentathlonSyncBuoni.insert(posIndex)
+            } else {
+                pentathlonSyncCattivi.insert(posIndex)
+            }
+            let width = isBuono ? buonWidth : cattWidth
+            let fullHeight = isBuono ? buonFullHeight : cattFullHeight
+            let pos = posizioni[posIndex]
+            let left = pos.0 + campoLeft - 30
+            let top = pos.1 + 110 + campoTop + spawnYOffset - 120
+            let bottom = baseSize.height - top - fullHeight
+            node.position = CGPoint(x: left, y: bottom)
+            node.size = CGSize(width: width, height: 1)
+            node.isHidden = false
         }
     }
 
@@ -1159,6 +1258,28 @@ final class GameScene: SKScene {
                 state.addPoints(-2)
                 startQuickCalcRound()
             }
+        case .sequence:
+            guard pentathlonSyncActive else { return }
+            guard let tapped = pentathlonSyncNodes.first(where: { $0.contains(location) }) else { return }
+            guard let name = tapped.name else { return }
+            if name.hasPrefix("syncBuon_") {
+                state.addPoints(-2)
+                pentathlonSyncActive = false
+                gameState?.paused = true
+                onShowPentathlonRetry?()
+                return
+            }
+            if name.hasPrefix("syncCatt_") {
+                state.addPoints(1)
+                tapped.isHidden = true
+                if let removeIndex = pentathlonSyncNodes.firstIndex(of: tapped) {
+                    pentathlonSyncNodes.remove(at: removeIndex)
+                }
+                if pentathlonSyncNodes.first(where: { $0.name?.hasPrefix("syncCatt_") == true }) == nil {
+                    finishPentathlonMode()
+                }
+            }
+            return
         case .reflex:
             guard let idx = nearestPentathlonDeskIndex(to: location, offsetY: -120) else { return }
             if idx == pentathlonSequence[pentathlonInputIndex] {
@@ -1199,10 +1320,6 @@ final class GameScene: SKScene {
 
     private func handlePentathlonTouches(_ touches: Set<UITouch>) {
         guard let state = gameState else { return }
-        if pentathlonMode == .sequence {
-            handleSyncTouches(touches)
-            return
-        }
         if pentathlonMode == .quickCalc {
             guard pentathlonSwapActive else { return }
             let points = touches.map { $0.location(in: self) }
@@ -1244,65 +1361,6 @@ final class GameScene: SKScene {
         if let first = touches.first {
             handlePentathlonTouch(at: first.location(in: self))
         }
-    }
-
-    private func handleSyncTouches(_ touches: Set<UITouch>) {
-        guard let state = gameState, pentathlonSyncActive else { return }
-        let now = CACurrentMediaTime()
-        let points = touches.map { $0.location(in: self) }
-        var indices: [Int] = []
-        for p in points {
-            if let idx = nearestPentathlonDeskIndex(to: p, offsetY: -120) {
-                indices.append(idx)
-            }
-        }
-        let unique = Array(Set(indices))
-        if unique.isEmpty { return }
-
-        if unique.count >= 2 {
-            evaluateSyncPair(unique[0], unique[1], state: state)
-            pentathlonSyncPendingIndex = nil
-            pentathlonSyncPendingTime = 0
-            return
-        }
-
-        if let idx = unique.first {
-            if let pending = pentathlonSyncPendingIndex, now - pentathlonSyncPendingTime <= 0.25 {
-                evaluateSyncPair(pending, idx, state: state)
-                pentathlonSyncPendingIndex = nil
-                pentathlonSyncPendingTime = 0
-            } else {
-                pentathlonSyncPendingIndex = idx
-                pentathlonSyncPendingTime = now
-            }
-        }
-    }
-
-    private func evaluateSyncPair(_ first: Int, _ second: Int, state: GameState) {
-        if first == second { return }
-        highlightSyncIndex(first)
-        highlightSyncIndex(second)
-        let picked = Set([first, second])
-        if picked == pentathlonSyncTargets {
-            state.addPoints(3)
-            run(.sequence([.wait(forDuration: 0.4), .run { [weak self] in
-                self?.finishPentathlonMode()
-            }]))
-        } else {
-            state.addPoints(-2)
-            run(.sequence([.wait(forDuration: 0.4), .run { [weak self] in
-                self?.startSyncRound()
-            }]))
-        }
-    }
-
-    private func highlightSyncIndex(_ index: Int) {
-        guard let cover = pentathlonSequenceCovers[index] else { return }
-        cover.color = .yellow
-        cover.colorBlendFactor = 0.35
-        cover.run(.sequence([.wait(forDuration: 0.3), .run {
-            cover.colorBlendFactor = 0
-        }]))
     }
 
     private func nearestDeskIndex(to point: CGPoint) -> Int? {
