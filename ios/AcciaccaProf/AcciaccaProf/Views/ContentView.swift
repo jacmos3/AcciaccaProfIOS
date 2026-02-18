@@ -127,20 +127,20 @@ struct ContentView: View {
                 gameState.paused = false
             }
         }
-        .alert("Livello 1", isPresented: $showHelp1) {
+        .alert("Sessione 1", isPresented: $showHelp1) {
             Button("OK", role: .cancel) {}
         } message: {
             Text("Apparirà una sola immagine alla volta: se la colpisci guadagni punti, se non la colpisci o se sbagli perdi punti.")
         }
-        .alert("Livello 2", isPresented: $showHelp2) {
+        .alert("Sessione 2", isPresented: $showHelp2) {
             Button("OK", role: .cancel) {}
         } message: {
             Text("Appariranno 1 prof buono e 1 prof cattivo. Colpisci il cattivo per guadagnare punti.")
         }
-        .alert("Livello 3", isPresented: $showHelp3) {
+        .alert("Sessione 3", isPresented: $showHelp3) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text("Come il livello 2, ma prof buoni/cattivi casuali e la bidella che porta circolari.")
+            Text("Come la sessione 2, ma prof buoni/cattivi casuali e la bidella che porta circolari.")
         }
         .alert("Partita finita", isPresented: $showGameOver) {
             Button("OK", role: .cancel) { gameState.gameOver = false }
@@ -150,7 +150,7 @@ struct ContentView: View {
         .alert("Istruzioni", isPresented: $showInstructions) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text("Punteggi (moltiplicati dalla velocita'):\n• +2 colpisci prof cattivo\n• -1 prof cattivo sfuggito\n• -2 colpisci prof buono\n• +1 prof buono lasciato andare\n• +5 colpisci bidella\n• -1 bidella lasciata andare\n• -1 colpisci un bambino (zampilli)\n• -1 colpo a vuoto\n• +10 circolare buona\n• -10 circolare cattiva\n\nVelocita': la velocita' applica un moltiplicatore logaritmico ai punti, da 0.5x (velocita' 0) fino a 3x (velocita' 100).\nTabella moltiplicatori:\n• 0% = 0.50x\n• 25% = 1.78x\n• 50% = 2.35x\n• 75% = 2.72x\n• 100% = 3.00x\n\nLivelli (automatici):\n1) Solo prof cattivo (10 uscite)\n2) Prof cattivo + prof buono (10 uscite)\n3) Come il 2 + bidella con circolari (10 uscite)\n4) Pentathlon: 5 prove speciali (Memory, Riflessi, Scambio di posto, Intruso A/B, Sequenza)\nAl termine il gioco finisce e puoi ricominciare con Start.")
+            Text("Punteggi (moltiplicati dalla velocita'):\n• +2 colpisci prof cattivo\n• -1 prof cattivo sfuggito\n• -2 colpisci prof buono\n• +1 prof buono lasciato andare\n• +5 colpisci bidella\n• -1 bidella lasciata andare\n• -1 colpisci un bambino (zampilli)\n• -1 colpo a vuoto\n• +10 circolare buona\n• -10 circolare cattiva\n\nVelocita': la velocita' applica un moltiplicatore logaritmico ai punti, da 0.5x (velocita' 0) fino a 3x (velocita' 100).\nTabella moltiplicatori:\n• 0% = 0.50x\n• 25% = 1.78x\n• 50% = 2.35x\n• 75% = 2.72x\n• 100% = 3.00x\n\nLivelli (automatici):\n1) Solo prof cattivo (10 uscite)\n2) Prof cattivo + prof buono (10 uscite)\n3) Come il 2 + bidella con circolari (10 uscite)\n4) Pentathlon: 5 prove speciali (Memory, Riflessi, Scambio di posto, Bersagli mobili, Sequenza)\nAl termine il gioco finisce e puoi ricominciare con Start.")
         }
         .alert("NOTE", isPresented: $showNote) {
             Button("OK", role: .cancel) {}
@@ -183,8 +183,10 @@ struct ContentView: View {
         }
         .alert("Pentathlon", isPresented: $showPentathlonRule) {
             Button("OK") {
-                scene.startPendingPentathlonMode()
-                gameState.paused = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    scene.startPendingPentathlonMode()
+                    gameState.paused = false
+                }
             }
         } message: {
             Text(pentathlonRuleText)
@@ -202,13 +204,15 @@ struct ContentView: View {
         }
         .alert("Pentathlon", isPresented: $showPentathlonRetry) {
             Button("OK") {
-                scene.restartPentathlonAfterRetry()
-                gameState.paused = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    scene.restartPentathlonAfterRetry()
+                    gameState.paused = false
+                }
             }
         } message: {
             Text("Hai sbagliato. Il minigioco riparte da capo.")
         }
-        .alert("Livello", isPresented: $showLevelAlert) {
+        .alert("Sessione", isPresented: $showLevelAlert) {
             Button("OK", role: .cancel) {
                 gameState.paused = false
             }
@@ -223,7 +227,7 @@ struct ContentView: View {
         .onReceive(gameState.$levelUpTrigger) { value in
             guard value == 2 || value == 3 else { return }
             gameState.paused = true
-            levelAlertText = "Sei passato al livello \(value)!"
+            levelAlertText = "Sei passato alla sessione \(value)!"
             showLevelAlert = true
             gameState.levelUpTrigger = 0
         }
@@ -266,15 +270,15 @@ struct ContentView: View {
     private func pentathlonRuleMessage(for mode: Int) -> String {
         switch mode {
         case 1:
-            return "Memory: per 0.5s vedi 4 prof (2 buoni, 2 cattivi). Poi si coprono. Abbina le coppie. +2 corretto, -1 errore."
+            return "Memory: per 0.5s vedi 4 prof (2 buoni, 2 cattivi). Poi si coprono. Abbina le coppie. +2 corretto, -1 errore.\n\nTocca Coach Perla per rivedere la regola."
         case 2:
-            return "Riflessi: compaiono 3 prof cattivi e 3 buoni a comparsa. Colpisci solo i cattivi: quando li prendi spariscono per sempre. Se colpisci un buono, il minigioco riparte."
+            return "Riflessi: compaiono 3 prof cattivi e 3 buoni a comparsa. Colpisci solo i cattivi: quando li prendi spariscono per sempre. Se colpisci un buono, il minigioco riparte.\n\nTocca Coach Perla per rivedere la regola."
         case 3:
-            return "Scambio di posto: appaiono 3 buoni, 3 cattivi, bidella e Perla sui banchi laterali. Poi si coprono. Al centro appare uno alla volta: tocca il banco dove era seduto. Se sbagli, si riparte."
+            return "Scambio di posto: appaiono 3 buoni, 3 cattivi, bidella e Perla sui banchi laterali. Poi si coprono. Al centro appare uno alla volta: tocca il banco dove era seduto. Se sbagli, si riparte.\n\nTocca Coach Perla per rivedere la regola."
         case 4:
-            return "Logica: trovi 8 personaggi sui banchi. C'e' una sola regola violata. Tocca chi e' fuori posto (es: due cattivi vicini, bidella non in alto, Perla al centro)."
+            return "Tiro al bersaglio mobile: 3 prof cattivi e 3 buoni si spostano tra i banchi vicini. Colpisci solo i cattivi mentre si muovono. Se tocchi un buono, il minigioco riparte.\n\nTocca Coach Perla per rivedere la regola."
         case 5:
-            return "Sequenza: i prof appaiono in ordine. Ripeti toccando i banchi nella stessa sequenza. Errore = -2 e si riparte."
+            return "Sequenza: i prof appaiono in ordine. Ripeti toccando i banchi nella stessa sequenza. Errore = -2 e si riparte.\n\nTocca Coach Perla per rivedere la regola."
         default:
             return ""
         }
@@ -301,7 +305,7 @@ struct ContentView: View {
 
     @ViewBuilder
     private func overlayUI(showControls: Bool, panelWidth: CGFloat = 0) -> some View {
-        let baseFont = Font.system(size: showControls ? 18 : 11)
+        //let baseFont = Font.system(size: showControls ? 18 : 11)
         let boardFont = Font.system(size: showControls ? 14 : 11, weight: .semibold)
         let gameFrame = layout.frame(for: "Image1") ?? CGRect(x: 0, y: 0, width: baseSize.width, height: baseSize.height)
 
@@ -446,6 +450,29 @@ struct ContentView: View {
         .buttonStyle(.plain)
     }
 
+    private func perlaUIImage(usePrivateFaces: Bool) -> UIImage? {
+        if usePrivateFaces {
+            let names = ["perla_1", "perla1"]
+            let exts = ["png", "jpg", "jpeg", "JPG", "JPEG"]
+            for name in names {
+                for ext in exts {
+                    if let url = Bundle.main.url(forResource: name, withExtension: ext, subdirectory: "images/VA") {
+                        if let img = UIImage(contentsOfFile: url.path) { return img }
+                    }
+                }
+            }
+        }
+
+        if let custom = ImageStore.shared.image(for: .perla) {
+            return custom
+        }
+
+        if let url = Bundle.main.url(forResource: "perla_1", withExtension: "png", subdirectory: "images") {
+            return UIImage(contentsOfFile: url.path)
+        }
+        return UIImage(named: "perla_1")
+    }
+
     @ViewBuilder
     private func landscapeControlsPanel(gameFrame: CGRect, panelWidth: CGFloat) -> some View {
         let panelPadding: CGFloat = 10
@@ -464,54 +491,79 @@ struct ContentView: View {
             .frame(maxWidth: .infinity, minHeight: 48)
             .background(Color.white.opacity(0.95))
             .cornerRadius(8)
-
-            VStack(alignment: .leading, spacing: 10) {
-                Button("Istruzioni") { showInstructions = true }
-                    .font(itemFont)
-                    .frame(maxWidth: .infinity, minHeight: 36)
-                    .background(Color.white.opacity(0.9))
-                    .cornerRadius(8)
-                Text("Livello")
-                    .font(titleFont)
-                Spacer(minLength: 4)
-                HStack(spacing: 8) {
-                    radioButton(title: "Livello 1", selected: gameState.level == 1) {}
-                        .font(itemFont)
-                        .disabled(true)
-                        .opacity(gameState.level == 1 ? 1 : 0.45)
-                    Spacer()
-                    Button(action: { showHelp1 = true }) {
-                        Image(systemName: "info.circle")
+            if gameState.inPentathlon {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Coach Perla - Clicca per le istruzioni su questo game")
+                        .font(titleFont)
+                    Spacer(minLength: 4)
+                    Button(action: {
+                        pentathlonRuleText = pentathlonRuleMessage(for: scene.currentPentathlonModeRawValue() ?? 1)
+                        showPentathlonRule = true
+                    }) {
+                        Image(uiImage: perlaUIImage(usePrivateFaces: gameState.usePrivateFaces) ?? UIImage())
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 100, height: 120)
+                            .clipShape(Rectangle())
                     }
-                    .font(itemFont)
                     .buttonStyle(.plain)
-                    .opacity(gameState.level == 1 ? 1 : 0.45)
+                    //.padding(.top, 4)
                 }
-                HStack(spacing: 8) {
-                    radioButton(title: "Livello 2", selected: gameState.level == 2) {}
+            }
+            else{
+                VStack(alignment: .leading, spacing: 10) {
+                    Button("Istruzioni") { showInstructions = true }
                         .font(itemFont)
-                        .disabled(true)
-                        .opacity(gameState.level == 2 ? 1 : 0.45)
-                    Spacer()
-                    Button(action: { showHelp2 = true }) {
-                        Image(systemName: "info.circle")
+                        .frame(maxWidth: .infinity, minHeight: 36)
+                        .background(Color.white.opacity(0.9))
+                        .cornerRadius(8)
+                    Text("Sessioni di gioco")
+                        .font(titleFont)
+                    Spacer(minLength: 4)
+                    HStack(alignment: .top, spacing: 12) {
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack(spacing: 8) {
+                                Button(action: { showHelp1 = true }) {
+                                    Image(systemName: "info.circle")
+                                }
+                                .font(itemFont)
+                                .buttonStyle(.plain)
+                                .opacity(gameState.level == 1 ? 1 : 0.45)
+                                radioButton(title: "Sessione 1", selected: gameState.level == 1) {}
+                                    .font(itemFont)
+                                    .disabled(true)
+                                    .opacity(gameState.level == 1 ? 1 : 0.45)
+                                Spacer()
+                            }
+                            HStack(spacing: 8) {
+                                Button(action: { showHelp2 = true }) {
+                                    Image(systemName: "info.circle")
+                                }
+                                .font(itemFont)
+                                .buttonStyle(.plain)
+                                .opacity(gameState.level == 2 ? 1 : 0.45)
+                                radioButton(title: "Sessione 2", selected: gameState.level == 2) {}
+                                    .font(itemFont)
+                                    .disabled(true)
+                                    .opacity(gameState.level == 2 ? 1 : 0.45)
+                                Spacer()
+                            }
+                            HStack(spacing: 8) {
+                                Button(action: { showHelp3 = true }) {
+                                    Image(systemName: "info.circle")
+                                }
+                                .font(itemFont)
+                                .buttonStyle(.plain)
+                                .opacity(gameState.level == 3 ? 1 : 0.45)
+                                radioButton(title: "Sessione 3", selected: gameState.level == 3) {}
+                                    .font(itemFont)
+                                    .disabled(true)
+                                    .opacity(gameState.level == 3 ? 1 : 0.45)
+                                Spacer()
+                            }
+                        }
+                        .frame(maxHeight: .infinity, alignment: .top)
                     }
-                    .font(itemFont)
-                    .buttonStyle(.plain)
-                    .opacity(gameState.level == 2 ? 1 : 0.45)
-                }
-                HStack(spacing: 8) {
-                    radioButton(title: "Livello 3", selected: gameState.level == 3) {}
-                        .font(itemFont)
-                        .disabled(true)
-                        .opacity(gameState.level == 3 ? 1 : 0.45)
-                    Spacer()
-                    Button(action: { showHelp3 = true }) {
-                        Image(systemName: "info.circle")
-                    }
-                    .font(itemFont)
-                    .buttonStyle(.plain)
-                    .opacity(gameState.level == 3 ? 1 : 0.45)
                 }
             }
 
@@ -564,19 +616,18 @@ struct ContentView: View {
             .background(Color.white.opacity(0.85))
             .cornerRadius(8)
 
-            VStack(alignment: .leading, spacing: 10) {
-                Toggle("Sottofondo", isOn: $gameState.sottofondo)
-                Toggle("Suoni", isOn: $gameState.suoni)
-            }
-            .font(itemFont)
-            .toggleStyle(.switch)
-
             VStack(alignment: .leading, spacing: 8) {
                 Text("Velocità: \(Int(speedBinding.wrappedValue))")
                     .font(itemFont)
                 Slider(value: speedBinding, in: 0...100, step: 1)
                     .disabled(gameState.running)
             }
+            VStack(alignment: .leading, spacing: 10) {
+                Toggle("Sottofondo", isOn: $gameState.sottofondo)
+                Toggle("Suoni", isOn: $gameState.suoni)
+            }
+            .font(itemFont)
+            .toggleStyle(.switch)
         }
         .foregroundColor(.black)
         .padding(14)
@@ -634,21 +685,20 @@ struct ContentView: View {
             .frame(maxWidth: .infinity, minHeight: 36)
 
             HStack(spacing: 12) {
-                Toggle("Suoni", isOn: $gameState.suoni)
-                Toggle("Sottofondo", isOn: $gameState.sottofondo)
-            }
-
-            HStack(spacing: 12) {
                 Text("Velocità: \(Int(speedBinding.wrappedValue))")
                 Slider(value: speedBinding, in: 0...100, step: 1)
                     .disabled(gameState.running)
+            }
+            HStack(spacing: 12) {
+                Toggle("Suoni", isOn: $gameState.suoni)
+                Toggle("Sottofondo", isOn: $gameState.sottofondo)
             }
 
             VStack(alignment: .leading, spacing: 8) {
                 Button("Istruzioni") { showInstructions = true }
                     .frame(maxWidth: .infinity, minHeight: 40)
                 HStack(spacing: 8) {
-                    radioButton(title: "Livello 1", selected: gameState.level == 1) {}
+                    radioButton(title: "Sessione 1", selected: gameState.level == 1) {}
                         .disabled(true)
                         .opacity(gameState.level == 1 ? 1 : 0.45)
                     Spacer()
@@ -659,7 +709,7 @@ struct ContentView: View {
                     .opacity(gameState.level == 1 ? 1 : 0.45)
                 }
                 HStack(spacing: 8) {
-                    radioButton(title: "Livello 2", selected: gameState.level == 2) {}
+                    radioButton(title: "Sessione 2", selected: gameState.level == 2) {}
                         .disabled(true)
                         .opacity(gameState.level == 2 ? 1 : 0.45)
                     Spacer()
@@ -670,7 +720,7 @@ struct ContentView: View {
                     .opacity(gameState.level == 2 ? 1 : 0.45)
                 }
                 HStack(spacing: 8) {
-                    radioButton(title: "Livello 3", selected: gameState.level == 3) {}
+                    radioButton(title: "Sessione 3", selected: gameState.level == 3) {}
                         .disabled(true)
                         .opacity(gameState.level == 3 ? 1 : 0.45)
                     Spacer()

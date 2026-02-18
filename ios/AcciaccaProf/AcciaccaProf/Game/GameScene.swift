@@ -33,6 +33,9 @@ final class GameScene: SKScene {
     private var deskLinkRect = CGRect.zero
     private var noteRect = CGRect.zero
     private var pentathlonLabel = SKLabelNode()
+    private var pentathlonPerlaHint = SKSpriteNode()
+    private var pentathlonPerlaGlow = SKShapeNode()
+    private var pentathlonPerlaMode: PentathlonMode?
     #if targetEnvironment(macCatalyst)
     private var cursorUp: NSCursor?
     private var cursorDown: NSCursor?
@@ -98,6 +101,9 @@ final class GameScene: SKScene {
     private var pentathlonLogicActive = false
     private var pentathlonLogicRuleIndex = 0
     private var pentathlonLogicViolationIndex: Int?
+    private var pentathlonMovingNodes: [SKSpriteNode] = []
+    private var pentathlonMovingPositions: [String: Int] = [:]
+    private var pentathlonMovingActive = false
 
     private var alzateCatt = 0
     private var alzateBuon = 0
@@ -182,6 +188,7 @@ final class GameScene: SKScene {
 
     func setPrivateFacesEnabled(_ enabled: Bool) {
         usePrivateFaces = enabled
+        gameState?.usePrivateFaces = enabled
         onShowPrivateFacesUnlocked?(enabled)
         profCattivo()
         profBuono()
@@ -195,6 +202,7 @@ final class GameScene: SKScene {
         setupDynamicSprites()
         setupBambini()
         setupPentathlonLabel()
+        setupPerlaHint()
         setupSwapLabels()
         setupCursorsIfNeeded()
     }
@@ -225,6 +233,10 @@ final class GameScene: SKScene {
             "Image29","Image31","Image33","Image35"
         ]
 
+        let overlayNames: Set<String> = [
+            "Image4","Image7","Image10","Image13","Image16","Image19","Image22","Image25","Image28"
+        ]
+        let overlayZ = zOrder.zIndex(for: "Image4")
         for name in staticNames {
             guard let frame = layout.frame(for: name), let texture = textureFor(baseName: name) else { continue }
             let node = SKSpriteNode(texture: texture)
@@ -232,7 +244,11 @@ final class GameScene: SKScene {
             node.texture = croppedTextureIfNeeded(texture: texture, frame: frame)
             node.size = frame.size
             node.position = convertPosition(frame: frame)
-            node.zPosition = zOrder.zIndex(for: name)
+            var z = zOrder.zIndex(for: name)
+            if overlayNames.contains(name) {
+                z = max(z, overlayZ)
+            }
+            node.zPosition = z
             addChild(node)
         }
 
@@ -256,6 +272,25 @@ final class GameScene: SKScene {
         pentathlonLabel.zPosition = 9999
         pentathlonLabel.isHidden = true
         addChild(pentathlonLabel)
+    }
+
+    private func setupPerlaHint() {
+        pentathlonPerlaHint = SKSpriteNode(texture: textureFor(baseName: "perla_1"))
+        pentathlonPerlaHint.name = "perlaHint"
+        pentathlonPerlaHint.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+        pentathlonPerlaHint.size = CGSize(width: 60, height: 60)
+        pentathlonPerlaHint.zPosition = 9997
+        pentathlonPerlaHint.isHidden = true
+        addChild(pentathlonPerlaHint)
+
+        pentathlonPerlaGlow = SKShapeNode(circleOfRadius: 38)
+        pentathlonPerlaGlow.strokeColor = .yellow
+        pentathlonPerlaGlow.lineWidth = 4
+        pentathlonPerlaGlow.glowWidth = 8
+        pentathlonPerlaGlow.fillColor = .clear
+        pentathlonPerlaGlow.zPosition = 9996
+        pentathlonPerlaGlow.isHidden = true
+        addChild(pentathlonPerlaGlow)
     }
 
     private func setupSwapLabels() {
@@ -318,7 +353,7 @@ final class GameScene: SKScene {
             cattLeft = frame.minX
             cattTop = frame.minY
             applyFrame(node: profCatt, left: frame.minX, top: frame.minY, width: cattWidth, height: cattHeight)
-            profCatt.zPosition = zOrder.zIndex(for: "profcatt") + profZOffset
+            profCatt.zPosition = zOrder.zIndex(for: "Image4") - 1
             addChild(profCatt)
             resettacattivo()
         }
@@ -333,7 +368,7 @@ final class GameScene: SKScene {
             buonLeft = frame.minX
             buonTop = frame.minY
             applyFrame(node: profBuon, left: frame.minX, top: frame.minY, width: buonWidth, height: buonHeight)
-            profBuon.zPosition = zOrder.zIndex(for: "profbuon") + profZOffset
+            profBuon.zPosition = zOrder.zIndex(for: "Image4") - 1
             addChild(profBuon)
             resettabuono()
         }
@@ -348,7 +383,7 @@ final class GameScene: SKScene {
             bidellaLeft = frame.minX
             bidellaTop = frame.minY
             applyFrame(node: bidella, left: frame.minX, top: frame.minY, width: bidellaWidth, height: bidellaHeight)
-            bidella.zPosition = zOrder.zIndex(for: "bidella") + profZOffset
+            bidella.zPosition = zOrder.zIndex(for: "Image4") - 1
             addChild(bidella)
             resettabidella()
         }
@@ -438,11 +473,6 @@ final class GameScene: SKScene {
             resolvedName = baseName
         }
 
-        if let slot = slotForBaseName(resolvedName), let custom = ImageStore.shared.image(for: slot) {
-            let tex = SKTexture(image: custom)
-            tex.filteringMode = .nearest
-            return tex
-        }
         let compactName = resolvedName.replacingOccurrences(of: "_", with: "")
         let extensions = ["png", "jpg", "JPG", "jpeg", "JPEG"]
 
@@ -450,7 +480,7 @@ final class GameScene: SKScene {
             let privateCandidates = [resolvedName, compactName]
             for name in privateCandidates {
                 for ext in extensions {
-                    if let url = Bundle.main.url(forResource: name, withExtension: ext, subdirectory: "images/private") {
+                    if let url = Bundle.main.url(forResource: name, withExtension: ext, subdirectory: "images/VA") {
                         if let img = UIImage(contentsOfFile: url.path) {
                             let tex = SKTexture(image: img)
                             tex.filteringMode = .nearest
@@ -459,6 +489,12 @@ final class GameScene: SKScene {
                     }
                 }
             }
+        }
+
+        if let slot = slotForBaseName(resolvedName), let custom = ImageStore.shared.image(for: slot) {
+            let tex = SKTexture(image: custom)
+            tex.filteringMode = .nearest
+            return tex
         }
 
         let publicCandidates = [resolvedName]
@@ -552,7 +588,7 @@ final class GameScene: SKScene {
         if !pentathlonActive {
             pentathlonActive = true
             pentathlonSuccessCount = 0
-            queuePentathlonRule(for: .memory)
+            //queuePentathlonRule(for: .memory)
             return
         }
 
@@ -601,9 +637,9 @@ final class GameScene: SKScene {
             pentathlonSuccessCount = 0
             startSwapMemoryRound()
         case .quickCalc:
-            pentathlonLabel.text = "Pentathlon 4/5: Intruso"
+            pentathlonLabel.text = "Pentathlon 4/5: Bersagli mobili"
             pentathlonLabel.isHidden = false
-            startLogicRound()
+            startMovingTargetRound()
         case .reflex:
             pentathlonLabel.text = "Pentathlon 5/5: Sequenza"
             pentathlonLabel.isHidden = false
@@ -685,6 +721,38 @@ final class GameScene: SKScene {
         pentathlonLogicActive = false
         pentathlonLogicRuleIndex = 0
         pentathlonLogicViolationIndex = nil
+        for node in pentathlonMovingNodes { node.removeFromParent() }
+        pentathlonMovingNodes.removeAll()
+        pentathlonMovingPositions.removeAll()
+        pentathlonMovingActive = false
+        hidePerlaHint()
+    }
+
+    private func showPerlaHint(for mode: PentathlonMode) {
+        pentathlonPerlaMode = mode
+        let gameFrame = layout.frame(for: "Image1") ?? CGRect(x: 0, y: 0, width: baseSize.width, height: baseSize.height)
+        let x = gameFrame.minX + gameFrame.width - 40
+        let yTop = gameFrame.minY + 40
+        let y = baseSize.height - yTop
+        let pos = CGPoint(x: x, y: y)
+        pentathlonPerlaHint.position = pos
+        pentathlonPerlaGlow.position = pos
+        pentathlonPerlaHint.isHidden = false
+        pentathlonPerlaGlow.isHidden = false
+        pentathlonPerlaHint.removeAllActions()
+        pentathlonPerlaGlow.removeAllActions()
+        let pulse = SKAction.sequence([
+            .scale(to: 1.15, duration: 0.3),
+            .scale(to: 1.0, duration: 0.3)
+        ])
+        pentathlonPerlaHint.run(.repeat(pulse, count: 2))
+        pentathlonPerlaGlow.run(.repeat(pulse, count: 2))
+    }
+
+    private func hidePerlaHint() {
+        pentathlonPerlaHint.isHidden = true
+        pentathlonPerlaGlow.isHidden = true
+        pentathlonPerlaMode = nil
     }
 
     private func queuePentathlonRule(for mode: PentathlonMode) {
@@ -714,6 +782,11 @@ final class GameScene: SKScene {
         startSyncMinigame()
     }
 
+    func currentPentathlonModeRawValue() -> Int? {
+        guard gameState?.inPentathlon == true else { return nil }
+        return pentathlonMode.rawValue
+    }
+
     func restartPentathlonAfterRetry() {
         switch pentathlonMode {
         case .intruder:
@@ -723,7 +796,7 @@ final class GameScene: SKScene {
         case .reflex:
             restartPentathlonSequenceAfterRetry()
         case .quickCalc:
-            startLogicRound()
+            startMovingTargetRound()
         default:
             return
         }
@@ -862,7 +935,7 @@ final class GameScene: SKScene {
 
     private func positionForDesk(index: Int) -> CGPoint {
         let pos = posizioni[index]
-        let left = pos.0 + campoLeft - 30
+        let left = pos.0 + campoLeft - 20
         let top = pos.1 + 110 + campoTop + spawnYOffset - 120
         return CGPoint(x: left, y: baseSize.height - top - 120)
     }
@@ -1068,6 +1141,85 @@ final class GameScene: SKScene {
         pentathlonLogicActive = true
     }
 
+    private func startMovingTargetRound() {
+        clearPentathlonNodes()
+        pentathlonMovingActive = true
+        pentathlonMovingNodes.removeAll()
+        pentathlonMovingPositions.removeAll()
+
+        let lateral = [0, 1, 2, 3, 5, 6, 7, 8].shuffled()
+        let cattivi = ["cattivi_1","cattivi_2","cattivi_3"]
+        let buoni = ["buoni_1","buoni_2","buoni_3"]
+        let textures = (cattivi + buoni).shuffled()
+
+        for (i, idx) in lateral.prefix(6).enumerated() {
+            let texName = textures[i]
+            let node = makeMovingNode(textureName: texName, index: idx, slot: i)
+            pentathlonMovingNodes.append(node)
+            if let name = node.name {
+                pentathlonMovingPositions[name] = idx
+            }
+        }
+
+        runMovingCycle()
+    }
+
+    private func makeMovingNode(textureName: String, index: Int, slot: Int) -> SKSpriteNode {
+        let tex = textureFor(baseName: textureName)
+        let node = SKSpriteNode(texture: tex)
+        let isCattivo = textureName.hasPrefix("cattivi")
+        node.name = isCattivo ? "moveCatt_\(slot)" : "moveBuon_\(slot)"
+        node.anchorPoint = CGPoint(x: 0, y: 0)
+        let (width, fullHeight) = sizeForTextureName(textureName)
+        let frame = pentathlonDeskFrame(index: index, offsetY: -120, width: width, height: fullHeight)
+        node.position = frame.origin
+        node.size = CGSize(width: width, height: fullHeight)
+        node.zPosition = zOrder.zIndex(for: "profcatt") + 2
+        addChild(node)
+        return node
+    }
+
+    private func runMovingCycle() {
+        guard pentathlonMovingActive else { return }
+        let duration = movingCycleDuration()
+        var occupied = Set<Int>()
+        var newPositions: [String: Int] = [:]
+
+        for node in pentathlonMovingNodes {
+            guard let name = node.name, let current = pentathlonMovingPositions[name] else { continue }
+            let neighbors = pentathlonNeighbors(for: current).shuffled()
+            let target = neighbors.first(where: { !occupied.contains($0) }) ?? current
+            occupied.insert(target)
+            newPositions[name] = target
+
+            let frame = pentathlonDeskFrame(index: target, offsetY: -120, width: node.size.width, height: node.size.height)
+            let move = SKAction.move(to: frame.origin, duration: duration)
+            move.timingMode = .easeInEaseOut
+            node.run(move)
+        }
+
+        pentathlonMovingPositions = newPositions
+        run(.sequence([.wait(forDuration: duration + 0.1), .run { [weak self] in
+            self?.runMovingCycle()
+        }]))
+    }
+
+    private func movingCycleDuration() -> TimeInterval {
+        guard let state = gameState else { return 1.0 }
+        return max(0.45, 1.6 - Double(state.velocita) * 0.01)
+    }
+
+    private func pentathlonNeighbors(for index: Int) -> [Int] {
+        let row = index / 3
+        let col = index % 3
+        var list: [Int] = []
+        if row > 0 { list.append(index - 3) }
+        if row < 2 { list.append(index + 3) }
+        if col > 0 { list.append(index - 1) }
+        if col < 2 { list.append(index + 1) }
+        return list
+    }
+
     private func makeLogicNode(textureName: String, index: Int) -> SKSpriteNode {
         let tex = textureFor(baseName: textureName)
         let node = SKSpriteNode(texture: tex)
@@ -1244,7 +1396,7 @@ final class GameScene: SKScene {
         let width = isBuono ? buonWidth : cattWidth
         let fullHeight = isBuono ? buonFullHeight : cattFullHeight
         let pos = posizioni[index]
-        let left = pos.0 + campoLeft - 30
+        let left = pos.0 + campoLeft - 10
         let top = pos.1 + 110 + campoTop + spawnYOffset - 120
         let bottom = baseSize.height - top - fullHeight
         node.position = CGPoint(x: left, y: bottom)
@@ -1288,7 +1440,7 @@ final class GameScene: SKScene {
             let width = isBuono ? buonWidth : cattWidth
             let fullHeight = isBuono ? buonFullHeight : cattFullHeight
             let pos = posizioni[posIndex]
-            let left = pos.0 + campoLeft - 30
+            let left = pos.0 + campoLeft - 10
             let top = pos.1 + 110 + campoTop + spawnYOffset - 120
             let bottom = baseSize.height - top - fullHeight
             node.position = CGPoint(x: left, y: bottom)
@@ -1307,8 +1459,8 @@ final class GameScene: SKScene {
         alzateCatt = 0
         gameState?.registerCattivoSpawn()
         let pos = posizioni.randomElement() ?? (56, 26)
-        cattLeft = pos.0 + campoLeft - 10
-        cattTop = pos.1 + 110 + campoTop + spawnYOffset
+        cattLeft = pos.0 + campoLeft - 11
+        cattTop = pos.1 + 110 + campoTop + spawnYOffset + 0
         resettacattivo()
     }
 
@@ -1321,8 +1473,8 @@ final class GameScene: SKScene {
         }
         alzateBuon = 0
         let pos = posizioni.randomElement() ?? (56, 26)
-        buonLeft = pos.0 + campoLeft - 10
-        buonTop = pos.1 + 110 + campoTop + spawnYOffset
+        buonLeft = pos.0 + campoLeft - 11
+        buonTop = pos.1 + 110 + campoTop + spawnYOffset + 0
         resettabuono()
     }
 
@@ -1330,8 +1482,8 @@ final class GameScene: SKScene {
         bidella.texture = textureFor(baseName: "bidella_1")
         alzateBidella = 0
         let pos = posizioni.randomElement() ?? (56, 26)
-        bidellaLeft = pos.0 + campoLeft - 5
-        bidellaTop = pos.1 + 110 + campoTop + spawnYOffset
+        bidellaLeft = pos.0 + campoLeft - 6
+        bidellaTop = pos.1 + 110 + campoTop + spawnYOffset + 0
         resettabidella()
     }
 
@@ -1521,20 +1673,27 @@ final class GameScene: SKScene {
                 onShowPentathlonRetry?()
             }
         case .quickCalc:
-            guard pentathlonLogicActive else { return }
-            guard let tapped = pentathlonLogicNodes.first(where: { $0.value.contains(location) }) else { return }
-            let idx = tapped.key
-            if idx == pentathlonLogicViolationIndex {
-                state.addPoints(2)
-                if state.suoni { SoundPlayer.shared.play(name: "siii.wav") }
-                finishPentathlonMode()
-            } else {
+            guard pentathlonMovingActive else { return }
+            guard let tapped = pentathlonMovingNodes.first(where: { $0.contains(location) }) else { return }
+            guard let name = tapped.name else { return }
+            if name.hasPrefix("moveBuon_") {
                 state.addPoints(-2)
                 if state.suoni { SoundPlayer.shared.play(name: "nooo.wav") }
                 showZampilli(at: location)
-                pentathlonLogicActive = false
+                pentathlonMovingActive = false
                 gameState?.paused = true
                 onShowPentathlonRetry?()
+                return
+            }
+            if name.hasPrefix("moveCatt_") {
+                state.addPoints(1)
+                if state.suoni { SoundPlayer.shared.play(name: "profmorto.wav") }
+                tapped.removeFromParent()
+                pentathlonMovingNodes.removeAll { $0 == tapped }
+                pentathlonMovingPositions.removeValue(forKey: name)
+                if pentathlonMovingNodes.first(where: { $0.name?.hasPrefix("moveCatt_") == true }) == nil {
+                    finishPentathlonMode()
+                }
             }
         case .sequence:
             guard pentathlonSyncActive else { return }
@@ -1607,9 +1766,17 @@ final class GameScene: SKScene {
     }
 
     private func handlePentathlonTouches(_ touches: Set<UITouch>) {
-        guard let state = gameState else { return }
+//        guard let state = gameState else { return }
         if let first = touches.first {
-            handlePentathlonTouch(at: first.location(in: self))
+            let location = first.location(in: self)
+            if !pentathlonPerlaHint.isHidden, pentathlonPerlaHint.contains(location) {
+                if let mode = pentathlonPerlaMode {
+                    gameState?.paused = true
+                    onShowPentathlonRule?(mode.rawValue)
+                }
+                return
+            }
+            handlePentathlonTouch(at: location)
         }
     }
 

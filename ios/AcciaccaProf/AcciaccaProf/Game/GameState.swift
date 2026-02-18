@@ -15,6 +15,7 @@ final class GameState: ObservableObject {
     @Published var punti: Double = 0.0
     @Published var gameOver = false
     @Published var inPentathlon = false
+    @Published var usePrivateFaces = false
 
     @Published var suoni = true
     @Published var sottofondo = false
@@ -31,6 +32,7 @@ final class GameState: ObservableObject {
         levelUpTrigger = 0
         gameOver = false
         inPentathlon = false
+        usePrivateFaces = false
     }
 
     func calcolaVoto() {
