@@ -96,11 +96,19 @@ final class GameScene: SKScene {
     private var pentathlonSeatTargetIndex = 0
     private var pentathlonSeatCenterNode = SKSpriteNode()
     private var pentathlonSeatActive = false
+    private var pentathlonSeatLastSpeed: Int = -1
     private var usePrivateFaces = false
     private var pentathlonLogicNodes: [Int: SKSpriteNode] = [:]
     private var pentathlonLogicActive = false
     private var pentathlonLogicRuleIndex = 0
     private var pentathlonLogicViolationIndex: Int?
+    private var pentathlonRiskNodes: [Int: SKSpriteNode] = [:]
+    private var pentathlonRiskTargets: Set<Int> = []
+    private var pentathlonRiskActive = false
+    private var pentathlonRiskTypes: [Int: String] = [:]
+    private var pentathlonRiskCycleKey = "riskCycle"
+    private var pentathlonRiskLastSpeed: Int = -1
+    private var pentathlonRiskLastDuration: TimeInterval = -1
     private var pentathlonMovingNodes: [SKSpriteNode] = []
     private var pentathlonMovingPositions: [String: Int] = [:]
     private var pentathlonMovingActive = false
@@ -614,6 +622,26 @@ final class GameScene: SKScene {
                 pentathlonSyncPendingReposition = true
             }
         }
+
+        if pentathlonMode == .quickCalc, pentathlonRiskActive {
+            let speed = state.velocita
+            let duration = riskCycleDuration()
+            if speed != pentathlonRiskLastSpeed || abs(duration - pentathlonRiskLastDuration) > 0.05 {
+                pentathlonRiskLastSpeed = speed
+                pentathlonRiskLastDuration = duration
+                removeAction(forKey: pentathlonRiskCycleKey)
+                repositionRiskNodes(moveDuration: duration * 0.6)
+                startRiskCycle()
+            }
+        }
+
+        if pentathlonMode == .intruder, pentathlonSeatActive {
+            let speed = state.velocita
+            if speed != pentathlonSeatLastSpeed {
+                pentathlonSeatLastSpeed = speed
+                runSwapRevealSequence()
+            }
+        }
     }
 
     private func startPentathlonMode() {
@@ -637,9 +665,9 @@ final class GameScene: SKScene {
             pentathlonSuccessCount = 0
             startSwapMemoryRound()
         case .quickCalc:
-            pentathlonLabel.text = "Pentathlon 4/5: Bersagli mobili"
+            pentathlonLabel.text = "Pentathlon 4/5: Rischio controllato"
             pentathlonLabel.isHidden = false
-            startMovingTargetRound()
+            startRiskRound()
         case .reflex:
             pentathlonLabel.text = "Pentathlon 5/5: Sequenza"
             pentathlonLabel.isHidden = false
@@ -716,6 +744,7 @@ final class GameScene: SKScene {
         pentathlonSeatTargetIndex = 0
         pentathlonSeatCenterNode.removeFromParent()
         pentathlonSeatActive = false
+        pentathlonSeatLastSpeed = -1
         for node in pentathlonLogicNodes.values { node.removeFromParent() }
         pentathlonLogicNodes.removeAll()
         pentathlonLogicActive = false
@@ -725,6 +754,12 @@ final class GameScene: SKScene {
         pentathlonMovingNodes.removeAll()
         pentathlonMovingPositions.removeAll()
         pentathlonMovingActive = false
+        for node in pentathlonRiskNodes.values { node.removeFromParent() }
+        pentathlonRiskNodes.removeAll()
+        pentathlonRiskTargets.removeAll()
+        pentathlonRiskActive = false
+        pentathlonRiskTypes.removeAll()
+        removeAction(forKey: pentathlonRiskCycleKey)
         hidePerlaHint()
     }
 
@@ -796,7 +831,7 @@ final class GameScene: SKScene {
         case .reflex:
             restartPentathlonSequenceAfterRetry()
         case .quickCalc:
-            startMovingTargetRound()
+            startRiskRound()
         default:
             return
         }
@@ -1237,6 +1272,129 @@ final class GameScene: SKScene {
         return node
     }
 
+    private func startRiskRound() {
+        clearPentathlonNodes()
+        pentathlonRiskActive = false
+        pentathlonRiskNodes.removeAll()
+        pentathlonRiskTargets.removeAll()
+        pentathlonRiskTypes.removeAll()
+        pentathlonRiskLastSpeed = -1
+        pentathlonRiskLastDuration = -1
+
+        let cattivi = ["cattivi_1","cattivi_2","cattivi_3"].shuffled()
+        let buoni = ["buoni_1","buoni_2","buoni_3"].shuffled()
+
+        var guardCount = 0
+        while guardCount < 20 {
+            let indices = Array(0..<posizioni.count).shuffled().prefix(6)
+            let positions = Array(indices)
+            var assigned: [Int: String] = [:]
+            for i in 0..<3 {
+                assigned[positions[i]] = cattivi[i]
+            }
+            for i in 0..<3 {
+                assigned[positions[i + 3]] = buoni[i]
+            }
+
+            let targetSet = targetCattiviWithAdjacentBuono(assigned: assigned)
+            if !targetSet.isEmpty {
+                for (idx, texName) in assigned {
+                    let node = makeRiskNode(textureName: texName, index: idx)
+                    pentathlonRiskNodes[idx] = node
+                    pentathlonRiskTypes[idx] = texName
+                }
+                pentathlonRiskTargets = targetSet
+                pentathlonRiskActive = true
+                pentathlonRiskLastSpeed = gameState?.velocita ?? -1
+                pentathlonRiskLastDuration = riskCycleDuration()
+                startRiskCycle()
+                return
+            }
+            guardCount += 1
+        }
+    }
+
+    private func makeRiskNode(textureName: String, index: Int) -> SKSpriteNode {
+        let tex = textureFor(baseName: textureName)
+        let node = SKSpriteNode(texture: tex)
+        node.name = textureName.hasPrefix("buoni") ? "riskBuon_\(index)" : "riskCatt_\(index)"
+        node.anchorPoint = CGPoint(x: 0, y: 0)
+        let (width, fullHeight) = sizeForTextureName(textureName)
+        let pos = posizioni[index]
+        let left = pos.0 + campoLeft - 10
+        let top = pos.1 + 110 + campoTop + spawnYOffset - 120
+        let bottom = baseSize.height - top - fullHeight
+        node.position = CGPoint(x: left, y: bottom)
+        node.size = CGSize(width: width, height: fullHeight)
+        node.zPosition = zOrder.zIndex(for: "profcatt") + 2
+        addChild(node)
+        return node
+    }
+
+    private func targetCattiviWithAdjacentBuono(assigned: [Int: String]) -> Set<Int> {
+        var targets: Set<Int> = []
+        for (idx, tex) in assigned where tex.hasPrefix("cattivi") {
+            let neighbors = pentathlonNeighbors(for: idx)
+            if neighbors.contains(where: { assigned[$0]?.hasPrefix("buoni") == true }) {
+                targets.insert(idx)
+            }
+        }
+        return targets
+    }
+
+    private func startRiskCycle() {
+        removeAction(forKey: pentathlonRiskCycleKey)
+        let duration = riskCycleDuration()
+        let action = SKAction.sequence([
+            .wait(forDuration: duration),
+            .run { [weak self] in
+                let moveDuration = (self?.riskCycleDuration() ?? duration) * 0.6
+                self?.repositionRiskNodes(moveDuration: moveDuration)
+                self?.startRiskCycle()
+            }
+        ])
+        run(action, withKey: pentathlonRiskCycleKey)
+    }
+
+    private func riskCycleDuration() -> TimeInterval {
+        guard let state = gameState else { return 1.0 }
+        return max(0.6, 1.8 - Double(state.velocita) * 0.012)
+    }
+
+    private func repositionRiskNodes(moveDuration: TimeInterval) {
+        guard pentathlonRiskActive else { return }
+        let count = pentathlonRiskNodes.count
+        guard count > 0 else { return }
+        let indices = Array(0..<posizioni.count).shuffled().prefix(count)
+        let positions = Array(indices)
+        var newTypes: [Int: String] = [:]
+        var newNodes: [Int: SKSpriteNode] = [:]
+
+        for (offset, (oldIndex, node)) in pentathlonRiskNodes.enumerated() {
+            let newIndex = positions[offset]
+            let isBuono = node.name?.hasPrefix("riskBuon_") == true
+            let typeName = isBuono ? "buoni_1" : "cattivi_1"
+            node.name = isBuono ? "riskBuon_\(newIndex)" : "riskCatt_\(newIndex)"
+            newTypes[newIndex] = typeName
+            newNodes[newIndex] = node
+
+            let (width, fullHeight) = sizeForTextureName(typeName)
+            let pos = posizioni[newIndex]
+            let left = pos.0 + campoLeft - 10
+            let top = pos.1 + 110 + campoTop + spawnYOffset - 120
+            let bottom = baseSize.height - top - fullHeight
+            let target = CGPoint(x: left, y: bottom)
+            node.run(.move(to: target, duration: moveDuration))
+        }
+
+        pentathlonRiskNodes = newNodes
+        pentathlonRiskTypes = newTypes
+        pentathlonRiskTargets = targetCattiviWithAdjacentBuono(assigned: newTypes)
+        if pentathlonRiskTargets.isEmpty {
+            pentathlonRiskTargets = targetCattiviWithAdjacentBuono(assigned: newTypes)
+        }
+    }
+
     private func startSwapMemoryRound() {
         clearPentathlonNodes()
         pentathlonSeatActive = false
@@ -1266,29 +1424,33 @@ final class GameScene: SKScene {
 
     private func runSwapRevealSequence() {
         guard let state = gameState else { return }
+        removeAction(forKey: "swapReveal")
         var actions: [SKAction] = []
-        let speed = max(1, state.velocita / 5)
+        let clamped = max(0, min(100, state.velocita))
+        let t = Double(clamped) / 100.0
+        // 0 -> slow, 100 -> fast (very visible change)
+        let revealDuration = max(0.08, 1.5 - t * 1.4)
+        let pause = max(0.05, 1.1 - t * 1.0)
         for deskIndex in pentathlonSeatOrder {
             guard let node = pentathlonSeatNodes[deskIndex],
                   let texName = pentathlonSeatTextures[deskIndex] else { continue }
             let (_, fullHeight) = sizeForTextureName(texName)
-            let duration = max(0.05, (Double(fullHeight) / Double(speed)) * 0.05)
             actions.append(.run {
                 node.isHidden = false
                 node.size = CGSize(width: node.size.width, height: 1)
-                node.run(SKAction.customAction(withDuration: duration) { sprite, elapsed in
+                node.run(SKAction.customAction(withDuration: revealDuration) { sprite, elapsed in
                     guard let sprite = sprite as? SKSpriteNode else { return }
-                    let t = CGFloat(elapsed / duration)
+                    let t = CGFloat(elapsed / revealDuration)
                     let h = 1 + (fullHeight - 1) * t
                     sprite.size = CGSize(width: sprite.size.width, height: h)
                 })
             })
-            actions.append(.wait(forDuration: duration + 1.0))
+            actions.append(.wait(forDuration: revealDuration + pause))
         }
         actions.append(.run { [weak self] in
             self?.flipSwapFaces()
         })
-        run(.sequence(actions))
+        run(.sequence(actions), withKey: "swapReveal")
     }
 
     private func flipSwapFaces() {
@@ -1307,6 +1469,7 @@ final class GameScene: SKScene {
         pentathlonSeatTargetIndex = 0
         showSwapCenterTarget()
         pentathlonSeatActive = true
+        pentathlonSeatLastSpeed = gameState?.velocita ?? -1
     }
 
     private func showSwapCenterTarget() {
@@ -1673,27 +1836,38 @@ final class GameScene: SKScene {
                 onShowPentathlonRetry?()
             }
         case .quickCalc:
-            guard pentathlonMovingActive else { return }
-            guard let tapped = pentathlonMovingNodes.first(where: { $0.contains(location) }) else { return }
-            guard let name = tapped.name else { return }
-            if name.hasPrefix("moveBuon_") {
+            guard pentathlonRiskActive else { return }
+            guard let tapped = pentathlonRiskNodes.first(where: { $0.value.contains(location) }) else { return }
+            let idx = tapped.key
+            let isBuono = pentathlonRiskTypes[idx]?.hasPrefix("buoni") == true
+            if isBuono {
                 state.addPoints(-2)
                 if state.suoni { SoundPlayer.shared.play(name: "nooo.wav") }
                 showZampilli(at: location)
-                pentathlonMovingActive = false
+                pentathlonRiskActive = false
                 gameState?.paused = true
                 onShowPentathlonRetry?()
                 return
             }
-            if name.hasPrefix("moveCatt_") {
-                state.addPoints(1)
+            if pentathlonRiskTargets.contains(idx) {
+                state.addPoints(2)
                 if state.suoni { SoundPlayer.shared.play(name: "profmorto.wav") }
-                tapped.removeFromParent()
-                pentathlonMovingNodes.removeAll { $0 == tapped }
-                pentathlonMovingPositions.removeValue(forKey: name)
-                if pentathlonMovingNodes.first(where: { $0.name?.hasPrefix("moveCatt_") == true }) == nil {
+                tapped.value.removeFromParent()
+                pentathlonRiskNodes.removeValue(forKey: idx)
+                pentathlonRiskTargets.remove(idx)
+                pentathlonRiskTypes.removeValue(forKey: idx)
+                pentathlonRiskTargets = targetCattiviWithAdjacentBuono(assigned: pentathlonRiskTypes)
+                let hasCattivi = pentathlonRiskNodes.values.contains { $0.name?.hasPrefix("riskCatt_") == true }
+                if !hasCattivi {
                     finishPentathlonMode()
                 }
+            } else {
+                state.addPoints(-2)
+                if state.suoni { SoundPlayer.shared.play(name: "nooo.wav") }
+                showZampilli(at: location)
+                pentathlonRiskActive = false
+                gameState?.paused = true
+                onShowPentathlonRetry?()
             }
         case .sequence:
             guard pentathlonSyncActive else { return }

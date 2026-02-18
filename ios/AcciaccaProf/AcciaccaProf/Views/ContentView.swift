@@ -276,7 +276,7 @@ struct ContentView: View {
         case 3:
             return "Scambio di posto: appaiono 3 buoni, 3 cattivi, bidella e Perla sui banchi laterali. Poi si coprono. Al centro appare uno alla volta: tocca il banco dove era seduto. Se sbagli, si riparte.\n\nTocca Coach Perla per rivedere la regola."
         case 4:
-            return "Tiro al bersaglio mobile: 3 prof cattivi e 3 buoni si spostano tra i banchi vicini. Colpisci solo i cattivi mentre si muovono. Se tocchi un buono, il minigioco riparte.\n\nTocca Coach Perla per rivedere la regola."
+            return "Rischio controllato: 3 prof cattivi e 3 buoni sui banchi. Colpisci SOLO i cattivi che hanno un buono vicino (su/giu/sx/dx). Se colpisci un buono o un cattivo senza buono vicino, il minigioco riparte.\n\nTocca Coach Perla per rivedere la regola."
         case 5:
             return "Sequenza: i prof appaiono in ordine. Ripeti toccando i banchi nella stessa sequenza. Errore = -2 e si riparte.\n\nTocca Coach Perla per rivedere la regola."
         default:
@@ -493,7 +493,7 @@ struct ContentView: View {
             .cornerRadius(8)
             if gameState.inPentathlon {
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("Coach Perla - Clicca per le istruzioni su questo game")
+                    Text("Coach Perla - Clicca per info su questo minigame del Pentathlon")
                         .font(titleFont)
                     Spacer(minLength: 4)
                     Button(action: {
