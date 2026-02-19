@@ -18,7 +18,7 @@ enum CharacterSlot: String, CaseIterable, Identifiable {
         case .buono2: return "Prof buono 2"
         case .buono3: return "Prof buono 3"
         case .bidella: return "Bidella"
-        case .perla: return "Perla"
+        case .perla: return "Coach Perla"
         }
     }
 
@@ -84,5 +84,47 @@ final class ImageStore: ObservableObject {
             try? fm.removeItem(at: url)
         }
         version = UUID()
+    }
+
+    func imageFromBundle(slot: CharacterSlot) -> UIImage? {
+        loadImageFromBundle(subdirectory: "images", slot: slot)
+    }
+
+    func imageFromVABundle(slot: CharacterSlot) -> UIImage? {
+        loadImageFromBundle(subdirectory: "images/VA", slot: slot)
+    }
+
+    func applyVAFaces() {
+        for slot in CharacterSlot.allCases {
+            if let url = urlForSlot(slot, subdirectory: "images/VA") {
+                let dest = docsURL.appendingPathComponent(slot.fileName)
+                if let data = try? Data(contentsOf: url) {
+                    try? data.write(to: dest, options: .atomic)
+                }
+            }
+        }
+        version = UUID()
+    }
+
+    private func loadImageFromBundle(subdirectory: String, slot: CharacterSlot) -> UIImage? {
+        guard let url = urlForSlot(slot, subdirectory: subdirectory) else { return nil }
+        return UIImage(contentsOfFile: url.path)
+    }
+
+    private func urlForSlot(_ slot: CharacterSlot, subdirectory: String) -> URL? {
+        let exts = ["png","jpg","jpeg","JPG","JPEG"]
+        let base = slot.baseName
+        let candidates = [
+            base,
+            base.replacingOccurrences(of: "_", with: "")
+        ]
+        for name in candidates {
+            for ext in exts {
+                if let url = Bundle.main.url(forResource: name, withExtension: ext, subdirectory: subdirectory) {
+                    return url
+                }
+            }
+        }
+        return nil
     }
 }

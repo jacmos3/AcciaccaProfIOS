@@ -1,55 +1,36 @@
-Perfetto, allora facciamolo davvero diverso.
-Ti propongo un Pentathlon “a prove” che usa ancora i personaggi, ma con meccaniche nuove (memory, sequenze, attenzione, ecc.). Ogni prova dura ~20–30s.
+Pentathlon (regole attuali)
 
-## Pentathlon (5 prove nuove)
+Coach Perla: durante il Pentathlon compare un hint con la sua foto. Toccandola rilegge la regola del minigioco corrente.
 
 1) MEMORY “Prof Girati”
+- Compaiono 8 carte sui banchi (4 coppie: 2 coppie di buoni + 2 coppie di cattivi).
+- Le carte si coprono dopo un breve flash iniziale.
+- Tocca 2 carte: se la coppia è giusta resta scoperta, se sbagli si ricoprono.
+- Punteggio: +2 corretto, -1 errore.
 
-- Per 0.5s compaiono 3 prof in 3 banchi.
-- Scompaiono e compaiono 3 carte coperte.
-- Devi riaccoppiare: tocchi il banco che corrisponde al prof mostrato.
-- 5 round, +2 per corretto, -1 per errore.
+2) RIFLESSI “Cattivi in movimento”
+- Compaiono 3 prof cattivi e 3 prof buoni sui banchi, in loop (entrano/escono come nel gioco normale).
+- Devi colpire solo i cattivi: ogni cattivo colpito sparisce definitivamente.
+- Se colpisci un buono, il minigioco riparte da capo.
+- Il ciclo di comparsa segue la velocità impostata.
 
-2) SEQUENZA “Campanella”
+3) SCAMBIO DI POSTO (Memory delle sedute)
+- Appaiono 3 buoni, 3 cattivi, bidella e Perla sui banchi laterali.
+- Si coprono, poi al centro appare un prof alla volta.
+- Devi toccare il banco dove era seduto quel prof.
+- Se sbagli, il minigioco riparte da capo.
+- La rivelazione iniziale è influenzata dalla velocità.
 
-- Appaiono 3–4 prof in sequenza (uno alla volta) su banchi diversi.
-- Poi tutto sparisce e devi toccare i banchi nell’ordine.
-- Ogni round aggiunge un prof in più (stile Simon).
-- Se sbagli, perdi 2 punti e si ricomincia dal round corrente.
+4) RISCHIO CONTROLLATO
+- Compaiono 3 cattivi e 3 buoni sui banchi (tutti visibili).
+- Devi colpire SOLO i cattivi che hanno un buono adiacente (su/giù/sinistra/destra).
+- Se colpisci un buono o un cattivo senza buono vicino, il minigioco riparte.
+- Le posizioni si rimescolano a tempo (dipende dalla velocità).
 
-3) ATTENZIONE “Intruso”
+5) SEQUENZA
+- I prof appaiono in ordine: devi ripetere la sequenza toccando i banchi nello stesso ordine.
+- Se sbagli, -2 e la sequenza riparte da capo.
 
-- Per 1s compaiono 5 prof: 4 cattivi + 1 buono (o viceversa).
-- Devi colpire SOLO l’intruso entro tempo limite.
-- +3 se corretto, -2 se sbagli o tempo scaduto.
-
-4) CALCOLO VELOCE “Chi ha fatto più danni?”
-
-- Due prof appaiono con numeri brevi sotto (es. 3 e 5).
-- Dopo 1s spariscono: devi scegliere quale aveva il numero maggiore.
-- È una prova rapidissima, 10 round.
-
-5) RIFLESSI “Schiva Zampilli”
-
-- Appare un prof cattivo e uno buono contemporaneamente.
-- Devi colpire il cattivo solo quando il buono non è visibile (entra/esce).
-- Se colpisci mentre il buono è visibile, penalità.
-- 5 apparizioni.
-
----
-
-### Perché è più interessante
-
-- Cambia la logica mentale (memoria, sequenza, attenzione, decisione rapida).
-- Non è un “reskin” del gioco base.
-- Si integra visivamente senza nuove grafiche.
-
-Se vuoi, scegli 5 tra queste, oppure ti preparo una versione completa con:
-
-- UI “Prova 1/5”
-- Timer, punteggi per prova
-- Alert finale “Pentathlon completato”.
-
-Dimmi quali prove approvi, e lo progetto nel codice.
-
-› si mi piacciono. implementa. inoltre aggiungi la coach che si chiama "Perla": è la prof di ginnastica
+Note
+- I passaggi tra minigiochi sono segnalati con alert e campanella.
+- I livelli automatici (lezioni 1→2→3) avvisano con alert + campanella prima del Pentathlon.

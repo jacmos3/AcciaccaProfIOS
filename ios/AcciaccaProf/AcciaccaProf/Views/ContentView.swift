@@ -13,6 +13,8 @@ struct ContentView: View {
     @State private var showGameOver = false
     @State private var showInstructions = false
     @State private var showNote = false
+    @State private var showOnboarding = false
+    @AppStorage("didShowOnboarding") private var didShowOnboarding = false
     @State private var showExistential = false
     @State private var existentialAnswer = ""
     @State private var showPentathlonRule = false
@@ -27,77 +29,34 @@ struct ContentView: View {
     @State private var privateAlertText = ""
     @State private var isPreloading = true
     @State private var elapsedSeconds: Int = 0
-    private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    @State private var sessionTimer: Timer?
 
     private let baseSize = CGSize(width: 618, height: 543)
     private let layout = LayoutStore(jsonName: "unit1_layout_all")
     @State private var scene = GameScene(size: CGSize(width: 618, height: 543))
 
-    var body: some View {
+    var body: some View { pentathlonAndSessionFlowAlerts }
+
+    private var rootContent: some View {
         GeometryReader { proxy in
-            let isPortrait = proxy.size.height > proxy.size.width
-            let scale = min(proxy.size.width / baseSize.width, proxy.size.height / baseSize.height)
-            let gameFrame = layout.frame(for: "Image1") ?? CGRect(x: 0, y: 0, width: baseSize.width, height: baseSize.height)
-            let landscapePanelPadding: CGFloat = 10
-
-            if isPortrait {
-                let panelHeight: CGFloat = 180
-                let availableHeight = max(0, proxy.size.height - panelHeight - 12)
-                let maxScale = proxy.size.width / baseSize.width
-                let rawScale = min(maxScale, availableHeight / baseSize.height)
-                let portraitScale = min(maxScale, rawScale * 1.35)
-                let gameWidth = baseSize.width * portraitScale
-                let gameHeight = baseSize.height * portraitScale
-
-                VStack(spacing: 12) {
-                    ZStack(alignment: .topLeading) {
-                        SpriteView(scene: scene, options: [.allowsTransparency])
-                            .frame(width: baseSize.width, height: baseSize.height)
-                        overlayUI(showControls: false)
-                        preloadOverlay
-                    }
-                    .frame(width: baseSize.width, height: baseSize.height, alignment: .topLeading)
-                    .scaleEffect(portraitScale, anchor: .center)
-                    .frame(width: gameWidth, height: gameHeight)
-                    .frame(width: proxy.size.width, height: gameHeight, alignment: .center)
-
-                    controlPanelPortrait()
-                        .frame(maxWidth: .infinity, minHeight: panelHeight, maxHeight: panelHeight)
-                }
-                .padding(.bottom, 12)
-                .frame(width: proxy.size.width, height: proxy.size.height, alignment: .top)
-                .background(Color(white: 0.85).ignoresSafeArea())
-            } else {
-                ZStack(alignment: .topLeading) {
-                    Color(white: 0.85)
-                        .ignoresSafeArea()
-
-                    let finalScale = (proxy.size.height) / gameFrame.height
-                    let panelWidth = max(310, (proxy.size.width + 50) / finalScale - gameFrame.width - landscapePanelPadding)
-                    let compositeWidth = gameFrame.maxX + landscapePanelPadding + panelWidth + landscapePanelPadding
-                    let offsetX = 10 - gameFrame.minX * finalScale
-                    let offsetY = 10 - gameFrame.minY * finalScale
-
-                    ZStack(alignment: .topLeading) {
-                        SpriteView(scene: scene, options: [.allowsTransparency])
-                            .frame(width: baseSize.width, height: baseSize.height)
-
-                        overlayUI(showControls: true, panelWidth: panelWidth)
-                        preloadOverlay
-                    }
-                    .frame(width: compositeWidth, height: baseSize.height, alignment: .topLeading)
-                    .scaleEffect(finalScale, anchor: .topLeading)
-                    .offset(x: offsetX, y: offsetY)
-                    .frame(width: proxy.size.width, height: proxy.size.height, alignment: .topLeading)
-                }
-                .ignoresSafeArea()
-            }
+            mainLayout(proxy)
         }
         .onAppear { configureScene() }
-        .onReceive(timer) { _ in
-            if gameState.running && !gameState.paused {
-                elapsedSeconds += 1
+        .onAppear {
+            if !didShowOnboarding {
+                showOnboarding = true
             }
+            SoundPlayer.shared.setBackground(enabled: gameState.sottofondo, name: "sottofondo.m4a")
+        }
+        .onChange(of: gameState.running) { running in
+            if running {
+                startSessionTimer()
+            } else {
+                stopSessionTimer(reset: false)
+            }
+        }
+        .onDisappear {
+            stopSessionTimer(reset: false)
         }
         .onChange(of: gameState.sottofondo) { enabled in
             SoundPlayer.shared.setBackground(enabled: enabled, name: "sottofondo.m4a")
@@ -118,6 +77,14 @@ struct ContentView: View {
                 handleCircolare(scelta: scelta)
             }
         }
+        .overlay {
+            if showOnboarding {
+                OnboardingView {
+                    didShowOnboarding = true
+                    showOnboarding = false
+                }
+            }
+        }
         .sheet(isPresented: $showSettings) {
             SettingsView()
         }
@@ -127,110 +94,195 @@ struct ContentView: View {
                 gameState.paused = false
             }
         }
-        .alert("Sessione 1", isPresented: $showHelp1) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            Text("Apparirà una sola immagine alla volta: se la colpisci guadagni punti, se non la colpisci o se sbagli perdi punti.")
-        }
-        .alert("Sessione 2", isPresented: $showHelp2) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            Text("Appariranno 1 prof buono e 1 prof cattivo. Colpisci il cattivo per guadagnare punti.")
-        }
-        .alert("Sessione 3", isPresented: $showHelp3) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            Text("Come la sessione 2, ma prof buoni/cattivi casuali e la bidella che porta circolari.")
-        }
-        .alert("Partita finita", isPresented: $showGameOver) {
-            Button("OK", role: .cancel) { gameState.gameOver = false }
-        } message: {
-            Text("Punteggio finale: \(formatPoints(gameState.punti)). Voto in decimi: \(gameState.voto)/10. Puoi ricominciare da capo premendo Start.")
-        }
-        .alert("Istruzioni", isPresented: $showInstructions) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            Text("Punteggi (moltiplicati dalla velocita'):\n• +2 colpisci prof cattivo\n• -1 prof cattivo sfuggito\n• -2 colpisci prof buono\n• +1 prof buono lasciato andare\n• +5 colpisci bidella\n• -1 bidella lasciata andare\n• -1 colpisci un bambino (zampilli)\n• -1 colpo a vuoto\n• +10 circolare buona\n• -10 circolare cattiva\n\nVelocita': la velocita' applica un moltiplicatore logaritmico ai punti, da 0.5x (velocita' 0) fino a 3x (velocita' 100).\nTabella moltiplicatori:\n• 0% = 0.50x\n• 25% = 1.78x\n• 50% = 2.35x\n• 75% = 2.72x\n• 100% = 3.00x\n\nLivelli (automatici):\n1) Solo prof cattivo (10 uscite)\n2) Prof cattivo + prof buono (10 uscite)\n3) Come il 2 + bidella con circolari (10 uscite)\n4) Pentathlon: 5 prove speciali (Memory, Riflessi, Scambio di posto, Bersagli mobili, Sequenza)\nAl termine il gioco finisce e puoi ricominciare con Start.")
-        }
-        .alert("NOTE", isPresented: $showNote) {
-            Button("OK", role: .cancel) {}
-            Button("okok") {
-                showNote = false
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                    showExistential = true
+    }
+
+    private var sessionAlerts: some View {
+        rootContent
+            .alert("Lezione 1", isPresented: $showHelp1) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("Apparirà un solo prof alla volta: se la colpisci guadagni punti, se non la colpisci o se sbagli perdi punti.")
+            }
+            .alert("Lezione 2", isPresented: $showHelp2) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("Appariranno 1 prof buono e 1 prof cattivo. Colpisci il cattivo per guadagnare punti.")
+            }
+            .alert("Lezione 3", isPresented: $showHelp3) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("Come la sessione 2, ma prof buoni/cattivi casuali e la bidella che porta circolari.")
+            }
+    }
+
+    private var gameAlerts: some View {
+        sessionAlerts
+            .alert("Partita finita", isPresented: $showGameOver) {
+                Button("OK", role: .cancel) { gameState.gameOver = false }
+            } message: {
+                Text("Punteggio finale: \(formatPoints(gameState.punti)). Voto in decimi: \(gameState.voto)/10. Puoi ricominciare da capo premendo Start.")
+            }
+            .alert("Istruzioni", isPresented: $showInstructions) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("Punteggi (moltiplicati dalla velocita'):\n• +2 colpisci prof cattivo\n• -1 prof cattivo sfuggito\n• -2 colpisci prof buono\n• +1 prof buono lasciato andare\n• +5 colpisci bidella\n• -1 bidella lasciata andare\n• -1 colpisci un bambino (zampilli)\n• -1 colpo a vuoto\n• +10 circolare buona\n• -10 circolare cattiva\n\nVelocita': la velocita' applica un moltiplicatore logaritmico ai punti, da 0.5x (velocita' 0) fino a 3x (velocita' 100).\nTabella moltiplicatori:\n• 0% = 0.50x\n• 25% = 1.78x\n• 50% = 2.35x\n• 75% = 2.72x\n• 100% = 3.00x\n\nLivelli (automatici):\n1) Solo prof cattivo (10 uscite)\n2) Prof cattivo + prof buono (10 uscite)\n3) Come il 2 + bidella con circolari (10 uscite)\n4) Pentathlon: 5 prove speciali (Memory, Riflessi, Scambio di posto, Bersagli mobili, Sequenza)\nAl termine il gioco finisce e puoi ricominciare con Start.")
+            }
+            .alert("NOTE", isPresented: $showNote) {
+                Button("OK", role: .cancel) {}
+                Button("okok") {
+                    showNote = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        showExistential = true
+                    }
                 }
+            } message: {
+                Text("Questo gioco e' stato sviluppato in Delphi nel 2007 tra i banchi di scuola del quinto liceo da Jacopo Moscioni, come svago. Era diventato un po' popolare tra i frequentatori del forum del liceo del tempo. 19 anni dopo, nel 2026, rinasce sottoforma di app per iOS, nella versione Reloaded, con le stesse grafiche e stessi suoni del tempo. Il gameplay e' rimasto identico e semplice come al tempo. Solo con il Pentathlon in più")
             }
-        } message: {
-            Text("Questo gioco e' stato sviluppato in Delphi nel 2008 tra i banchi di scuola del quinto liceo da Jacopo Moscioni, come svago. Era diventato un po' popolare tra i frequentatori del forum del liceo del tempo, e fu pubblicato su pierotofy, un portale di giovani programmatori. 18 anni dopo, nel 2026, rinasce sottoforma di app per iOS, nella versione Reloaded, con le stesse grafiche e stessi suoni del tempo. E' stata un pochino migliorata solo la dinamica dei livelli e dei punteggi, ma il gameplay e' rimasto identico e semplice come al tempo.")
-        }
-        .alert("Domanda", isPresented: $showExistential) {
-            TextField("Risposta", text: $existentialAnswer)
-            Button("OK") {
-                let cleaned = existentialAnswer.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
-                if cleaned == "VA" {
-                    scene.setPrivateFacesEnabled(true)
-                } else {
-                    privateAlertText = "Sono contento."
-                    showPrivateAlert = true
+            .alert("Domanda", isPresented: $showExistential) {
+                TextField("Risposta", text: $existentialAnswer)
+                Button("OK") {
+                    let cleaned = existentialAnswer.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
+                    if cleaned == "VA" {
+                        ImageStore.shared.applyVAFaces()
+                        scene.resetForStart()
+                        privateAlertText = "Prof VA attivati."
+                        showPrivateAlert = true
+                    } else {
+                        privateAlertText = "Semper laudabitur!"
+                        showPrivateAlert = true
+                    }
+                    existentialAnswer = ""
                 }
-                existentialAnswer = ""
+                Button("Annulla", role: .cancel) {
+                    existentialAnswer = ""
+                }
+            } message: {
+                Text("Se l'universo è un pensiero che sogna se stesso, chi sta sognando te?")
             }
-            Button("Annulla", role: .cancel) {
-                existentialAnswer = ""
+    }
+
+    private var pentathlonAndSessionFlowAlerts: some View {
+        gameAlerts
+            .alert("Pentathlon", isPresented: $showPentathlonRule) {
+                Button("OK") {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        scene.startPendingPentathlonMode()
+                        gameState.paused = false
+                    }
+                }
+            } message: {
+                Text(pentathlonRuleText)
             }
-        } message: {
-            Text("Se l'universo è un pensiero che sogna se stesso, chi sta sognando te?")
-        }
-        .alert("Pentathlon", isPresented: $showPentathlonRule) {
-            Button("OK") {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    scene.startPendingPentathlonMode()
+            .alert("Pentathlon", isPresented: $showPentathlonComplete) {
+                Button("OK") {
+                    if let next = pentathlonCompleteNext {
+                        scene.queuePentathlonMode(rawValue: next)
+                    } else {
+                        gameState.paused = false
+                    }
+                }
+            } message: {
+                Text(pentathlonCompleteText)
+            }
+            .alert("Pentathlon", isPresented: $showPentathlonRetry) {
+                Button("OK") {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        scene.restartPentathlonAfterRetry()
+                        gameState.paused = false
+                    }
+                }
+            } message: {
+                Text("Hai sbagliato. L'attività riparte da capo.")
+            }
+            .alert("Campanella", isPresented: $showLevelAlert) {
+                Button("OK", role: .cancel) {
                     gameState.paused = false
                 }
+            } message: {
+                Text(levelAlertText)
             }
-        } message: {
-            Text(pentathlonRuleText)
-        }
-        .alert("Pentathlon", isPresented: $showPentathlonComplete) {
-            Button("OK") {
-                if let next = pentathlonCompleteNext {
-                    scene.queuePentathlonMode(rawValue: next)
-                } else {
-                    gameState.paused = false
-                }
+            .alert("", isPresented: $showPrivateAlert) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(privateAlertText)
             }
-        } message: {
-            Text(pentathlonCompleteText)
-        }
-        .alert("Pentathlon", isPresented: $showPentathlonRetry) {
-            Button("OK") {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    scene.restartPentathlonAfterRetry()
-                    gameState.paused = false
-                }
+            .onReceive(gameState.$levelUpTrigger) { value in
+                guard value == 2 || value == 3 else { return }
+                gameState.paused = true
+                levelAlertText = "Sei passato alla lezione \(value)!"
+                playCampanellaIfNeeded()
+                showLevelAlert = true
+                gameState.levelUpTrigger = 0
             }
-        } message: {
-            Text("Hai sbagliato. Il minigioco riparte da capo.")
+    }
+
+    @ViewBuilder
+    private func mainLayout(_ proxy: GeometryProxy) -> some View {
+        let isPortrait = proxy.size.height > proxy.size.width
+        if isPortrait {
+            portraitLayout(proxy)
+        } else {
+            landscapeLayout(proxy)
         }
-        .alert("Sessione", isPresented: $showLevelAlert) {
-            Button("OK", role: .cancel) {
-                gameState.paused = false
+    }
+
+    @ViewBuilder
+    private func portraitLayout(_ proxy: GeometryProxy) -> some View {
+        let panelHeight: CGFloat = 180
+        let availableHeight = max(0, proxy.size.height - panelHeight - 12)
+        let maxScale = proxy.size.width / baseSize.width
+        let rawScale = min(maxScale, availableHeight / baseSize.height)
+        let portraitScale = min(maxScale, rawScale * 1.35)
+        let gameWidth = baseSize.width * portraitScale
+        let gameHeight = baseSize.height * portraitScale
+
+        VStack(spacing: 12) {
+            ZStack(alignment: .topLeading) {
+                SpriteView(scene: scene, options: [.allowsTransparency])
+                    .frame(width: baseSize.width, height: baseSize.height)
+                overlayUI(showControls: false)
+                preloadOverlay
             }
-        } message: {
-            Text(levelAlertText)
+            .frame(width: baseSize.width, height: baseSize.height, alignment: .topLeading)
+            .scaleEffect(portraitScale, anchor: .center)
+            .frame(width: gameWidth, height: gameHeight)
+            .frame(width: proxy.size.width, height: gameHeight, alignment: .center)
+
+            controlPanelPortrait()
+                .frame(maxWidth: .infinity, minHeight: panelHeight, maxHeight: panelHeight)
         }
-        .alert("", isPresented: $showPrivateAlert) {
-            Button("OK", role: .cancel) {}
-        } message: {
-            Text(privateAlertText)
+        .padding(.bottom, 12)
+        .frame(width: proxy.size.width, height: proxy.size.height, alignment: .top)
+        .background(Color(white: 0.85).ignoresSafeArea())
+    }
+
+    @ViewBuilder
+    private func landscapeLayout(_ proxy: GeometryProxy) -> some View {
+        let gameFrame = layout.frame(for: "Image1") ?? CGRect(x: 0, y: 0, width: baseSize.width, height: baseSize.height)
+        let landscapePanelPadding: CGFloat = 10
+        ZStack(alignment: .topLeading) {
+            Color(white: 0.85)
+                .ignoresSafeArea()
+
+            let finalScale = (proxy.size.height) / gameFrame.height
+            let panelWidth = max(310, (proxy.size.width + 50) / finalScale - gameFrame.width - landscapePanelPadding)
+            let compositeWidth = gameFrame.maxX + landscapePanelPadding + panelWidth + landscapePanelPadding
+            let offsetX = 10 - gameFrame.minX * finalScale
+            let offsetY = 10 - gameFrame.minY * finalScale
+
+            ZStack(alignment: .topLeading) {
+                SpriteView(scene: scene, options: [.allowsTransparency])
+                    .frame(width: baseSize.width, height: baseSize.height)
+
+                overlayUI(showControls: true, panelWidth: panelWidth)
+                preloadOverlay
+            }
+            .frame(width: compositeWidth, height: baseSize.height, alignment: .topLeading)
+            .scaleEffect(finalScale, anchor: .topLeading)
+            .offset(x: offsetX, y: offsetY)
+            .frame(width: proxy.size.width, height: proxy.size.height, alignment: .topLeading)
         }
-        .onReceive(gameState.$levelUpTrigger) { value in
-            guard value == 2 || value == 3 else { return }
-            gameState.paused = true
-            levelAlertText = "Sei passato alla sessione \(value)!"
-            showLevelAlert = true
-            gameState.levelUpTrigger = 0
-        }
+        .ignoresSafeArea()
     }
 
     private func configureScene() {
@@ -247,24 +299,32 @@ struct ContentView: View {
         }
         scene.onShowPentathlonRule = { mode in
             pentathlonRuleText = pentathlonRuleMessage(for: mode)
+            if mode == 1 { playCampanellaIfNeeded() }
             showPentathlonRule = true
         }
         scene.onShowPentathlonComplete = { current, next in
             pentathlonCompleteNext = next
-            pentathlonCompleteText = "Minigioco completato! Ora inizia il prossimo."
+            pentathlonCompleteText = "Attività completata! Ora inizia la prossima."
+            playCampanellaIfNeeded()
             showPentathlonComplete = true
         }
         scene.onShowPentathlonRetry = {
             showPentathlonRetry = true
         }
         scene.onShowPrivateFacesUnlocked = { enabled in
-            privateAlertText = enabled ? "Prov VA attivati." : "Prof privati disattivati."
+            privateAlertText = enabled ? "I prof della VA sono stati attivati!" : "Prof VA disattivati."
             showPrivateAlert = true
         }
-        SoundPlayer.shared.preload(names: ["profmorto.wav","bidella.wav","bambinomorto.wav","fuori.wav","siii.wav","nooo.wav","sottofondo.m4a"]) {
+        SoundPlayer.shared.preload(names: ["profmorto.wav","bidella.wav","bambinomorto.wav","fuori.wav","siii.wav","nooo.wav","sottofondo.m4a","campanella.m4a"]) {
             scene.preloadIfNeeded()
         }
         scene.preloadIfNeeded()
+    }
+
+    private func playCampanellaIfNeeded() {
+        if gameState.suoni {
+            SoundPlayer.shared.play(name: "campanella.m4a")
+        }
     }
 
     private func pentathlonRuleMessage(for mode: Int) -> String {
@@ -450,27 +510,11 @@ struct ContentView: View {
         .buttonStyle(.plain)
     }
 
-    private func perlaUIImage(usePrivateFaces: Bool) -> UIImage? {
-        if usePrivateFaces {
-            let names = ["perla_1", "perla1"]
-            let exts = ["png", "jpg", "jpeg", "JPG", "JPEG"]
-            for name in names {
-                for ext in exts {
-                    if let url = Bundle.main.url(forResource: name, withExtension: ext, subdirectory: "images/VA") {
-                        if let img = UIImage(contentsOfFile: url.path) { return img }
-                    }
-                }
-            }
-        }
-
+    private func perlaUIImage() -> UIImage? {
         if let custom = ImageStore.shared.image(for: .perla) {
             return custom
         }
-
-        if let url = Bundle.main.url(forResource: "perla_1", withExtension: "png", subdirectory: "images") {
-            return UIImage(contentsOfFile: url.path)
-        }
-        return UIImage(named: "perla_1")
+        return ImageStore.shared.imageFromBundle(slot: .perla)
     }
 
     @ViewBuilder
@@ -500,7 +544,7 @@ struct ContentView: View {
                         pentathlonRuleText = pentathlonRuleMessage(for: scene.currentPentathlonModeRawValue() ?? 1)
                         showPentathlonRule = true
                     }) {
-                        Image(uiImage: perlaUIImage(usePrivateFaces: gameState.usePrivateFaces) ?? UIImage())
+                        Image(uiImage: perlaUIImage() ?? UIImage())
                             .resizable()
                             .scaledToFill()
                             .frame(width: 100, height: 120)
@@ -517,7 +561,7 @@ struct ContentView: View {
                         .frame(maxWidth: .infinity, minHeight: 36)
                         .background(Color.white.opacity(0.9))
                         .cornerRadius(8)
-                    Text("Sessioni di gioco")
+                    Text("Lezioni della giornata")
                         .font(titleFont)
                     Spacer(minLength: 4)
                     HStack(alignment: .top, spacing: 12) {
@@ -529,7 +573,7 @@ struct ContentView: View {
                                 .font(itemFont)
                                 .buttonStyle(.plain)
                                 .opacity(gameState.level == 1 ? 1 : 0.45)
-                                radioButton(title: "Sessione 1", selected: gameState.level == 1) {}
+                                radioButton(title: "Lezione 1", selected: gameState.level == 1) {}
                                     .font(itemFont)
                                     .disabled(true)
                                     .opacity(gameState.level == 1 ? 1 : 0.45)
@@ -542,7 +586,7 @@ struct ContentView: View {
                                 .font(itemFont)
                                 .buttonStyle(.plain)
                                 .opacity(gameState.level == 2 ? 1 : 0.45)
-                                radioButton(title: "Sessione 2", selected: gameState.level == 2) {}
+                                radioButton(title: "Lezione 2", selected: gameState.level == 2) {}
                                     .font(itemFont)
                                     .disabled(true)
                                     .opacity(gameState.level == 2 ? 1 : 0.45)
@@ -555,7 +599,7 @@ struct ContentView: View {
                                 .font(itemFont)
                                 .buttonStyle(.plain)
                                 .opacity(gameState.level == 3 ? 1 : 0.45)
-                                radioButton(title: "Sessione 3", selected: gameState.level == 3) {}
+                                radioButton(title: "Lezione 3", selected: gameState.level == 3) {}
                                     .font(itemFont)
                                     .disabled(true)
                                     .opacity(gameState.level == 3 ? 1 : 0.45)
@@ -572,10 +616,10 @@ struct ContentView: View {
                     if gameState.running {
                         gameState.running = false
                         gameState.paused = false
-                        elapsedSeconds = 0
+                        stopSessionTimer(reset: true)
                     } else {
                         gameState.resetScores()
-                        elapsedSeconds = 0
+                        stopSessionTimer(reset: true)
                         gameState.paused = false
                         gameState.running = true
                         scene.resetForStart()
@@ -594,27 +638,7 @@ struct ContentView: View {
                     .frame(minWidth: 70)
             }
 
-            Button(gameState.inPentathlon ? "Vai al prossimo" : "Vai al Pentathlon") {
-                if !gameState.inPentathlon {
-                    if !gameState.running {
-                        gameState.resetScores()
-                        elapsedSeconds = 0
-                        gameState.paused = false
-                        gameState.running = true
-                        scene.resetForStart()
-                    }
-                    gameState.level = 4
-                    gameState.stageCount = 0
-                    gameState.inPentathlon = true
-                    gameState.paused = false
-                } else {
-                    scene.debugSkipPentathlonMode()
-                }
-            }
-            .font(buttonFont)
-            .frame(maxWidth: .infinity, minHeight: 36)
-            .background(Color.white.opacity(0.85))
-            .cornerRadius(8)
+            // Pentathlon access removed in release flow
 
             VStack(alignment: .leading, spacing: 8) {
                 Text("Velocità: \(Int(speedBinding.wrappedValue))")
@@ -646,10 +670,10 @@ struct ContentView: View {
                     if gameState.running {
                         gameState.running = false
                         gameState.paused = false
-                        elapsedSeconds = 0
+                        stopSessionTimer(reset: true)
                     } else {
                         gameState.resetScores()
-                        elapsedSeconds = 0
+                        stopSessionTimer(reset: true)
                         gameState.paused = false
                         gameState.running = true
                         scene.resetForStart()
@@ -665,24 +689,7 @@ struct ContentView: View {
                     .frame(minWidth: 70)
             }
 
-            Button(gameState.inPentathlon ? "Vai al prossimo" : "Vai al Pentathlon") {
-                if !gameState.inPentathlon {
-                    if !gameState.running {
-                        gameState.resetScores()
-                        elapsedSeconds = 0
-                        gameState.paused = false
-                        gameState.running = true
-                        scene.resetForStart()
-                    }
-                    gameState.level = 4
-                    gameState.stageCount = 0
-                    gameState.inPentathlon = true
-                    gameState.paused = false
-                } else {
-                    scene.debugSkipPentathlonMode()
-                }
-            }
-            .frame(maxWidth: .infinity, minHeight: 36)
+            // Pentathlon access removed in release flow
 
             HStack(spacing: 12) {
                 Text("Velocità: \(Int(speedBinding.wrappedValue))")
@@ -776,8 +783,162 @@ struct ContentView: View {
         return String(format: "%02d:%02d:%02d", h, m, s)
     }
 
+    private func startSessionTimer() {
+        sessionTimer?.invalidate()
+        sessionTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+            if gameState.running && !gameState.paused {
+                elapsedSeconds += 1
+            }
+        }
+    }
+
+    private func stopSessionTimer(reset: Bool) {
+        sessionTimer?.invalidate()
+        sessionTimer = nil
+        if reset {
+            elapsedSeconds = 0
+        }
+    }
+
     private func formatPoints(_ value: Double) -> String {
         String(format: "%.2f", value)
+    }
+}
+
+struct OnboardingView: View {
+    let onClose: () -> Void
+    @State private var pageIndex = 0
+
+    private struct OnboardingPage: Identifiable {
+        let id = UUID()
+        let title: String
+        let subtitle: String
+        let body: String
+        let icon: String
+        let tint: Color
+    }
+
+    private let pages: [OnboardingPage] = [
+        .init(
+            title: "Acciacca Prof",
+            subtitle: "2007: niente app, solo PC",
+            body: "Tra il 2007 e il 2008 non esistevano ancora le app. Gli smartphone moderni stavano per arrivare, e pure l’App Store sarebbe nato solo pochi mesi dopo. E mentre i suoi compagni di classe studiavano e facevano i compiti, Jacopo da Perugia, 19 anni, invece di fare i compiti, programmava per divertimento. In quell’epoca smanettava su Windows e realizzava piccoli giochi per il gusto di farli. Non si chiamavano app. Si chiamavano \"programmini\".",
+            icon: "desktopcomputer",
+            tint: Color(red: 0.16, green: 0.46, blue: 0.56)
+        ),
+        .init(
+            title: "Dal PC al forum",
+            subtitle: "Windows XP, Delphi e ricreazioni",
+            body: "E' così che nacque anche l'Acciacca Prof, scritto originariamente in Delphi per Windows, in piena era XP. Un giochino semplice, simpatico, con spirito goliardico: quello delle ricreazioni, dei banchi di scuola e delle risate tra compagni. Finì sul forum scolastico, e gli studenti lo usavano personalizzandolo con le facce dei propri prof, divertendosi a schiacciarli! Diventò un piccolo meme, prima dei meme. Il 25 febbraio 2008 un commento recitò: “Io volevo la perla e il pentathlon”.",
+            icon: "text.book.closed",
+            tint: Color(red: 0.55, green: 0.34, blue: 0.18)
+        ),
+        .init(
+            title: "2026: ritorno",
+            subtitle: "Pentathlon e coach Perla",
+            body: "Chi è Perla? Perla era la prof di educazione fisica del liceo. La richiesta rimase lì, sospesa, inascoltata. Per anni. Lustri. Ma nel 2026 Acciacca Prof è tornato in vita su dispositivi Apple: sono state utilizzate le stesse grafiche, gli stessi suoni, la stessa modalità di gioco e la stessa banale semplicità. Ma con una novità che finalmente chiude il cerchio: Il Pentathlon supervisionato dalla coach Perla. Un piccolo gioco nato per scherzo, tornato in vita dopo 19 anni con dentro la stessa anima… Jacopo da Perugia, colpisce ancora.!",
+            icon: "figure.run",
+            tint: Color(red: 0.72, green: 0.18, blue: 0.18)
+        ),
+        .init(
+            title: "Come si gioca",
+            subtitle: "Spiegazione tecnica",
+            body: "La dinamica di gioco è molto semplice: Si basa sul gioco di \"Schiaccia la talpa\", solo che al posto della talpa, appariranno le foto dei professori. Ma attenzione! non tutti i professori sono uguali. Ci sono quelli buoni e quelli cattivi! Devi schiacciare solo quelli cattivi! Se schiacci quelli buoni, oppure se lasci vivere quelli cattivi, perdi punti e avrai un brutto voto! Il gioco diventa divertente quando le facce dei prof vengono personalizzate con le vere facce dei propri prof. Per farlo utilizza il pulsante \"configurazioni\".",
+            icon: "gamecontroller.fill",
+            tint: Color(red: 0.55, green: 0.34, blue: 0.18)
+        ),
+        .init(
+            title: "La bidella",
+            subtitle: "Cosa fa la bidella?",
+            body: "La bidella è un personaggio neutro del gioco. A volte può bussare ed entrare in classe per portare una circolare. La devi schiacciare, così potrai leggere la circolare. Ma ATTENZIONE: non tutte le circolari sono belle! La sorte ti assisterà?! Buone partite!",
+            icon: "bell.fill",
+            tint: Color(red: 0.55, green: 0.34, blue: 0.18)
+        )
+    ]
+
+    var body: some View {
+        ZStack {
+            Color(white: 0.86).ignoresSafeArea()
+            VStack(spacing: 16) {
+                TabView(selection: $pageIndex) {
+                    ForEach(Array(pages.enumerated()), id: \.element.id) { index, page in
+                        onboardingPage(page)
+                            .tag(index)
+                    }
+                }
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                .frame(maxHeight: 560)
+                .padding(.bottom, 12)
+
+                HStack(spacing: 8) {
+                    ForEach(0..<pages.count, id: \.self) { idx in
+                        Circle()
+                            .fill(idx == pageIndex ? Color.black : Color.black.opacity(0.25))
+                            .frame(width: 8, height: 8)
+                    }
+                }
+                .padding(.bottom, 24)
+            }
+            .padding(.top, 12)
+        }
+    }
+
+    private func onboardingPage(_ page: OnboardingPage) -> some View {
+        VStack(spacing: 14) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 22)
+                    .fill(page.tint.opacity(0.12))
+                    .frame(height: 130)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 22)
+                            .stroke(page.tint.opacity(0.25), lineWidth: 2)
+                    )
+                HStack(spacing: 16) {
+                    ZStack {
+                        Circle()
+                            .fill(page.tint.opacity(0.2))
+                            .frame(width: 66, height: 66)
+                        Image(systemName: page.icon)
+                            .font(.system(size: 34, weight: .bold))
+                            .foregroundColor(page.tint)
+                    }
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(page.title)
+                            .font(.system(size: 24, weight: .bold))
+                        Text(page.subtitle)
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundColor(.black.opacity(0.7))
+                    }
+                    Spacer()
+                    if pageIndex == pages.count - 1 {
+                        Button("Inizia") {
+                            onClose()
+                        }
+                        .font(.system(size: 14, weight: .semibold))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(Color.black)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                    }
+                }
+                .padding(.horizontal, 18)
+            }
+            .padding(.horizontal, 24)
+
+            VStack(alignment: .leading, spacing: 10) {
+                Text(page.body)
+                    .font(.system(size: 16))
+                    .foregroundColor(.black)
+                    .multilineTextAlignment(.leading)
+            }
+            .padding(.horizontal, 18)
+            .padding(.vertical, 14)
+            .background(Color.white.opacity(0.92))
+            .cornerRadius(14)
+            .padding(.horizontal, 12)
+        }
+        .padding(.top, 10)
     }
 }
 #Preview("Static Landscape") {

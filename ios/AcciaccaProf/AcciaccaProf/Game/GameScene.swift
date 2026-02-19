@@ -97,7 +97,6 @@ final class GameScene: SKScene {
     private var pentathlonSeatCenterNode = SKSpriteNode()
     private var pentathlonSeatActive = false
     private var pentathlonSeatLastSpeed: Int = -1
-    private var usePrivateFaces = false
     private var pentathlonLogicNodes: [Int: SKSpriteNode] = [:]
     private var pentathlonLogicActive = false
     private var pentathlonLogicRuleIndex = 0
@@ -194,14 +193,6 @@ final class GameScene: SKScene {
         bidellaa()
     }
 
-    func setPrivateFacesEnabled(_ enabled: Bool) {
-        usePrivateFaces = enabled
-        gameState?.usePrivateFaces = enabled
-        onShowPrivateFacesUnlocked?(enabled)
-        profCattivo()
-        profBuono()
-        bidellaa()
-    }
 
     private func buildScene() {
         removeAllChildren()
@@ -483,21 +474,6 @@ final class GameScene: SKScene {
 
         let compactName = resolvedName.replacingOccurrences(of: "_", with: "")
         let extensions = ["png", "jpg", "JPG", "jpeg", "JPEG"]
-
-        if usePrivateFaces {
-            let privateCandidates = [resolvedName, compactName]
-            for name in privateCandidates {
-                for ext in extensions {
-                    if let url = Bundle.main.url(forResource: name, withExtension: ext, subdirectory: "images/VA") {
-                        if let img = UIImage(contentsOfFile: url.path) {
-                            let tex = SKTexture(image: img)
-                            tex.filteringMode = .nearest
-                            return tex
-                        }
-                    }
-                }
-            }
-        }
 
         if let slot = slotForBaseName(resolvedName), let custom = ImageStore.shared.image(for: slot) {
             let tex = SKTexture(image: custom)

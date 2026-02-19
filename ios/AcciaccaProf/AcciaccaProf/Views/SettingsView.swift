@@ -1,5 +1,32 @@
 import SwiftUI
 import Photos
+import UniformTypeIdentifiers
+
+private struct FacesExportPayload: Codable {
+    let version: Int
+    let images: [String: String]
+}
+
+private extension UTType {
+    static let acciaccaProfFaces = UTType(exportedAs: "it.semproxlab.acciaccaprof.faces")
+}
+
+private struct FacesExportDocument: FileDocument {
+    static var readableContentTypes: [UTType] { [.acciaccaProfFaces, .json] }
+    var data: Data
+
+    init(data: Data) {
+        self.data = data
+    }
+
+    init(configuration: ReadConfiguration) throws {
+        data = configuration.file.regularFileContents ?? Data()
+    }
+
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        FileWrapper(regularFileWithContents: data)
+    }
+}
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
@@ -16,15 +43,25 @@ struct SettingsView: View {
     @State private var cropBaseScale: CGFloat = 1.0
     @State private var resizingSlot: CharacterSlot?
     @State private var showPurchaseError = false
+    @State private var showExport = false
+    @State private var showImport = false
+    @State private var exportData: Data?
+    @State private var showExportAlert = false
+    @State private var exportAlertText = ""
+    @State private var showImportAlert = false
+    @State private var importAlertText = ""
 
     var body: some View {
         NavigationView {
             List {
                 Section {
                     VStack(alignment: .leading, spacing: 8) {
+                        Text("Qui puoi usare le foto dei tuoi prof da inserire nel gioco e renderlo tutto tuo.")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
                         Text("Sblocca le personalizzazioni")
                             .font(.headline)
-                        Text("Sblocchi: prof buoni, prof cattivi, bidella e Perla.")
+                        Text("Sblocchi la possibilità di personalizzare le facce dei prof buoni, prof cattivi, della bidella e della coach del Pentathlon.")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                         if purchase.unlocked {
@@ -32,30 +69,65 @@ struct SettingsView: View {
                                 .font(.subheadline)
                                 .foregroundColor(.green)
                         } else {
-                            HStack {
+                            HStack(spacing: 10) {
                                 if purchase.isLoading {
                                     ProgressView()
                                 }
-                                Button("Sblocca") {
+                                actionPill(
+                                    title: "Sblocca",
+                                    color: .blue,
+                                    disabled: purchase.isLoading
+                                ) {
                                     Task { await purchase.purchase() }
                                 }
-                                .disabled(purchase.isLoading)
-                                Button("Ripristina acquisti") {
+
+                                actionPill(
+                                    title: "Ripristina acquisti",
+                                    color: .orange,
+                                    disabled: purchase.isLoading
+                                ) {
                                     Task { await purchase.restore() }
                                 }
-                                .disabled(purchase.isLoading)
-                                Button("Ricarica") {
+
+#if DEBUG
+                                actionPill(
+                                    title: "Ricarica",
+                                    color: .gray,
+                                    disabled: purchase.isLoading
+                                ) {
                                     Task {
                                         await purchase.refreshProducts()
                                         await purchase.refreshEntitlements()
                                     }
                                 }
-                                .disabled(purchase.isLoading)
+#endif
                             }
                             if purchase.product == nil {
                                 Text("Prodotto non disponibile. Controlla StoreKit Configuration.")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
+                            }
+                        }
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Condivisione profili")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                            HStack(spacing: 10) {
+                                actionPill(
+                                    title: "Esporta profili",
+                                    color: .purple,
+                                    disabled: !purchase.unlocked
+                                ) {
+                                    exportData = buildExportData()
+                                    showExport = exportData != nil
+                                }
+                                actionPill(
+                                    title: "Importa profili",
+                                    color: .indigo,
+                                    disabled: !purchase.unlocked
+                                ) {
+                                    showImport = true
+                                }
                             }
                         }
                     }
@@ -91,19 +163,20 @@ struct SettingsView: View {
                                 Text(slot.displayName)
                                 if resizingSlot != slot {
                                     HStack(spacing: 8) {
-                                        Button("Scegli foto") {
+                                        actionPill(
+                                            title: "Scegli dalla galleria",
+                                            color: .blue,
+                                            disabled: !purchase.unlocked
+                                        ) {
                                             selectedSlot = slot
                                             requestPhotoAccess()
                                         }
-                                        .buttonStyle(.borderless)
-                                        .disabled(!purchase.unlocked)
-                                        .opacity(purchase.unlocked ? 1 : 0.5)
-                                        .padding(.horizontal, 10)
-                                        .padding(.vertical, 6)
-                                        .background(Color.blue.opacity(purchase.unlocked ? 0.15 : 0.05))
-                                        .cornerRadius(8)
 
-                                        Button("Ridimensiona") {
+                                        actionPill(
+                                            title: "Ridimensiona",
+                                            color: .teal,
+                                            disabled: !purchase.unlocked
+                                        ) {
                                             showingPicker = false
                                             if let img = store.image(for: slot) ?? loadDefaultImage(for: slot) {
                                                 pendingImage = img
@@ -115,13 +188,6 @@ struct SettingsView: View {
                                                 cropBaseOffset = .zero
                                             }
                                         }
-                                        .buttonStyle(.borderless)
-                                        .disabled(!purchase.unlocked)
-                                        .opacity(purchase.unlocked ? 1 : 0.5)
-                                        .padding(.horizontal, 10)
-                                        .padding(.vertical, 6)
-                                        .background(Color.gray.opacity(purchase.unlocked ? 0.15 : 0.05))
-                                        .cornerRadius(8)
                                     }
                                 }
                             }
@@ -129,7 +195,11 @@ struct SettingsView: View {
                         }
                         if resizingSlot == slot {
                             HStack(spacing: 12) {
-                                Button("Salva") {
+                                actionPill(
+                                    title: "Salva",
+                                    color: .green,
+                                    disabled: false
+                                ) {
                                     if let slot = resizingSlot ?? selectedSlot, let image = pendingImage, let cropped = cropImage(image: image) {
                                         store.save(image: cropped, for: slot)
                                     }
@@ -137,19 +207,15 @@ struct SettingsView: View {
                                     selectedSlot = nil
                                     resizingSlot = nil
                                 }
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background(Color.green.opacity(0.2))
-                                .cornerRadius(8)
-                                Button("Annulla") {
+                                actionPill(
+                                    title: "Annulla",
+                                    color: .red,
+                                    disabled: false
+                                ) {
                                     pendingImage = nil
                                     selectedSlot = nil
                                     resizingSlot = nil
                                 }
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background(Color.red.opacity(0.2))
-                                .cornerRadius(8)
                             }
                         }
                     }
@@ -162,6 +228,7 @@ struct SettingsView: View {
                     }
                 }
             }
+            .id(store.version)
             .navigationTitle("Personalizzazioni")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -208,6 +275,55 @@ struct SettingsView: View {
             await purchase.refreshProducts()
             await purchase.refreshEntitlements()
         }
+        .fileExporter(
+            isPresented: $showExport,
+            document: FacesExportDocument(data: exportData ?? Data()),
+            contentType: .acciaccaProfFaces,
+            defaultFilename: "AcciaccaProf_profili"
+        ) { result in
+            switch result {
+            case .success:
+                exportAlertText = "Esportazione completata."
+            case .failure:
+                exportAlertText = "Esportazione non riuscita."
+            }
+            showExportAlert = true
+        }
+        .fileImporter(
+            isPresented: $showImport,
+            allowedContentTypes: [.acciaccaProfFaces, .json],
+            allowsMultipleSelection: false
+        ) { result in
+            switch result {
+            case .success(let urls):
+                guard let url = urls.first else { return }
+                let didAccess = url.startAccessingSecurityScopedResource()
+                defer {
+                    if didAccess { url.stopAccessingSecurityScopedResource() }
+                }
+                if let data = try? Data(contentsOf: url) {
+                    importFromData(data)
+                    importAlertText = "Importazione completata."
+                } else {
+                    importAlertText = "Importazione non riuscita."
+                }
+                showImportAlert = true
+            case .failure:
+                importAlertText = "Importazione annullata."
+                showImportAlert = true
+                break
+            }
+        }
+        .alert("Esportazione", isPresented: $showExportAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(exportAlertText)
+        }
+        .alert("Importazione", isPresented: $showImportAlert) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(importAlertText)
+        }
     }
 
     private func preview(for slot: CharacterSlot) -> Image {
@@ -222,15 +338,48 @@ struct SettingsView: View {
     }
 
     private func loadDefaultImage(for slot: CharacterSlot) -> UIImage? {
-        let baseName = slot.baseName
-        let exts = ["png","jpg","JPG","jpeg","JPEG"]
-        for ext in exts {
-            if let url = Bundle.main.url(forResource: baseName, withExtension: ext, subdirectory: "images"),
-               let img = UIImage(contentsOfFile: url.path) {
-                return img
+        store.imageFromBundle(slot: slot)
+    }
+
+    private func actionPill(title: String, color: Color, disabled: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(.subheadline.weight(.semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.plain)
+        .disabled(disabled)
+        .foregroundColor(.white.opacity(disabled ? 0.6 : 1))
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(color.opacity(disabled ? 0.35 : 0.95))
+        .cornerRadius(10)
+    }
+
+    private func buildExportData() -> Data? {
+        var images: [String: String] = [:]
+        for slot in CharacterSlot.allCases {
+            if let img = store.image(for: slot) ?? loadDefaultImage(for: slot) {
+                let data = img.pngData() ?? img.jpegData(compressionQuality: 0.9)
+                if let data {
+                    images[slot.rawValue] = data.base64EncodedString()
+                }
             }
         }
-        return nil
+        let payload = FacesExportPayload(version: 1, images: images)
+        return try? JSONEncoder().encode(payload)
+    }
+
+    private func importFromData(_ data: Data) {
+        guard let payload = try? JSONDecoder().decode(FacesExportPayload.self, from: data) else { return }
+        for slot in CharacterSlot.allCases {
+            guard let encoded = payload.images[slot.rawValue],
+                  let imgData = Data(base64Encoded: encoded),
+                  let image = UIImage(data: imgData) else { continue }
+            store.save(image: image, for: slot)
+        }
     }
 
     private func editablePreview(image: UIImage) -> some View {
