@@ -16,23 +16,26 @@
   </defs>
   <rect width="1024" height="1024" rx="180" fill="url(#bg)"/>
   <g transform="translate(520 540) scale(1.21) translate(-520 -540)">
-    <circle cx="520" cy="540" r="270" fill="#f2c48a" stroke="#c6935f" stroke-width="14"/>
-    <ellipse cx="515" cy="545" rx="240" ry="220" fill="#f6cf9f" opacity="0.8"/>
-    <path d="M 340 610 L 380 585 L 420 615 L 460 585 L 500 615 L 540 585 L 580 615 L 620 585 L 660 610" fill="none" stroke="#7a1f1f" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="400" cy="490" r="32" fill="#ffffff"/>
-    <circle cx="640" cy="490" r="32" fill="#ffffff"/>
-    <path d="M 392 495 C 402 486 418 486 428 495" fill="none" stroke="#2b2b2b" stroke-width="10" stroke-linecap="round"/>
-    <path d="M 632 495 C 642 486 658 486 668 495" fill="none" stroke="#2b2b2b" stroke-width="10" stroke-linecap="round"/>
-    <path d="M 360 450 C 400 420 470 420 510 450" fill="none" stroke="#2b2b2b" stroke-width="16" stroke-linecap="round"/>
-    <path d="M 570 450 C 610 420 680 420 720 450" fill="none" stroke="#2b2b2b" stroke-width="16" stroke-linecap="round"/>
-    <path d="M 520 520 C 565 520 585 560 545 590" fill="none" stroke="#d08a5b" stroke-width="14" stroke-linecap="round"/>
-    <path d="M 280 410 C 340 300 450 250 570 260 C 680 270 760 340 790 430" fill="none" stroke="#2b2b2b" stroke-width="30" stroke-linecap="round"/>
-    <path d="M 270 430 C 300 370 360 330 420 320" fill="none" stroke="#2b2b2b" stroke-width="26" stroke-linecap="round"/>
-    <path d="M 620 320 C 690 335 750 380 780 440" fill="none" stroke="#2b2b2b" stroke-width="26" stroke-linecap="round"/>
-    <circle cx="250" cy="560" r="36" fill="#f2c48a" stroke="#c6935f" stroke-width="12"/>
-    <circle cx="790" cy="560" r="36" fill="#f2c48a" stroke="#c6935f" stroke-width="12"/>
-    <rect x="420" y="690" width="200" height="90" rx="30" fill="#c74d3a"/>
-    <rect x="420" y="720" width="200" height="30" rx="15" fill="#b13d2d"/>
+    <rect x="270" y="290" width="500" height="520" rx="60" fill="#a0a9b6" stroke="#2b2b2b" stroke-width="14"/>
+    <rect x="320" y="340" width="400" height="120" rx="30" fill="#3c4a5c" stroke="#1c1c1c" stroke-width="10"/>
+    <rect x="360" y="370" width="90" height="70" fill="#ff6b6b"/>
+    <rect x="590" y="370" width="90" height="70" fill="#ff6b6b"/>
+    <rect x="395" y="395" width="30" height="20" fill="#2b2b2b"/>
+    <rect x="625" y="395" width="30" height="20" fill="#2b2b2b"/>
+    <rect x="450" y="520" width="140" height="120" rx="16" fill="#4e5a6d"/>
+    <g stroke="#1f1f1f" stroke-width="8">
+      <line x1="460" y1="530" x2="460" y2="630"/>
+      <line x1="480" y1="530" x2="480" y2="630"/>
+      <line x1="500" y1="530" x2="500" y2="630"/>
+      <line x1="520" y1="530" x2="520" y2="630"/>
+      <line x1="540" y1="530" x2="540" y2="630"/>
+      <line x1="560" y1="530" x2="560" y2="630"/>
+      <line x1="580" y1="530" x2="580" y2="630"/>
+    </g>
+    <circle cx="270" cy="540" r="32" fill="#707781" stroke="#2b2b2b" stroke-width="10"/>
+    <circle cx="770" cy="540" r="32" fill="#707781" stroke="#2b2b2b" stroke-width="10"/>
+    <rect x="505" y="250" width="30" height="80" fill="#d43c3c"/>
+    <circle cx="520" cy="235" r="28" fill="#d43c3c"/>
   </g>
   <g transform="translate(880 130) scale(1.32) translate(-880 -130)">
     <g transform="translate(880 130) rotate(65)">

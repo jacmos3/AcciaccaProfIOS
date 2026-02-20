@@ -167,10 +167,10 @@ final class GameScene: SKScene {
             "Image1","Image3","Image4","Image5","Image10","Image11","Image13","Image16","Image19","Image22","Image25","Image28",
             "Image30","Image31","Image32","Image33","Image34","Image35",
             "schizzi","zampilli",
-            "cattivi_1","cattivi_2","cattivi_3",
-            "buoni_1","buoni_2","buoni_3",
-            "bidella_1",
-            "perla_1"
+            "rebels_1","rebels_2","rebels_3",
+            "allies_1","allies_2","allies_3",
+            "assistant_1",
+            "coach_1"
         ].compactMap { textureFor(baseName: $0) }
 
         SKTexture.preload(textures) { [weak self] in
@@ -274,7 +274,7 @@ final class GameScene: SKScene {
     }
 
     private func setupPerlaHint() {
-        pentathlonPerlaHint = SKSpriteNode(texture: textureFor(baseName: "perla_1"))
+        pentathlonPerlaHint = SKSpriteNode(texture: textureFor(baseName: "coach_1"))
         pentathlonPerlaHint.name = "perlaHint"
         pentathlonPerlaHint.anchorPoint = CGPoint(x: 0.5, y: 0.5)
         pentathlonPerlaHint.size = CGSize(width: 60, height: 60)
@@ -343,7 +343,7 @@ final class GameScene: SKScene {
 
     private func setupDynamicSprites() {
         if let frame = layout.frame(for: "profcatt") {
-            profCatt = SKSpriteNode(texture: textureFor(baseName: "cattivi_1"))
+            profCatt = SKSpriteNode(texture: textureFor(baseName: "rebels_1"))
             profCatt.name = "profcatt"
             profCatt.anchorPoint = CGPoint(x: 0, y: 0)
             cattWidth = frame.width
@@ -358,7 +358,7 @@ final class GameScene: SKScene {
         }
 
         if let frame = layout.frame(for: "profbuon") {
-            profBuon = SKSpriteNode(texture: textureFor(baseName: "buoni_1"))
+            profBuon = SKSpriteNode(texture: textureFor(baseName: "allies_1"))
             profBuon.name = "profbuon"
             profBuon.anchorPoint = CGPoint(x: 0, y: 0)
             buonWidth = frame.width
@@ -373,7 +373,7 @@ final class GameScene: SKScene {
         }
 
         if let frame = layout.frame(for: "bidella") {
-            bidella = SKSpriteNode(texture: textureFor(baseName: "bidella_1"))
+            bidella = SKSpriteNode(texture: textureFor(baseName: "assistant_1"))
             bidella.name = "bidella"
             bidella.anchorPoint = CGPoint(x: 0, y: 0)
             bidellaWidth = frame.width
@@ -499,14 +499,14 @@ final class GameScene: SKScene {
 
     private func slotForBaseName(_ baseName: String) -> CharacterSlot? {
         switch baseName {
-        case "cattivi_1": return .cattivo1
-        case "cattivi_2": return .cattivo2
-        case "cattivi_3": return .cattivo3
-        case "buoni_1": return .buono1
-        case "buoni_2": return .buono2
-        case "buoni_3": return .buono3
-        case "bidella_1": return .bidella
-        case "perla_1": return .perla
+        case "rebels_1": return .cattivo1
+        case "rebels_2": return .cattivo2
+        case "rebels_3": return .cattivo3
+        case "allies_1": return .buono1
+        case "allies_2": return .buono2
+        case "allies_3": return .buono3
+        case "assistant_1": return .bidella
+        case "coach_1": return .perla
         default: return nil
         }
     }
@@ -843,7 +843,7 @@ final class GameScene: SKScene {
 
     private func revealSequenceCover(index: Int) {
         guard let cover = pentathlonSequenceCovers[index] else { return }
-        let texName = pentathlonSequenceTextureMap[index] ?? "cattivi_1"
+        let texName = pentathlonSequenceTextureMap[index] ?? "rebels_1"
         cover.texture = textureFor(baseName: texName)
         cover.color = .clear
         cover.colorBlendFactor = 0
@@ -957,10 +957,10 @@ final class GameScene: SKScene {
         pentathlonMatchedPairs = 0
         let indices = Array(0..<posizioni.count).shuffled().prefix(8)
         let names = [
-            "cattivi_1","cattivi_1",
-            "cattivi_2","cattivi_2",
-            "buoni_1","buoni_1",
-            "buoni_2","buoni_2"
+            "rebels_1","rebels_1",
+            "rebels_2","rebels_2",
+            "allies_1","allies_1",
+            "allies_2","allies_2"
         ].shuffled()
         for (idx, deskIndex) in indices.enumerated() {
             let texName = names[idx]
@@ -1003,7 +1003,7 @@ final class GameScene: SKScene {
             return
         }
         let pos = pentathlonSequence[index]
-        let texName = pentathlonSequenceTextureMap[pos] ?? "cattivi_1"
+        let texName = pentathlonSequenceTextureMap[pos] ?? "rebels_1"
         guard let cover = pentathlonSequenceCovers[pos] else { return }
         cover.texture = textureFor(baseName: texName)
         cover.color = .clear
@@ -1017,9 +1017,9 @@ final class GameScene: SKScene {
 
     private func orderedSequenceTextures() -> [String] {
         return [
-            "buoni_1","buoni_2","buoni_3",
-            "cattivi_1","cattivi_2","cattivi_3",
-            "bidella_1","bidella_1","bidella_1"
+            "allies_1","allies_2","allies_3",
+            "rebels_1","rebels_2","rebels_3",
+            "assistant_1","assistant_1","assistant_1"
         ]
     }
 
@@ -1034,8 +1034,8 @@ final class GameScene: SKScene {
         let positions = Array(0..<posizioni.count).shuffled().prefix(6).map { $0 }
         pentathlonIntruderBasePositions = positions
         let faces = [
-            "cattivi_1","cattivi_2","cattivi_3",
-            "buoni_1","buoni_2","buoni_3"
+            "rebels_1","rebels_2","rebels_3",
+            "allies_1","allies_2","allies_3"
         ].shuffled()
         for (i, idx) in positions.enumerated() {
             pentathlonIntruderBaseTextures[idx] = faces[i]
@@ -1043,8 +1043,8 @@ final class GameScene: SKScene {
 
         let target = positions.randomElement() ?? positions[0]
         pentathlonIntruderTargetIndex = target
-        let current = pentathlonIntruderBaseTextures[target] ?? "cattivi_1"
-        let alt = faces.first(where: { $0 != current }) ?? "buoni_1"
+        let current = pentathlonIntruderBaseTextures[target] ?? "rebels_1"
+        let alt = faces.first(where: { $0 != current }) ?? "allies_1"
         pentathlonIntruderAltTextures = pentathlonIntruderBaseTextures
         pentathlonIntruderAltTextures[target] = alt
 
@@ -1076,8 +1076,8 @@ final class GameScene: SKScene {
         let positions = Array(0..<posizioni.count)
         pentathlonSwapPositions = positions
         let baseFaces = [
-            "cattivi_1","cattivi_2","cattivi_3",
-            "buoni_1","buoni_2","buoni_3"
+            "rebels_1","rebels_2","rebels_3",
+            "allies_1","allies_2","allies_3"
         ]
         let extraFaces = baseFaces.shuffled().prefix(3)
         let faceNames = (baseFaces + extraFaces).shuffled()
@@ -1113,9 +1113,9 @@ final class GameScene: SKScene {
         pentathlonLogicViolationIndex = nil
 
         let lateral = [0, 1, 2, 3, 5, 6, 7, 8].shuffled()
-        let good = ["buoni_1","buoni_2","buoni_3"]
-        let bad = ["cattivi_1","cattivi_2","cattivi_3"]
-        let extras = ["bidella_1","perla_1"]
+        let good = ["allies_1","allies_2","allies_3"]
+        let bad = ["rebels_1","rebels_2","rebels_3"]
+        let extras = ["assistant_1","coach_1"]
         var pool = (good + bad + extras).shuffled()
 
         var assigned: [Int: String] = [:]
@@ -1130,17 +1130,17 @@ final class GameScene: SKScene {
             assigned[violatingPair.1] = bad[1]
             pentathlonLogicViolationIndex = violatingPair.1
         case 1: // bidella must be top row
-            assigned[0] = "bidella_1"
+            assigned[0] = "assistant_1"
             pentathlonLogicViolationIndex = 0
             if Int.random(in: 0...1) == 0 {
                 assigned[0] = good[0]
                 let target = [3,5,6,7,8].randomElement() ?? 3
-                assigned[target] = "bidella_1"
+                assigned[target] = "assistant_1"
                 pentathlonLogicViolationIndex = target
             }
         default: // perla not center (index 4)
             let target = Int.random(in: 0...1) == 0 ? 4 : [0,1,2,3,5,6,7,8].randomElement() ?? 0
-            assigned[target] = "perla_1"
+            assigned[target] = "coach_1"
             pentathlonLogicViolationIndex = target == 4 ? 4 : target
         }
 
@@ -1159,8 +1159,8 @@ final class GameScene: SKScene {
         pentathlonMovingPositions.removeAll()
 
         let lateral = [0, 1, 2, 3, 5, 6, 7, 8].shuffled()
-        let cattivi = ["cattivi_1","cattivi_2","cattivi_3"]
-        let buoni = ["buoni_1","buoni_2","buoni_3"]
+        let cattivi = ["rebels_1","rebels_2","rebels_3"]
+        let buoni = ["allies_1","allies_2","allies_3"]
         let textures = (cattivi + buoni).shuffled()
 
         for (i, idx) in lateral.prefix(6).enumerated() {
@@ -1257,8 +1257,8 @@ final class GameScene: SKScene {
         pentathlonRiskLastSpeed = -1
         pentathlonRiskLastDuration = -1
 
-        let cattivi = ["cattivi_1","cattivi_2","cattivi_3"].shuffled()
-        let buoni = ["buoni_1","buoni_2","buoni_3"].shuffled()
+        let cattivi = ["rebels_1","rebels_2","rebels_3"].shuffled()
+        let buoni = ["allies_1","allies_2","allies_3"].shuffled()
 
         var guardCount = 0
         while guardCount < 20 {
@@ -1349,7 +1349,7 @@ final class GameScene: SKScene {
         for (offset, (oldIndex, node)) in pentathlonRiskNodes.enumerated() {
             let newIndex = positions[offset]
             let isBuono = node.name?.hasPrefix("riskBuon_") == true
-            let typeName = isBuono ? "buoni_1" : "cattivi_1"
+            let typeName = isBuono ? "allies_1" : "rebels_1"
             node.name = isBuono ? "riskBuon_\(newIndex)" : "riskCatt_\(newIndex)"
             newTypes[newIndex] = typeName
             newNodes[newIndex] = node
@@ -1379,9 +1379,9 @@ final class GameScene: SKScene {
 
         let lateral = [0, 1, 2, 3, 5, 6, 7, 8].shuffled()
         let textures = [
-            "buoni_1","buoni_2","buoni_3",
-            "cattivi_1","cattivi_2","cattivi_3",
-            "bidella_1","perla_1"
+            "allies_1","allies_2","allies_3",
+            "rebels_1","rebels_2","rebels_3",
+            "assistant_1","coach_1"
         ]
 
         for (idx, deskIndex) in lateral.enumerated() {
@@ -1508,8 +1508,8 @@ final class GameScene: SKScene {
 
         let indices = Array(0..<posizioni.count).shuffled().prefix(6)
         let positions = indices.count == 6 ? Array(indices) : [0, 1, 2, 3, 4, 5]
-        let cattivi = ["cattivi_1","cattivi_2","cattivi_3"].shuffled()
-        let buoni = ["buoni_1","buoni_2","buoni_3"].shuffled()
+        let cattivi = ["rebels_1","rebels_2","rebels_3"].shuffled()
+        let buoni = ["allies_1","allies_2","allies_3"].shuffled()
 
         let cattPositions = Array(positions.prefix(3))
         let buonPositions = Array(positions.suffix(3))
@@ -1591,9 +1591,9 @@ final class GameScene: SKScene {
     private func profCattivo() {
         if let state = gameState, state.level == 3 {
             let n = Int.random(in: 1...3)
-            profCatt.texture = textureFor(baseName: "cattivi_\(n)")
+            profCatt.texture = textureFor(baseName: "rebels_\(n)")
         } else {
-            profCatt.texture = textureFor(baseName: "cattivi_1")
+            profCatt.texture = textureFor(baseName: "rebels_1")
         }
         alzateCatt = 0
         gameState?.registerCattivoSpawn()
@@ -1606,9 +1606,9 @@ final class GameScene: SKScene {
     private func profBuono() {
         if let state = gameState, state.level == 3 {
             let n = Int.random(in: 1...3)
-            profBuon.texture = textureFor(baseName: "buoni_\(n)")
+            profBuon.texture = textureFor(baseName: "allies_\(n)")
         } else {
-            profBuon.texture = textureFor(baseName: "buoni_1")
+            profBuon.texture = textureFor(baseName: "allies_1")
         }
         alzateBuon = 0
         let pos = posizioni.randomElement() ?? (56, 26)
@@ -1618,7 +1618,7 @@ final class GameScene: SKScene {
     }
 
     private func bidellaa() {
-        bidella.texture = textureFor(baseName: "bidella_1")
+        bidella.texture = textureFor(baseName: "assistant_1")
         alzateBidella = 0
         let pos = posizioni.randomElement() ?? (56, 26)
         bidellaLeft = pos.0 + campoLeft - 6
@@ -1766,14 +1766,14 @@ final class GameScene: SKScene {
             pentathlonFirstPick = nil
             if pentathlonCardMap[first] == pentathlonCardMap[name] {
                 state.addPoints(2)
-                if state.suoni { SoundPlayer.shared.play(name: "siii.wav") }
+                if state.suoni { SoundPlayer.shared.play(name: "success.wav") }
                 pentathlonMatchedPairs += 1
                 if pentathlonMatchedPairs >= 4 {
                     finishPentathlonMode()
                 }
             } else {
                 state.addPoints(-1)
-                if state.suoni { SoundPlayer.shared.play(name: "nooo.wav") }
+                if state.suoni { SoundPlayer.shared.play(name: "fail.wav") }
                 showZampilli(at: location)
                 let firstCard = pentathlonCards.first(where: { $0.name == first })
                 card.run(.sequence([.wait(forDuration: 0.4), .run {
@@ -1797,7 +1797,7 @@ final class GameScene: SKScene {
                 cover.removeFromParent()
                 pentathlonSeatCovers.removeValue(forKey: idx)
                 pentathlonSeatTargetIndex += 1
-                if state.suoni { SoundPlayer.shared.play(name: "siii.wav") }
+                if state.suoni { SoundPlayer.shared.play(name: "success.wav") }
                 if pentathlonSeatTargetIndex >= pentathlonSeatTargets.count {
                     finishPentathlonMode()
                 } else {
@@ -1805,7 +1805,7 @@ final class GameScene: SKScene {
                 }
             } else {
                 state.addPoints(-2)
-                if state.suoni { SoundPlayer.shared.play(name: "nooo.wav") }
+                if state.suoni { SoundPlayer.shared.play(name: "fail.wav") }
                 showZampilli(at: location)
                 pentathlonSeatActive = false
                 gameState?.paused = true
@@ -1818,7 +1818,7 @@ final class GameScene: SKScene {
             let isBuono = pentathlonRiskTypes[idx]?.hasPrefix("buoni") == true
             if isBuono {
                 state.addPoints(-2)
-                if state.suoni { SoundPlayer.shared.play(name: "nooo.wav") }
+                if state.suoni { SoundPlayer.shared.play(name: "fail.wav") }
                 showZampilli(at: location)
                 pentathlonRiskActive = false
                 gameState?.paused = true
@@ -1827,7 +1827,7 @@ final class GameScene: SKScene {
             }
             if pentathlonRiskTargets.contains(idx) {
                 state.addPoints(2)
-                if state.suoni { SoundPlayer.shared.play(name: "profmorto.wav") }
+                if state.suoni { SoundPlayer.shared.play(name: "robot_hit.wav") }
                 tapped.value.removeFromParent()
                 pentathlonRiskNodes.removeValue(forKey: idx)
                 pentathlonRiskTargets.remove(idx)
@@ -1839,7 +1839,7 @@ final class GameScene: SKScene {
                 }
             } else {
                 state.addPoints(-2)
-                if state.suoni { SoundPlayer.shared.play(name: "nooo.wav") }
+                if state.suoni { SoundPlayer.shared.play(name: "fail.wav") }
                 showZampilli(at: location)
                 pentathlonRiskActive = false
                 gameState?.paused = true
@@ -1851,7 +1851,7 @@ final class GameScene: SKScene {
             guard let name = tapped.name else { return }
             if name.hasPrefix("syncBuon_") {
                 state.addPoints(-2)
-                if state.suoni { SoundPlayer.shared.play(name: "fuori.wav") }
+                if state.suoni { SoundPlayer.shared.play(name: "miss.wav") }
                 showZampilli(at: location)
                 pentathlonSyncActive = false
                 gameState?.paused = true
@@ -1860,7 +1860,7 @@ final class GameScene: SKScene {
             }
             if name.hasPrefix("syncCatt_") {
                 state.addPoints(1)
-                if state.suoni { SoundPlayer.shared.play(name: "profmorto.wav") }
+                if state.suoni { SoundPlayer.shared.play(name: "robot_hit.wav") }
                 tapped.isHidden = true
                 if let removeIndex = pentathlonSyncNodes.firstIndex(of: tapped) {
                     pentathlonSyncNodes.remove(at: removeIndex)
@@ -1874,7 +1874,7 @@ final class GameScene: SKScene {
             guard let idx = nearestPentathlonDeskIndex(to: location, offsetY: -120) else { return }
             if idx == pentathlonSequence[pentathlonInputIndex] {
                 revealSequenceCover(index: idx)
-                if state.suoni { SoundPlayer.shared.play(name: "profmorto.wav") }
+                if state.suoni { SoundPlayer.shared.play(name: "robot_hit.wav") }
                 pentathlonInputIndex += 1
                 if pentathlonInputIndex >= pentathlonSequence.count {
                     state.addPoints(2)
@@ -1897,7 +1897,7 @@ final class GameScene: SKScene {
                 }
             } else {
                 state.addPoints(-1)
-                if state.suoni { SoundPlayer.shared.play(name: "fuori.wav") }
+                if state.suoni { SoundPlayer.shared.play(name: "miss.wav") }
                 showZampilli(at: location)
                 pentathlonSequenceLength = 2
                 pentathlonSequence = Array(0..<posizioni.count).shuffled().prefix(pentathlonSequenceLength).map { $0 }
@@ -1977,7 +1977,7 @@ final class GameScene: SKScene {
         attivaBidella = false
         state.colpiti += 1
         state.addPoints(2)
-        if state.suoni { SoundPlayer.shared.play(name: "profmorto.wav") }
+        if state.suoni { SoundPlayer.shared.play(name: "robot_hit.wav") }
     }
 
     private func colpitoBuono(at location: CGPoint) {
@@ -1989,13 +1989,13 @@ final class GameScene: SKScene {
         profBuono()
         bidellaa()
         attivaBidella = false
-        if state.suoni { SoundPlayer.shared.play(name: "profmorto.wav") }
+        if state.suoni { SoundPlayer.shared.play(name: "robot_hit.wav") }
     }
 
     private func colpitaBidella() {
         guard let state = gameState else { return }
         state.addPoints(5)
-        if state.suoni { SoundPlayer.shared.play(name: "bidella.wav") }
+        if state.suoni { SoundPlayer.shared.play(name: "assistant_hit.wav") }
         onShowCircolare?()
         attivaBidella = false
         bidellaa()
@@ -2006,13 +2006,13 @@ final class GameScene: SKScene {
         zampillo.isHidden = false
         zampillo.run(.sequence([.wait(forDuration: 0.1), .hide()]))
         state.addPoints(-1)
-        if state.suoni { SoundPlayer.shared.play(name: "bambinomorto.wav") }
+        if state.suoni { SoundPlayer.shared.play(name: "desk_hit.wav") }
     }
 
     private func colpoFuori() {
         guard let state = gameState else { return }
         state.addPoints(-1)
-        if state.suoni { SoundPlayer.shared.play(name: "fuori.wav") }
+        if state.suoni { SoundPlayer.shared.play(name: "miss.wav") }
     }
 
     private func showSchizzi(at location: CGPoint) {

@@ -8,7 +8,7 @@ struct CircolareView: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            Text("E' entrata la bidella e ha in mano una circolare. Scegline una e clicca su ok. Se sei fortunato, la comunicazione sara' buona e guadagnerai punti, altrimenti ne perderai")
+            Text(GameCopy.circolareIntro)
                 .font(.system(size: 16))
                 .multilineTextAlignment(.leading)
 

@@ -28,7 +28,7 @@ struct ShowCircolareView: View {
         }
         .onAppear {
             if gameState.suoni {
-                SoundPlayer.shared.play(name: esitoBuono ? "siii.wav" : "nooo.wav")
+                SoundPlayer.shared.play(name: esitoBuono ? "success.wav" : "fail.wav")
             }
         }
         .onTapGesture {

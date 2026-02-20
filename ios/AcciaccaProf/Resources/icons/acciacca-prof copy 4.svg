@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a9b7ba"/>
+      <stop offset="1" stop-color="#96a4a8"/>
+    </linearGradient>
+    <linearGradient id="hammerMetal" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#d9d9d9"/>
+      <stop offset="0.5" stop-color="#b8b8b8"/>
+      <stop offset="1" stop-color="#8f8f8f"/>
+    </linearGradient>
+    <linearGradient id="hammerWood" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a56b3c"/>
+      <stop offset="1" stop-color="#6f4020"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="180" fill="url(#bg)"/>
+  <g transform="translate(520 540) scale(1.21) translate(-520 -540)">
+    <rect x="270" y="290" width="500" height="520" rx="70" fill="#d7e0e6" stroke="#6b7b84" stroke-width="14"/>
+    <rect x="320" y="340" width="400" height="120" rx="40" fill="#a8b9c4" stroke="#5d6b72" stroke-width="10"/>
+    <rect x="360" y="370" width="90" height="70" fill="#ffb3b3"/>
+    <rect x="590" y="370" width="90" height="70" fill="#ffb3b3"/>
+    <rect x="390" y="395" width="30" height="20" fill="#2b2b2b"/>
+    <rect x="620" y="395" width="30" height="20" fill="#2b2b2b"/>
+    <path d="M 340 610 L 380 585 L 420 615 L 460 585 L 500 615 L 540 585 L 580 615 L 620 585 L 660 610" fill="none" stroke="#7a1f1f" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 350 340 C 400 300 470 300 520 340" fill="none" stroke="#2b2b2b" stroke-width="18" stroke-linecap="round"/>
+    <path d="M 520 340 C 570 300 640 300 690 340" fill="none" stroke="#2b2b2b" stroke-width="18" stroke-linecap="round"/>
+    <rect x="300" y="520" width="160" height="90" rx="22" fill="#c74d3a"/>
+    <rect x="540" y="520" width="160" height="90" rx="22" fill="#c74d3a"/>
+    <circle cx="270" cy="540" r="32" fill="#9aa6ad" stroke="#5d6b72" stroke-width="10"/>
+    <circle cx="770" cy="540" r="32" fill="#9aa6ad" stroke="#5d6b72" stroke-width="10"/>
+  </g>
+  <g transform="translate(880 130) scale(1.32) translate(-880 -130)">
+    <g transform="translate(880 130) rotate(65)">
+      <rect x="-10" y="30" width="320" height="48" rx="22" fill="url(#hammerWood)" stroke="#5a3418" stroke-width="8"/>
+    </g>
+    <g transform="translate(860 130) rotate(-25)">
+      <rect x="-130" y="-45" width="210" height="120" rx="18" fill="url(#hammerMetal)" stroke="#6b6b6b" stroke-width="10"/>
+      <rect x="-90" y="-20" width="140" height="8" rx="4" fill="#e7e7e7" opacity="0.6"/>
+    </g>
+  </g>
+  <g transform="translate(625 224) scale(1.2) translate(-625 -224)">
+    <polygon points="615,170 640,190 670,182 662,210 690,225 660,238 670,266 640,258 615,278 605,250 575,258 585,230 560,215 585,205 575,178 605,188" fill="#ffd34d" stroke="#cc9a1d" stroke-width="8"/>
+  </g>
+</svg>

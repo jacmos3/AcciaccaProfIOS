@@ -30,6 +30,7 @@ struct ContentView: View {
     @State private var isPreloading = true
     @State private var elapsedSeconds: Int = 0
     @State private var sessionTimer: Timer?
+    @State private var showAuthors = false
 
     private let baseSize = CGSize(width: 618, height: 543)
     private let layout = LayoutStore(jsonName: "unit1_layout_all")
@@ -45,8 +46,9 @@ struct ContentView: View {
         .onAppear {
             if !didShowOnboarding {
                 showOnboarding = true
+            } else {
+                SoundPlayer.shared.setBackground(enabled: gameState.sottofondo, name: "sottofondo.m4a")
             }
-            SoundPlayer.shared.setBackground(enabled: gameState.sottofondo, name: "sottofondo.m4a")
         }
         .onChange(of: gameState.running) { running in
             if running {
@@ -82,11 +84,17 @@ struct ContentView: View {
                 OnboardingView {
                     didShowOnboarding = true
                     showOnboarding = false
+                    SoundPlayer.shared.setBackground(enabled: gameState.sottofondo, name: "sottofondo.m4a")
                 }
             }
         }
         .sheet(isPresented: $showSettings) {
             SettingsView()
+        }
+        .sheet(isPresented: $showAuthors) {
+            NavigationView {
+                AuthorsView()
+            }
         }
         .sheet(isPresented: $showEsito) {
             ShowCircolareView(esitoBuono: esitoBuono) {
@@ -101,17 +109,17 @@ struct ContentView: View {
             .alert("Lezione 1", isPresented: $showHelp1) {
                 Button("OK", role: .cancel) {}
             } message: {
-                Text("Apparirà un solo prof alla volta: se la colpisci guadagni punti, se non la colpisci o se sbagli perdi punti.")
+                Text(GameCopy.lezione1)
             }
             .alert("Lezione 2", isPresented: $showHelp2) {
                 Button("OK", role: .cancel) {}
             } message: {
-                Text("Appariranno 1 prof buono e 1 prof cattivo. Colpisci il cattivo per guadagnare punti.")
+                Text(GameCopy.lezione2)
             }
             .alert("Lezione 3", isPresented: $showHelp3) {
                 Button("OK", role: .cancel) {}
             } message: {
-                Text("Come la sessione 2, ma prof buoni/cattivi casuali e la bidella che porta circolari.")
+                Text(GameCopy.lezione3)
             }
     }
 
@@ -120,23 +128,23 @@ struct ContentView: View {
             .alert("Partita finita", isPresented: $showGameOver) {
                 Button("OK", role: .cancel) { gameState.gameOver = false }
             } message: {
-                Text("Punteggio finale: \(formatPoints(gameState.punti)). Voto in decimi: \(gameState.voto)/10. Puoi ricominciare da capo premendo Start.")
+                Text(String(format: GameCopy.gameOver, formatPoints(gameState.punti), String(gameState.voto)))
             }
             .alert("Istruzioni", isPresented: $showInstructions) {
                 Button("OK", role: .cancel) {}
             } message: {
-                Text("Punteggi (moltiplicati dalla velocita'):\n• +2 colpisci prof cattivo\n• -1 prof cattivo sfuggito\n• -2 colpisci prof buono\n• +1 prof buono lasciato andare\n• +5 colpisci bidella\n• -1 bidella lasciata andare\n• -1 colpisci un bambino (zampilli)\n• -1 colpo a vuoto\n• +10 circolare buona\n• -10 circolare cattiva\n\nVelocita': la velocita' applica un moltiplicatore logaritmico ai punti, da 0.5x (velocita' 0) fino a 3x (velocita' 100).\nTabella moltiplicatori:\n• 0% = 0.50x\n• 25% = 1.78x\n• 50% = 2.35x\n• 75% = 2.72x\n• 100% = 3.00x\n\nLivelli (automatici):\n1) Solo prof cattivo (10 uscite)\n2) Prof cattivo + prof buono (10 uscite)\n3) Come il 2 + bidella con circolari (10 uscite)\n4) Pentathlon: 5 prove speciali (Memory, Riflessi, Scambio di posto, Bersagli mobili, Sequenza)\nAl termine il gioco finisce e puoi ricominciare con Start.")
+                Text(GameCopy.istruzioni)
             }
             .alert("NOTE", isPresented: $showNote) {
                 Button("OK", role: .cancel) {}
-                Button("okok") {
+                Button("OOK") {
                     showNote = false
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                         showExistential = true
                     }
                 }
             } message: {
-                Text("Questo gioco e' stato sviluppato in Delphi nel 2007 tra i banchi di scuola del quinto liceo da Jacopo Moscioni, come svago. Era diventato un po' popolare tra i frequentatori del forum del liceo del tempo. 19 anni dopo, nel 2026, rinasce sottoforma di app per iOS, nella versione Reloaded, con le stesse grafiche e stessi suoni del tempo. Il gameplay e' rimasto identico e semplice come al tempo. Solo con il Pentathlon in più")
+                Text(GameCopy.note)
             }
             .alert("Domanda", isPresented: $showExistential) {
                 TextField("Risposta", text: $existentialAnswer)
@@ -145,7 +153,7 @@ struct ContentView: View {
                     if cleaned == "VA" {
                         ImageStore.shared.applyVAFaces()
                         scene.resetForStart()
-                        privateAlertText = "Prof VA attivati."
+                        privateAlertText = GameCopy.privateAlertEnabled
                         showPrivateAlert = true
                     } else {
                         privateAlertText = "Semper laudabitur!"
@@ -192,7 +200,7 @@ struct ContentView: View {
                     }
                 }
             } message: {
-                Text("Hai sbagliato. L'attività riparte da capo.")
+                Text(GameCopy.retryPentathlon)
             }
             .alert("Campanella", isPresented: $showLevelAlert) {
                 Button("OK", role: .cancel) {
@@ -209,8 +217,8 @@ struct ContentView: View {
             .onReceive(gameState.$levelUpTrigger) { value in
                 guard value == 2 || value == 3 else { return }
                 gameState.paused = true
-                levelAlertText = "Sei passato alla lezione \(value)!"
                 playCampanellaIfNeeded()
+                levelAlertText = "Sta cominciando la lezione \(value)!"
                 showLevelAlert = true
                 gameState.levelUpTrigger = 0
             }
@@ -265,7 +273,9 @@ struct ContentView: View {
                 .ignoresSafeArea()
 
             let finalScale = (proxy.size.height) / gameFrame.height
-            let panelWidth = max(310, (proxy.size.width + 50) / finalScale - gameFrame.width - landscapePanelPadding)
+            let availableWidth = max(0, (proxy.size.width / finalScale) - gameFrame.width - landscapePanelPadding * 2)
+            let panelWidth = availableWidth
+            let panelScale = min(1, panelWidth / 310)
             let compositeWidth = gameFrame.maxX + landscapePanelPadding + panelWidth + landscapePanelPadding
             let offsetX = 10 - gameFrame.minX * finalScale
             let offsetY = 10 - gameFrame.minY * finalScale
@@ -274,7 +284,7 @@ struct ContentView: View {
                 SpriteView(scene: scene, options: [.allowsTransparency])
                     .frame(width: baseSize.width, height: baseSize.height)
 
-                overlayUI(showControls: true, panelWidth: panelWidth)
+                overlayUI(showControls: panelWidth > 0, panelWidth: panelWidth, panelScale: panelScale)
                 preloadOverlay
             }
             .frame(width: compositeWidth, height: baseSize.height, alignment: .topLeading)
@@ -292,7 +302,11 @@ struct ContentView: View {
             showCircolare = true
         }
         scene.onShowNote = {
-            showNote = true
+            if ImageStore.shared.vaAttivo {
+                showAuthors = true
+            } else {
+                showNote = true
+            }
         }
         scene.onPreloadComplete = {
             isPreloading = false
@@ -312,10 +326,10 @@ struct ContentView: View {
             showPentathlonRetry = true
         }
         scene.onShowPrivateFacesUnlocked = { enabled in
-            privateAlertText = enabled ? "I prof della VA sono stati attivati!" : "Prof VA disattivati."
+            privateAlertText = enabled ? GameCopy.privateAlertEnabled : GameCopy.privateAlertDisabled
             showPrivateAlert = true
         }
-        SoundPlayer.shared.preload(names: ["profmorto.wav","bidella.wav","bambinomorto.wav","fuori.wav","siii.wav","nooo.wav","sottofondo.m4a","campanella.m4a"]) {
+        SoundPlayer.shared.preload(names: ["robot_hit.wav","assistant_hit.wav","desk_hit.wav","miss.wav","success.wav","fail.wav","sottofondo.m4a","campanella.m4a"]) {
             scene.preloadIfNeeded()
         }
         scene.preloadIfNeeded()
@@ -328,20 +342,7 @@ struct ContentView: View {
     }
 
     private func pentathlonRuleMessage(for mode: Int) -> String {
-        switch mode {
-        case 1:
-            return "Memory: per 0.5s vedi 4 prof (2 buoni, 2 cattivi). Poi si coprono. Abbina le coppie. +2 corretto, -1 errore.\n\nTocca Coach Perla per rivedere la regola."
-        case 2:
-            return "Riflessi: compaiono 3 prof cattivi e 3 buoni a comparsa. Colpisci solo i cattivi: quando li prendi spariscono per sempre. Se colpisci un buono, il minigioco riparte.\n\nTocca Coach Perla per rivedere la regola."
-        case 3:
-            return "Scambio di posto: appaiono 3 buoni, 3 cattivi, bidella e Perla sui banchi laterali. Poi si coprono. Al centro appare uno alla volta: tocca il banco dove era seduto. Se sbagli, si riparte.\n\nTocca Coach Perla per rivedere la regola."
-        case 4:
-            return "Rischio controllato: 3 prof cattivi e 3 buoni sui banchi. Colpisci SOLO i cattivi che hanno un buono vicino (su/giu/sx/dx). Se colpisci un buono o un cattivo senza buono vicino, il minigioco riparte.\n\nTocca Coach Perla per rivedere la regola."
-        case 5:
-            return "Sequenza: i prof appaiono in ordine. Ripeti toccando i banchi nella stessa sequenza. Errore = -2 e si riparte.\n\nTocca Coach Perla per rivedere la regola."
-        default:
-            return ""
-        }
+        GameCopy.pentathlonRule(for: mode)
     }
 
     private var preloadOverlay: some View {
@@ -364,24 +365,24 @@ struct ContentView: View {
     }
 
     @ViewBuilder
-    private func overlayUI(showControls: Bool, panelWidth: CGFloat = 0) -> some View {
+    private func overlayUI(showControls: Bool, panelWidth: CGFloat = 0, panelScale: CGFloat = 1) -> some View {
         //let baseFont = Font.system(size: showControls ? 18 : 11)
         let boardFont = Font.system(size: showControls ? 14 : 11, weight: .semibold)
         let gameFrame = layout.frame(for: "Image1") ?? CGRect(x: 0, y: 0, width: baseSize.width, height: baseSize.height)
 
         ZStack(alignment: .topLeading) {
             if showControls {
-                landscapeControlsPanel(gameFrame: gameFrame, panelWidth: panelWidth)
+                landscapeControlsPanel(gameFrame: gameFrame, panelWidth: panelWidth, panelScale: panelScale)
             }
 
                 // "Velocita" moved into control panels
-            label("Label3", font: boardFont)
-            label("Label4", font: boardFont)
-            label("Label5", font: boardFont)
-            label("Label9", font: boardFont)
+            label("Label3", font: boardFont, color: .white)
+            label("Label4", font: boardFont, color: .white)
+            label("Label5", font: boardFont, color: .white)
+            label("Label9", font: boardFont, color: .white)
 
-            valueLabel("profcolpiti", font: Font.system(size: showControls ? 24.3 : 14.4, weight: .bold), value: formatPoints(gameState.punti))
-            valueLabel("lblvoto", font: .system(size: 13.2, weight: .bold), value: "\(gameState.voto)")
+            valueLabel("profcolpiti", font: Font.system(size: showControls ? 24.3 : 14.4, weight: .bold), value: formatPoints(gameState.punti), color: .white)
+            valueLabel("lblvoto", font: .system(size: 13.2, weight: .bold), value: "\(gameState.voto)", color: .white)
 
             if showControls {
                 EmptyView()
@@ -391,7 +392,7 @@ struct ContentView: View {
     }
 
     @ViewBuilder
-    private func label(_ name: String, font: Font) -> some View {
+    private func label(_ name: String, font: Font, color: Color = .black) -> some View {
         if let frame = layout.frame(for: name) {
             let width = frame.width + labelExtraWidth(name)
             let text: String = {
@@ -412,6 +413,7 @@ struct ContentView: View {
                 let xShift: CGFloat = name == "Label3" ? 210 : 0
                 Text(text)
                     .font(font)
+                    .foregroundColor(color)
                     .frame(width: width, height: frame.height, alignment: .leading)
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
@@ -459,7 +461,7 @@ struct ContentView: View {
     }
 
     @ViewBuilder
-    private func valueLabel(_ name: String, font: Font, value: String) -> some View {
+    private func valueLabel(_ name: String, font: Font, value: String, color: Color = .black) -> some View {
         if let frame = layout.frame(for: name) {
             let width = frame.width + valueLabelExtraWidth(name)
             let xShift: CGFloat = {
@@ -474,6 +476,7 @@ struct ContentView: View {
             }()
             Text(value)
                 .font(font)
+                .foregroundColor(color)
                 .frame(width: width, height: frame.height, alignment: .leading)
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
@@ -518,25 +521,26 @@ struct ContentView: View {
     }
 
     @ViewBuilder
-    private func landscapeControlsPanel(gameFrame: CGRect, panelWidth: CGFloat) -> some View {
+    private func landscapeControlsPanel(gameFrame: CGRect, panelWidth: CGFloat, panelScale: CGFloat) -> some View {
         let panelPadding: CGFloat = 10
         let panelHeight = max(200, baseSize.height - panelPadding * 2)
         let panelX = gameFrame.maxX + panelPadding
-        let titleFont = Font.system(size: 20, weight: .semibold)
-        let itemFont = Font.system(size: 18, weight: .regular)
-        let buttonFont = Font.system(size: 18, weight: .semibold)
+        let scale = max(0.75, panelScale)
+        let titleFont = Font.system(size: 20 * scale, weight: .semibold)
+        let itemFont = Font.system(size: 18 * scale, weight: .regular)
+        let buttonFont = Font.system(size: 18 * scale, weight: .semibold)
 
-        VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 16 * scale) {
             Button(action: { showSettings = true }) {
                 Label("Personalizzazioni", systemImage: "slider.horizontal.3")
                     .labelStyle(.titleAndIcon)
             }
             .font(titleFont)
-            .frame(maxWidth: .infinity, minHeight: 48)
+            .frame(maxWidth: .infinity, minHeight: 48 * scale)
             .background(Color.white.opacity(0.95))
             .cornerRadius(8)
             if gameState.inPentathlon {
-                VStack(alignment: .leading, spacing: 10) {
+                VStack(alignment: .leading, spacing: 10 * scale) {
                     Text("Coach Perla - Clicca per info su questo minigame del Pentathlon")
                         .font(titleFont)
                     Spacer(minLength: 4)
@@ -555,18 +559,18 @@ struct ContentView: View {
                 }
             }
             else{
-                VStack(alignment: .leading, spacing: 10) {
+                VStack(alignment: .leading, spacing: 10 * scale) {
                     Button("Istruzioni") { showInstructions = true }
                         .font(itemFont)
-                        .frame(maxWidth: .infinity, minHeight: 36)
+                        .frame(maxWidth: .infinity, minHeight: 36 * scale)
                         .background(Color.white.opacity(0.9))
                         .cornerRadius(8)
                     Text("Lezioni della giornata")
                         .font(titleFont)
                     Spacer(minLength: 4)
-                    HStack(alignment: .top, spacing: 12) {
-                        VStack(alignment: .leading, spacing: 10) {
-                            HStack(spacing: 8) {
+                    HStack(alignment: .top, spacing: 12 * scale) {
+                        VStack(alignment: .leading, spacing: 10 * scale) {
+                            HStack(spacing: 8 * scale) {
                                 Button(action: { showHelp1 = true }) {
                                     Image(systemName: "info.circle")
                                 }
@@ -579,7 +583,7 @@ struct ContentView: View {
                                     .opacity(gameState.level == 1 ? 1 : 0.45)
                                 Spacer()
                             }
-                            HStack(spacing: 8) {
+                            HStack(spacing: 8 * scale) {
                                 Button(action: { showHelp2 = true }) {
                                     Image(systemName: "info.circle")
                                 }
@@ -592,7 +596,7 @@ struct ContentView: View {
                                     .opacity(gameState.level == 2 ? 1 : 0.45)
                                 Spacer()
                             }
-                            HStack(spacing: 8) {
+                            HStack(spacing: 8 * scale) {
                                 Button(action: { showHelp3 = true }) {
                                     Image(systemName: "info.circle")
                                 }
@@ -611,7 +615,7 @@ struct ContentView: View {
                 }
             }
 
-            HStack(spacing: 12) {
+            HStack(spacing: 12 * scale) {
                 Button(action: {
                     if gameState.running {
                         gameState.running = false
@@ -629,24 +633,24 @@ struct ContentView: View {
                         .labelStyle(.titleAndIcon)
                 }
                 .font(buttonFont)
-                .frame(maxWidth: .infinity, minHeight: 44)
+                .frame(maxWidth: .infinity, minHeight: 44 * scale)
                 .background(Color.white.opacity(0.9))
                 .cornerRadius(8)
 
                 Text(formatElapsed(elapsedSeconds))
-                    .font(.system(size: 14, weight: .semibold, design: .monospaced))
-                    .frame(minWidth: 70)
+                    .font(.system(size: 14 * scale, weight: .semibold, design: .monospaced))
+                    .frame(minWidth: 70 * scale)
             }
 
             // Pentathlon access removed in release flow
 
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 8 * scale) {
                 Text("Velocità: \(Int(speedBinding.wrappedValue))")
                     .font(itemFont)
                 Slider(value: speedBinding, in: 0...100, step: 1)
                     .disabled(gameState.running)
             }
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 10 * scale) {
                 Toggle("Sottofondo", isOn: $gameState.sottofondo)
                 Toggle("Suoni", isOn: $gameState.suoni)
             }
@@ -654,7 +658,7 @@ struct ContentView: View {
             .toggleStyle(.switch)
         }
         .foregroundColor(.black)
-        .padding(14)
+        .padding(14 * scale)
         .frame(width: panelWidth, height: panelHeight, alignment: .topLeading)
         .background(RoundedRectangle(cornerRadius: 10).fill(Color(white: 0.92).opacity(0.9)))
         .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.black.opacity(0.15), lineWidth: 1))
@@ -820,37 +824,37 @@ struct OnboardingView: View {
 
     private let pages: [OnboardingPage] = [
         .init(
-            title: "Acciacca Prof",
-            subtitle: "2007: niente app, solo PC",
-            body: "Tra il 2007 e il 2008 non esistevano ancora le app. Gli smartphone moderni stavano per arrivare, e pure l’App Store sarebbe nato solo pochi mesi dopo. E mentre i suoi compagni di classe studiavano e facevano i compiti, Jacopo da Perugia, 19 anni, invece di fare i compiti, programmava per divertimento. In quell’epoca smanettava su Windows e realizzava piccoli giochi per il gusto di farli. Non si chiamavano app. Si chiamavano \"programmini\".",
+            title: GameCopy.onboardingPage1Title,
+            subtitle: GameCopy.onboardingPage1Subtitle,
+            body: GameCopy.onboardingPage1Body,
             icon: "desktopcomputer",
             tint: Color(red: 0.16, green: 0.46, blue: 0.56)
         ),
         .init(
-            title: "Dal PC al forum",
-            subtitle: "Windows XP, Delphi e ricreazioni",
-            body: "E' così che nacque anche l'Acciacca Prof, scritto originariamente in Delphi per Windows, in piena era XP. Un giochino semplice, simpatico, con spirito goliardico: quello delle ricreazioni, dei banchi di scuola e delle risate tra compagni. Finì sul forum scolastico, e gli studenti lo usavano personalizzandolo con le facce dei propri prof, divertendosi a schiacciarli! Diventò un piccolo meme, prima dei meme. Il 25 febbraio 2008 un commento recitò: “Io volevo la perla e il pentathlon”.",
+            title: GameCopy.onboardingPage2Title,
+            subtitle: GameCopy.onboardingPage2Subtitle,
+            body: GameCopy.onboardingPage2Body,
             icon: "text.book.closed",
             tint: Color(red: 0.55, green: 0.34, blue: 0.18)
         ),
         .init(
-            title: "2026: ritorno",
-            subtitle: "Pentathlon e coach Perla",
-            body: "Chi è Perla? Perla era la prof di educazione fisica del liceo. La richiesta rimase lì, sospesa, inascoltata. Per anni. Lustri. Ma nel 2026 Acciacca Prof è tornato in vita su dispositivi Apple: sono state utilizzate le stesse grafiche, gli stessi suoni, la stessa modalità di gioco e la stessa banale semplicità. Ma con una novità che finalmente chiude il cerchio: Il Pentathlon supervisionato dalla coach Perla. Un piccolo gioco nato per scherzo, tornato in vita dopo 19 anni con dentro la stessa anima… Jacopo da Perugia, colpisce ancora.!",
+            title: GameCopy.onboardingPage3Title,
+            subtitle: GameCopy.onboardingPage3Subtitle,
+            body: GameCopy.onboardingPage3Body,
             icon: "figure.run",
             tint: Color(red: 0.72, green: 0.18, blue: 0.18)
         ),
         .init(
-            title: "Come si gioca",
-            subtitle: "Spiegazione tecnica",
-            body: "La dinamica di gioco è molto semplice: Si basa sul gioco di \"Schiaccia la talpa\", solo che al posto della talpa, appariranno le foto dei professori. Ma attenzione! non tutti i professori sono uguali. Ci sono quelli buoni e quelli cattivi! Devi schiacciare solo quelli cattivi! Se schiacci quelli buoni, oppure se lasci vivere quelli cattivi, perdi punti e avrai un brutto voto! Il gioco diventa divertente quando le facce dei prof vengono personalizzate con le vere facce dei propri prof. Per farlo utilizza il pulsante \"configurazioni\".",
+            title: GameCopy.onboardingPage4Title,
+            subtitle: GameCopy.onboardingPage4Subtitle,
+            body: GameCopy.onboardingPage4Body,
             icon: "gamecontroller.fill",
             tint: Color(red: 0.55, green: 0.34, blue: 0.18)
         ),
         .init(
-            title: "La bidella",
-            subtitle: "Cosa fa la bidella?",
-            body: "La bidella è un personaggio neutro del gioco. A volte può bussare ed entrare in classe per portare una circolare. La devi schiacciare, così potrai leggere la circolare. Ma ATTENZIONE: non tutte le circolari sono belle! La sorte ti assisterà?! Buone partite!",
+            title: GameCopy.onboardingPage5Title,
+            subtitle: GameCopy.onboardingPage5Subtitle,
+            body: GameCopy.onboardingPage5Body,
             icon: "bell.fill",
             tint: Color(red: 0.55, green: 0.34, blue: 0.18)
         )

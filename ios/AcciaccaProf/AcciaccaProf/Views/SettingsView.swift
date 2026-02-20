@@ -56,12 +56,12 @@ struct SettingsView: View {
             List {
                 Section {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Qui puoi usare le foto dei tuoi prof da inserire nel gioco e renderlo tutto tuo.")
+                        Text(GameCopy.settingsIntro)
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                         Text("Sblocca le personalizzazioni")
                             .font(.headline)
-                        Text("Sblocchi la possibilità di personalizzare le facce dei prof buoni, prof cattivi, della bidella e della coach del Pentathlon.")
+                        Text(GameCopy.settingsUnlockDescription)
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                         if purchase.unlocked {

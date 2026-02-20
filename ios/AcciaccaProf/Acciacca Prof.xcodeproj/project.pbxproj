@@ -6,7 +6,7 @@
 	objectVersion = 56;
 	objects = {
 
-/* Begin PBXBuildFile section */
+		296A0E3846BF429F89004B93 /* Services/GameCopy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38D342F493384EFB907F652A /* Services/GameCopy.swift */; };
 		0511F1EB88C14253B642A706 /* Views/ImageCropperView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AE20D6A07314B33A27F1F22 /* Views/ImageCropperView.swift */; };
 		1BD98247CD1440F385E85479 /* Views/SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EA45024997B4DD7B5B8B11E /* Views/SettingsView.swift */; };
 		210DD2DFF75E4A62A2DBEDBF /* Views/ShowCircolareView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41F0BDB02E2C4F53A3182FFE /* Views/ShowCircolareView.swift */; };
@@ -29,9 +29,10 @@
 		D29189C853F84122A22DEC04 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 48F795602A904EF3B958A7BE /* Assets.xcassets */; };
 		E5EDBC9297B04DF096B32252 /* Services/ImageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04E9BE7BB62148D2A5E72EBA /* Services/ImageStore.swift */; };
 		EA2DFA132F45085D000716D6 /* Acciacca Prof.storekit in Resources */ = {isa = PBXBuildFile; fileRef = EA2DFA122F45085D000716D6 /* Acciacca Prof.storekit */; };
+		2C908208D20243498E76A62F /* Views/AuthorsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1518991F5B2B4C44AF093653 /* Views/AuthorsView.swift */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXFileReference section */
+		38D342F493384EFB907F652A /* Services/GameCopy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/GameCopy.swift; sourceTree = "<group>"; };
 		04E9BE7BB62148D2A5E72EBA /* Services/ImageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/ImageStore.swift; sourceTree = "<group>"; };
 		06950644D5AE466EB2EBB00F /* Services/SoundPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Services/SoundPlayer.swift; sourceTree = "<group>"; };
 		118A104C58DD4D97BA439DB7 /* Game/GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game/GameScene.swift; sourceTree = "<group>"; };
@@ -56,6 +57,7 @@
 		E8711B46FA994216A630599B /* Views/PhotoPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/PhotoPicker.swift; sourceTree = "<group>"; };
 		EA2DFA122F45085D000716D6 /* Acciacca Prof.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = "Acciacca Prof.storekit"; sourceTree = "<group>"; };
 		EEC08B7B5FD347CD95A3CB64 /* Extensions/UIImage+Normalize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Extensions/UIImage+Normalize.swift"; sourceTree = "<group>"; };
+		1518991F5B2B4C44AF093653 /* Views/AuthorsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Views/AuthorsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -104,6 +106,7 @@
 		8748FE857B3646A58E20D180 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				1518991F5B2B4C44AF093653 /* Views/AuthorsView.swift */,
 				4C52DAAD0B544034A92A2EF2 /* Views/ContentView.swift */,
 				7EA45024997B4DD7B5B8B11E /* Views/SettingsView.swift */,
 				B69A963697CD4A47810DE3D3 /* Views/CircolareView.swift */,
@@ -129,6 +132,7 @@
 		A49183541BE34B308CE259D4 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				38D342F493384EFB907F652A /* Services/GameCopy.swift */,
 				06950644D5AE466EB2EBB00F /* Services/SoundPlayer.swift */,
 				04E9BE7BB62148D2A5E72EBA /* Services/ImageStore.swift */,
 				3B1F6E9F2A6C4B6E9C77E55F /* Services/PurchaseManager.swift */,
@@ -222,12 +226,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
 		AEC5B268E1EA4217ABB349B1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2C908208D20243498E76A62F /* Views/AuthorsView.swift in Sources */,
+								296A0E3846BF429F89004B93 /* Services/GameCopy.swift in Sources */,
 				2A3E7EAA5B4D4E3A9A9B0E2C /* App/AppDelegate.swift in Sources */,
 				2F50D720BFCB4FB8BD9FEE19 /* Game/ZOrderStore.swift in Sources */,
 				3359ABFA695048C6896A76F4 /* Extensions/UIImage+Normalize.swift in Sources */,

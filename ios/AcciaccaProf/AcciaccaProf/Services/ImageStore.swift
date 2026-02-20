@@ -11,6 +11,7 @@ enum CharacterSlot: String, CaseIterable, Identifiable {
 
     var displayName: String {
         switch self {
+        #if DEBUG
         case .cattivo1: return "Prof cattivo 1"
         case .cattivo2: return "Prof cattivo 2"
         case .cattivo3: return "Prof cattivo 3"
@@ -19,32 +20,42 @@ enum CharacterSlot: String, CaseIterable, Identifiable {
         case .buono3: return "Prof buono 3"
         case .bidella: return "Bidella"
         case .perla: return "Coach Perla"
+        #else
+        case .cattivo1: return "Robot ribelle 1"
+        case .cattivo2: return "Robot ribelle 2"
+        case .cattivo3: return "Robot ribelle 3"
+        case .buono1: return "Robot alleato 1"
+        case .buono2: return "Robot alleato 2"
+        case .buono3: return "Robot alleato 3"
+        case .bidella: return "Assistente"
+        case .perla: return "Coach Perla"
+        #endif
         }
     }
 
     var fileName: String {
         switch self {
-        case .cattivo1: return "cattivi_1.jpg"
-        case .cattivo2: return "cattivi_2.jpg"
-        case .cattivo3: return "cattivi_3.jpg"
-        case .buono1: return "buoni_1.jpg"
-        case .buono2: return "buoni_2.jpg"
-        case .buono3: return "buoni_3.jpg"
-        case .bidella: return "bidella_1.jpg"
-        case .perla: return "perla_1.jpg"
+        case .cattivo1: return "rebels_1.jpg"
+        case .cattivo2: return "rebels_2.jpg"
+        case .cattivo3: return "rebels_3.jpg"
+        case .buono1: return "allies_1.jpg"
+        case .buono2: return "allies_2.jpg"
+        case .buono3: return "allies_3.jpg"
+        case .bidella: return "assistant_1.jpg"
+        case .perla: return "coach_1.jpg"
         }
     }
 
     var baseName: String {
         switch self {
-        case .cattivo1: return "cattivi_1"
-        case .cattivo2: return "cattivi_2"
-        case .cattivo3: return "cattivi_3"
-        case .buono1: return "buoni_1"
-        case .buono2: return "buoni_2"
-        case .buono3: return "buoni_3"
-        case .bidella: return "bidella_1"
-        case .perla: return "perla_1"
+        case .cattivo1: return "rebels_1"
+        case .cattivo2: return "rebels_2"
+        case .cattivo3: return "rebels_3"
+        case .buono1: return "allies_1"
+        case .buono2: return "allies_2"
+        case .buono3: return "allies_3"
+        case .bidella: return "assistant_1"
+        case .perla: return "coach_1"
         }
     }
 }
@@ -83,6 +94,7 @@ final class ImageStore: ObservableObject {
             let url = docsURL.appendingPathComponent(slot.fileName)
             try? fm.removeItem(at: url)
         }
+        setVAAttivato(false)
         version = UUID()
     }
 
@@ -103,7 +115,16 @@ final class ImageStore: ObservableObject {
                 }
             }
         }
+        setVAAttivato(true)
         version = UUID()
+    }
+
+    var vaAttivo: Bool {
+        UserDefaults.standard.bool(forKey: "va_attivo")
+    }
+
+    private func setVAAttivato(_ value: Bool) {
+        UserDefaults.standard.set(value, forKey: "va_attivo")
     }
 
     private func loadImageFromBundle(subdirectory: String, slot: CharacterSlot) -> UIImage? {
@@ -113,7 +134,7 @@ final class ImageStore: ObservableObject {
 
     private func urlForSlot(_ slot: CharacterSlot, subdirectory: String) -> URL? {
         let exts = ["png","jpg","jpeg","JPG","JPEG"]
-        let base = slot.baseName
+        let base = (subdirectory == "images/VA") ? vaBaseName(for: slot) : slot.baseName
         let candidates = [
             base,
             base.replacingOccurrences(of: "_", with: "")
@@ -126,5 +147,18 @@ final class ImageStore: ObservableObject {
             }
         }
         return nil
+    }
+
+    private func vaBaseName(for slot: CharacterSlot) -> String {
+        switch slot {
+        case .cattivo1: return "author1"
+        case .cattivo2: return "author2"
+        case .cattivo3: return "author3"
+        case .buono1: return "author4"
+        case .buono2: return "author5"
+        case .buono3: return "author6"
+        case .bidella: return "author7"
+        case .perla: return "author8"
+        }
     }
 }
