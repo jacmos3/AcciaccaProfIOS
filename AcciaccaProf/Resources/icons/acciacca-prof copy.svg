@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a9b7ba"/>
+      <stop offset="1" stop-color="#96a4a8"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="180" fill="url(#bg)"/>
+  <circle cx="520" cy="540" r="270" fill="#f2c48a" stroke="#c6935f" stroke-width="14"/>
+  <ellipse cx="515" cy="545" rx="240" ry="220" fill="#f6cf9f" opacity="0.8"/>
+  <path d="M 310 600 C 420 660 610 660 720 600" fill="none" stroke="#8b4a3b" stroke-width="18" stroke-linecap="round"/>
+  <circle cx="400" cy="490" r="32" fill="#ffffff"/>
+  <circle cx="640" cy="490" r="32" fill="#ffffff"/>
+  <circle cx="410" cy="495" r="16" fill="#2b2b2b"/>
+  <circle cx="650" cy="495" r="16" fill="#2b2b2b"/>
+  <path d="M 360 450 C 400 420 470 420 510 450" fill="none" stroke="#2b2b2b" stroke-width="16" stroke-linecap="round"/>
+  <path d="M 570 450 C 610 420 680 420 720 450" fill="none" stroke="#2b2b2b" stroke-width="16" stroke-linecap="round"/>
+  <path d="M 520 520 C 565 520 585 560 545 590" fill="none" stroke="#d08a5b" stroke-width="14" stroke-linecap="round"/>
+  <path d="M 280 410 C 340 300 450 250 570 260 C 680 270 760 340 790 430" fill="none" stroke="#2b2b2b" stroke-width="30" stroke-linecap="round"/>
+  <path d="M 270 430 C 300 370 360 330 420 320" fill="none" stroke="#2b2b2b" stroke-width="26" stroke-linecap="round"/>
+  <path d="M 620 320 C 690 335 750 380 780 440" fill="none" stroke="#2b2b2b" stroke-width="26" stroke-linecap="round"/>
+  <circle cx="250" cy="560" r="36" fill="#f2c48a" stroke="#c6935f" stroke-width="12"/>
+  <circle cx="790" cy="560" r="36" fill="#f2c48a" stroke="#c6935f" stroke-width="12"/>
+  <rect x="420" y="690" width="200" height="90" rx="30" fill="#c74d3a"/>
+  <rect x="420" y="720" width="200" height="30" rx="15" fill="#b13d2d"/>
+</svg>

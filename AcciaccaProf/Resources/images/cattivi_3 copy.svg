@@ -1,0 +1,18 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='100' height='120' viewBox='0 0 100 120'>
+<rect width='100' height='120' fill='rgb(20,50,50)'/>
+<ellipse cx='50' cy='102' rx='36' ry='10' fill='rgba(0,0,0,0.2)'/>
+<polygon points='20,14 80,14 90,46 80,96 20,96 10,46' fill='rgb(190,120,80)' stroke='rgb(40,30,20)' stroke-width='2'/>
+<polygon points='28,34 44,28 44,42' fill='rgb(255,120,160)'/>
+<polygon points='72,34 56,28 56,42' fill='rgb(255,120,160)'/>
+<rect x='30' y='64' width='40' height='14' fill='rgb(60,40,30)'/>
+<polygon points='32,64 35,70 38,64' fill='rgb(240,220,200)'/>
+<polygon points='38,64 41,70 44,64' fill='rgb(240,220,200)'/>
+<polygon points='44,64 47,70 50,64' fill='rgb(240,220,200)'/>
+<polygon points='50,64 53,70 56,64' fill='rgb(240,220,200)'/>
+<polygon points='56,64 59,70 62,64' fill='rgb(240,220,200)'/>
+<polygon points='62,64 65,70 68,64' fill='rgb(240,220,200)'/>
+<circle cx='11' cy='53' r='5' fill='rgb(70,70,70)'/>
+<circle cx='89' cy='53' r='5' fill='rgb(70,70,70)'/>
+<rect x='44' y='2' width='12' height='10' fill='rgb(200,80,140)'/>
+<line x1='50' y1='2' x2='50' y2='-6' stroke='rgb(200,80,140)' stroke-width='3'/>
+</svg>
